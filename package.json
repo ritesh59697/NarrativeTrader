@@ -7,7 +7,7 @@
     "start": "ts-node --transpile-only src/index.ts",
     "dev": "node -r ts-node/register --watch src/index.ts",
     "build": "tsc",
-    "ui": "npx -y serve . -l 3000"
+    "ui": "cd frontend && npm run dev"
   },
   "dependencies": {
     "@bnb-chain/bnbagent-sdk": "file:local-packages/bnbagent-sdk",
