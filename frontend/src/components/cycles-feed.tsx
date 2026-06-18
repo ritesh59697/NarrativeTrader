@@ -26,7 +26,6 @@ interface NormalizedCycle {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function normalizeCycle(raw: any, index: number): NormalizedCycle {
-  // Determine decision string
   let decision: 'BUY' | 'HOLD' | 'FAILED' = 'HOLD';
   const rawDecision = raw.decision;
 
@@ -36,43 +35,34 @@ function normalizeCycle(raw: any, index: number): NormalizedCycle {
     else if (upper === 'FAILED') decision = 'FAILED';
     else decision = 'HOLD';
   } else if (rawDecision && typeof rawDecision === 'object') {
-    // Old schema: decision.action
     const action = String(rawDecision.action ?? '').toUpperCase();
     if (action === 'BUY') decision = 'BUY';
     else decision = 'HOLD';
-    // EXECUTION_FAILED old status override
     if (raw.status === 'EXECUTION_FAILED') decision = 'FAILED';
   }
 
-  // Also check status field for old format
   if (raw.status === 'EXECUTION_FAILED') decision = 'FAILED';
 
-  // Extract score — can be top-level or inside decision object
   const decObj = typeof rawDecision === 'object' && rawDecision !== null ? rawDecision : null;
   const score: number | null =
     typeof raw.score === 'number' && isFinite(raw.score) ? raw.score
     : typeof decObj?.score === 'number' && isFinite(decObj.score) ? decObj.score
     : null;
 
-  // Extract reasoning
   const rawReasoning: string =
     typeof raw.reasoning === 'string' ? raw.reasoning
     : typeof decObj?.reasoning === 'string' ? decObj.reasoning
     : '';
 
-  // TX hash — top-level or inside trade
   const txHash: string | null =
     raw.trade?.txHash ?? raw.txHash ?? null;
 
-  // Position size
   const positionSizeUSDC: number | null =
     raw.trade?.positionSizeUSDC ?? decObj?.positionSizeUSDC ?? null;
 
-  // Token
   const token: string | null =
     raw.trade?.token ?? decObj?.token ?? null;
 
-  // Narrative name
   const rawName: string =
     typeof raw.narrativeName === 'string' ? raw.narrativeName.trim() : '';
   const narrativeName =
@@ -100,42 +90,136 @@ function normalizeCycle(raw: any, index: number): NormalizedCycle {
 
 function DecisionBadge({ decision }: { decision: 'BUY' | 'HOLD' | 'FAILED' }) {
   const styles = {
-    BUY:    'bg-buy/15  text-buy  border-buy/25',
-    HOLD:   'bg-hold/15 text-hold border-hold/25',
-    FAILED: 'bg-fail/15 text-fail border-fail/25',
+    BUY:    'bg-primary-fixed/10  text-primary-fixed  border-primary-fixed/20',
+    HOLD:   'bg-secondary/10 text-secondary border-secondary/20',
+    FAILED: 'bg-error/10 text-error border-error/20',
   };
   return (
-    <span className={cn('px-2 py-0.5 rounded-md border text-[10px] font-mono font-semibold tracking-widest', styles[decision])}>
+    <span className={cn('px-2.5 py-0.5 rounded-full border text-[9px] font-mono font-bold tracking-wider uppercase', styles[decision])}>
       {decision}
     </span>
   );
 }
 
 function RegimeBadge({ regime }: { regime: string }) {
-  const map: Record<string, string> = { BULL: 'text-buy', BEAR: 'text-fail', SIDEWAYS: 'text-arc-400' };
+  const map: Record<string, string> = { 
+    BULL: 'text-primary-fixed bg-primary-fixed/5 border-primary-fixed/15', 
+    BEAR: 'text-error bg-error/5 border-error/15', 
+    SIDEWAYS: 'text-on-surface-variant bg-surface-container-low/40 border-outline-variant/20' 
+  };
   return (
-    <span className={cn('text-[10px] font-mono uppercase', map[regime] ?? 'text-arc-400')}>{regime}</span>
+    <span className={cn('text-[9px] font-mono px-2 py-0.5 rounded-full border font-bold uppercase tracking-wider', map[regime] ?? 'text-on-surface-variant bg-surface-container-low/40 border-outline-variant/20')}>
+      {regime}
+    </span>
   );
 }
 
 function ScoreDots({ breakdown }: { breakdown?: NormalizedCycle['scoreBreakdown'] }) {
   const parts = [
-    { key: 'momentum' as const, max: 3 },
-    { key: 'catalyst' as const, max: 3 },
-    { key: 'regime'   as const, max: 2 },
-    { key: 'safety'   as const, max: 2 },
+    { label: 'Momentum', key: 'momentum' as const, max: 3 },
+    { label: 'Catalyst', key: 'catalyst' as const, max: 3 },
+    { label: 'Regime',   key: 'regime'   as const, max: 2 },
+    { label: 'Safety',   key: 'safety'   as const, max: 2 },
   ];
   return (
-    <div className="flex items-center gap-1">
-      {parts.map(({ key, max }) => {
+    <div className="flex items-center gap-1.5 bg-surface-container-lowest/50 px-2 py-1 rounded border border-outline-variant/10">
+      {parts.map(({ label, key, max }) => {
         const val = breakdown?.[key] ?? 0;
         const ratio = val / max;
-        const color = ratio >= 0.67 ? 'bg-buy border-buy/40'
-          : ratio >= 0.34 ? 'bg-hold border-hold/40'
-          : val > 0 ? 'bg-fail border-fail/40'
-          : 'bg-arc-700 border-arc-600';
-        return <span key={key} className={cn('w-1.5 h-1.5 rounded-full border', color)} />;
+        const color = ratio >= 0.67 ? 'bg-primary-fixed'
+          : ratio >= 0.34 ? 'bg-secondary'
+          : val > 0 ? 'bg-error'
+          : 'bg-surface-container-high';
+        return (
+          <span 
+            key={key} 
+            title={`${label}: ${val}/${max}`}
+            className={cn('w-1.5 h-1.5 rounded-full transition-colors', color)} 
+          />
+        );
       })}
+    </div>
+  );
+}
+
+// ── Single Cycle Row Component ──────────────────────────────────────────────────
+
+function CycleRow({ cycle }: { cycle: NormalizedCycle }) {
+  const borderMap = { 
+    BUY: 'border-l-primary-fixed', 
+    HOLD: 'border-l-secondary', 
+    FAILED: 'border-l-error' 
+  };
+  
+  return (
+    <div
+      className={cn(
+        'obsidian-card rounded-xl border-l-4 px-5 py-4 shadow-card',
+        borderMap[cycle.decision] ?? 'border-l-outline-variant'
+      )}
+    >
+      <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+        {/* Left section: narrative + badge + reasoning summary */}
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2 mb-2 flex-wrap">
+            {cycle.narrativeName ? (
+              <span className="text-on-surface text-sm font-geist font-bold tracking-tight">{cycle.narrativeName}</span>
+            ) : (
+              <span className="text-on-surface-variant/40 text-sm italic">—</span>
+            )}
+            <DecisionBadge decision={cycle.decision} />
+            {cycle.marketRegime && <RegimeBadge regime={cycle.marketRegime} />}
+          </div>
+
+          <p className="text-on-surface-variant/80 text-[12px] font-mono truncate overflow-hidden whitespace-nowrap w-full block">
+            {cycle.reasoning || "No reasoning logged."}
+          </p>
+
+          {cycle.txHash && (
+            <a
+              href={`${EXPLORER}${cycle.txHash}`}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1 mt-2.5 text-primary-fixed text-[10px] font-mono hover:underline transition-colors uppercase tracking-wider font-bold"
+            >
+              Tx: {truncateHash(cycle.txHash)}
+              <ExternalLink className="w-3 h-3 text-primary-fixed/80" />
+            </a>
+          )}
+        </div>
+
+        {/* Right section: scores + transaction size metrics */}
+        <div className="shrink-0 flex flex-row md:flex-col items-center md:items-end justify-between md:justify-start gap-3 border-t md:border-t-0 border-outline-variant/10 pt-2.5 md:pt-0">
+          <div className="flex items-center gap-2">
+            <ScoreDots breakdown={cycle.scoreBreakdown} />
+            <span className={cn(
+              'font-mono text-sm font-bold px-2 py-0.5 rounded border leading-none',
+              cycle.score === null ? 'text-on-surface-variant/40 border-outline-variant/20 bg-surface-container-lowest/50'
+              : cycle.score >= 6 ? 'text-primary-fixed border-primary-fixed/20 bg-primary-fixed/5'
+              : cycle.score >= 4 ? 'text-secondary border-secondary/20 bg-secondary/5'
+              : 'text-error border-error/20 bg-error/5'
+            )}>
+              {cycle.score !== null ? `${cycle.score}/10` : '—'}
+            </span>
+          </div>
+
+          <div className="flex flex-col items-end gap-1 text-[10px] text-on-surface-variant/50 font-mono">
+            <div className="flex items-center gap-1.5">
+              {cycle.fearGreed != null && isFinite(cycle.fearGreed) && (
+                <span>F&G <strong className="text-on-surface-variant/80 font-bold">{cycle.fearGreed}</strong></span>
+              )}
+              {cycle.fearGreed != null && <span>·</span>}
+              <span>{formatAge(cycle.timestamp)}</span>
+            </div>
+            
+            {cycle.decision === 'BUY' && cycle.token && cycle.positionSizeUSDC && (
+              <span className="text-primary-fixed font-bold mt-1 text-[11px]">
+                {formatMoney(cycle.positionSizeUSDC)} &rarr; {cycle.token}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -147,7 +231,7 @@ interface CyclesFeedProps {
   cycles: any[];
 }
 
-export function CyclesFeed({ cycles }: CyclesFeedProps) {
+export function CyclesFeed({ cycles }: { cycles: CyclesFeedProps['cycles'] }) {
   const normalized = [...cycles]
     .map((c, i) => normalizeCycle(c, i))
     .reverse()
@@ -155,89 +239,18 @@ export function CyclesFeed({ cycles }: CyclesFeedProps) {
 
   if (normalized.length === 0) {
     return (
-      <div className="rounded-xl border border-arc-700 bg-arc-800 p-8 text-center shadow-card">
-        <TrendingUp className="w-8 h-8 text-arc-600 mx-auto mb-3" />
-        <p className="text-arc-400 text-sm">No cycles recorded yet.</p>
-        <p className="text-arc-600 text-xs mt-1 font-mono">Agent will begin scanning shortly…</p>
+      <div className="obsidian-card rounded-xl p-12 text-center border-dashed">
+        <TrendingUp className="w-8 h-8 text-on-surface-variant/40 mx-auto mb-3 opacity-60" />
+        <p className="text-on-surface text-sm font-medium">No cycles recorded yet.</p>
+        <p className="text-on-surface-variant/50 text-xs mt-1 font-mono">Agent will start scanning BNB narratives shortly.</p>
       </div>
     );
   }
 
-  const borderMap = { BUY: 'border-l-buy', HOLD: 'border-l-hold', FAILED: 'border-l-fail' };
-
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       {normalized.map((cycle) => (
-        <div
-          key={cycle.key}
-          className={cn(
-            'rounded-xl border border-arc-700 bg-arc-800 border-l-4 px-4 py-3.5 shadow-card',
-            'hover:bg-arc-750 hover:border-arc-600 transition-all duration-150 animate-fade-in',
-            borderMap[cycle.decision] ?? 'border-l-arc-600'
-          )}
-        >
-          <div className="flex items-start justify-between gap-3">
-            {/* Left */}
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                {cycle.narrativeName ? (
-                  <span className="text-arc-50 text-sm font-medium">{cycle.narrativeName}</span>
-                ) : (
-                  <span className="text-arc-500 text-sm italic">—</span>
-                )}
-                <DecisionBadge decision={cycle.decision} />
-                {cycle.marketRegime && <RegimeBadge regime={cycle.marketRegime} />}
-              </div>
-
-              {cycle.reasoning && (
-                <p className="text-arc-400 text-[12px] leading-relaxed line-clamp-2 font-mono">
-                  {cycle.reasoning}
-                </p>
-              )}
-
-              {cycle.txHash && (
-                <a
-                  href={`${EXPLORER}${cycle.txHash}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-1 mt-1.5 text-accent text-[11px] font-mono hover:underline transition-colors"
-                >
-                  TX: {truncateHash(cycle.txHash)}
-                  <ExternalLink className="w-2.5 h-2.5" />
-                </a>
-              )}
-            </div>
-
-            {/* Right */}
-            <div className="shrink-0 flex flex-col items-end gap-1.5">
-              <div className="flex items-center gap-2">
-                <ScoreDots breakdown={cycle.scoreBreakdown} />
-                <span className={cn(
-                  'font-mono text-sm font-semibold',
-                  cycle.score === null ? 'text-arc-500'
-                  : cycle.score >= 6 ? 'text-buy'
-                  : cycle.score >= 4 ? 'text-hold'
-                  : 'text-fail'
-                )}>
-                  {cycle.score !== null ? `${cycle.score}/10` : '—'}
-                </span>
-              </div>
-
-              <div className="flex items-center gap-2 text-arc-500 text-[11px] font-mono">
-                {cycle.fearGreed != null && isFinite(cycle.fearGreed) && (
-                  <span>F&G {cycle.fearGreed}</span>
-                )}
-                <span>{formatAge(cycle.timestamp)}</span>
-              </div>
-
-              {cycle.decision === 'BUY' && cycle.token && cycle.positionSizeUSDC && (
-                <span className="text-buy text-[11px] font-mono">
-                  {formatMoney(cycle.positionSizeUSDC)} → {cycle.token}
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
+        <CycleRow key={cycle.key} cycle={cycle} />
       ))}
     </div>
   );

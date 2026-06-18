@@ -1,6 +1,6 @@
 'use client';
 
-import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { TrendingUp, TrendingDown } from 'lucide-react';
 import { cn, formatMoney, formatPercent, PortfolioData, CycleLog } from '@/lib/utils';
 
 const START_VALUE = 100;
@@ -31,43 +31,45 @@ export function PortfolioCard({ portfolio, cycles }: PortfolioCardProps) {
   const drawdownW  = Math.min(100, (drawdown / MAX_DRAWDOWN) * 100);
 
   const scores = cycles.map(c => getScore(c)).filter((s): s is number => s !== null);
-  const avgScore   = scores.length ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
-  const trades     = portfolio?.tradesHistory?.length ?? 0;
+  const avgScore = scores.length ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
 
   const pnlPositive = pnl >= 0;
-  const drawdownColor = drawdown >= 10 ? 'bg-fail' : drawdown >= 5 ? 'bg-hold' : 'bg-buy';
+  const drawdownColor = drawdown >= 10 
+    ? 'bg-error shadow-[0_0_8px_rgba(255,180,171,0.4)]' 
+    : drawdown >= 5 
+      ? 'bg-secondary shadow-[0_0_8px_rgba(255,180,170,0.4)]' 
+      : 'bg-primary-fixed shadow-[0_0_8px_rgba(114,255,112,0.4)]';
 
   return (
-    <div className="rounded-xl border border-arc-700 bg-arc-800 overflow-hidden shadow-card">
-      {/* Top gradient bar */}
-      <div className="h-0.5 w-full bg-gradient-to-r from-accent via-purple-500 to-pink-500" />
-
-      <div className="p-5">
-        <div className="flex items-start justify-between mb-4">
+    <div className="obsidian-card rounded-xl overflow-hidden">
+      <div className="p-6">
+        <div className="flex items-start justify-between mb-5">
           <div>
-            <p className="text-arc-400 text-[11px] uppercase tracking-widest font-medium mb-1">Portfolio Value</p>
-            <p className="text-arc-50 font-mono text-3xl font-semibold tracking-tight">
+            <p className="text-on-surface-variant font-mono text-[10px] uppercase tracking-wider font-semibold mb-1">Portfolio Valuation</p>
+            <p className="text-on-surface font-geist text-3xl font-extrabold tracking-tight">
               {formatMoney(currentValue)}
             </p>
           </div>
           <div className={cn(
-            'flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold font-mono',
-            pnlPositive ? 'bg-buy/15 text-buy border border-buy/20' : 'bg-fail/15 text-fail border border-fail/20'
+            'flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold font-mono border',
+            pnlPositive 
+              ? 'bg-primary-fixed/10 text-primary-fixed border-primary-fixed/20 shadow-[0_2px_8px_rgba(114,255,112,0.08)]' 
+              : 'bg-error/10 text-error border-error/20 shadow-[0_2px_8px_rgba(255,180,171,0.08)]'
           )}>
-            {pnlPositive ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-            {pnlPositive ? '+' : ''}{formatMoney(pnl)}
+            {pnlPositive ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
+            {pnlPositive ? '+' : ''}{formatMoney(pnl)} ({pnlPositive ? '+' : ''}{pnlPct.toFixed(2)}%)
           </div>
         </div>
 
-        {/* Drawdown bar */}
-        <div className="mb-4">
-          <div className="flex items-center justify-between mb-1.5">
-            <span className="text-arc-400 text-[11px]">Drawdown from peak</span>
-            <span className={cn('text-[11px] font-mono', drawdown > 0 ? 'text-hold' : 'text-arc-400')}>
-              {formatPercent(drawdown)} / 15% max
+        {/* Drawdown Gauge */}
+        <div className="mb-6 bg-surface-container-low/40 p-4 rounded-xl border border-outline-variant/15">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-on-surface-variant font-mono text-[10px] uppercase tracking-wider font-semibold">Max Drawdown Status</span>
+            <span className={cn('text-xs font-mono font-bold', drawdown > 0 ? 'text-secondary' : 'text-on-surface-variant/70')}>
+              {formatPercent(drawdown)} <span className="text-on-surface-variant/40 font-medium">/ 15% limit</span>
             </span>
           </div>
-          <div className="h-1.5 rounded-full bg-arc-700 overflow-hidden">
+          <div className="h-2 rounded-full bg-surface-container-lowest overflow-hidden border border-outline-variant/10">
             <div
               className={cn('h-full rounded-full transition-all duration-500', drawdownColor)}
               style={{ width: `${drawdownW}%` }}
@@ -75,21 +77,24 @@ export function PortfolioCard({ portfolio, cycles }: PortfolioCardProps) {
           </div>
         </div>
 
-        {/* Quick stats */}
-        <div className="grid grid-cols-3 gap-3 pt-3 border-t border-arc-700">
+        {/* Dense Grid Stats */}
+        <div className="grid grid-cols-3 gap-4 pt-4 border-t border-outline-variant/10">
           <div>
-            <p className="text-arc-500 text-[10px] uppercase tracking-wide mb-0.5">Cash</p>
-            <p className="text-arc-100 text-sm font-mono font-medium">{formatMoney(cashUSDC)}</p>
+            <p className="text-on-surface-variant/50 font-mono text-[9px] uppercase tracking-wider font-semibold mb-1">Cash Reserve</p>
+            <p className="text-on-surface text-sm font-mono font-bold">{formatMoney(cashUSDC)}</p>
+            <span className="text-[9px] text-on-surface-variant/40 font-mono">USDC (Testnet)</span>
           </div>
           <div>
-            <p className="text-arc-500 text-[10px] uppercase tracking-wide mb-0.5">Peak</p>
-            <p className="text-arc-100 text-sm font-mono font-medium">{formatMoney(peakValue)}</p>
+            <p className="text-on-surface-variant/50 font-mono text-[9px] uppercase tracking-wider font-semibold mb-1">All-Time Peak</p>
+            <p className="text-on-surface text-sm font-mono font-bold">{formatMoney(peakValue)}</p>
+            <span className="text-[9px] text-on-surface-variant/40 font-mono">Max equity curve</span>
           </div>
           <div>
-            <p className="text-arc-500 text-[10px] uppercase tracking-wide mb-0.5">Avg Score</p>
-            <p className="text-arc-100 text-sm font-mono font-medium">
+            <p className="text-on-surface-variant/50 font-mono text-[9px] uppercase tracking-wider font-semibold mb-1">Avg Score</p>
+            <p className="text-on-surface text-sm font-mono font-bold">
               {avgScore > 0 ? `${avgScore.toFixed(1)}/10` : '—'}
             </p>
+            <span className="text-[9px] text-on-surface-variant/40 font-mono">Historical runs</span>
           </div>
         </div>
       </div>

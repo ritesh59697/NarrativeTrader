@@ -1,29 +1,92 @@
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
 @import "tailwindcss";
 
-@theme {
-  --color-arc-950: #05060A;
-  --color-arc-900: #0B0D14;
-  --color-arc-800: #111420;
-  --color-arc-750: #161A28;
-  --color-arc-700: #1C2133;
-  --color-arc-600: #252B3B;
-  --color-arc-500: #2F3749;
-  --color-arc-400: #3D4663;
-  --color-arc-300: #5A6480;
-  --color-arc-200: #8892A4;
-  --color-arc-100: #C4CAD6;
-  --color-arc-50:  #EEF0F4;
-  --color-buy:     #22C55E;
-  --color-hold:    #F59E0B;
-  --color-fail:    #EF4444;
-  --color-accent:  #6366F1;
 
-  --font-sans: 'Inter', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+@theme {
+  /* Premium Stitch mockup variables */
+  --color-primary-fixed: #72ff70;
+  --color-on-primary-fixed: #002203;
+  --color-primary-fixed-dim: #00e639;
+  --color-surface-container: #201f20;
+  --color-surface-container-lowest: #0e0e0f;
+  --color-surface-container-low: #1c1b1c;
+  --color-surface-container-high: #2a2a2b;
+  --color-surface-container-highest: #353436;
+  --color-on-surface: #e5e2e3;
+  --color-on-surface-variant: #b9ccb2;
+  --color-outline: #84967e;
+  --color-outline-variant: #3b4b37;
+  --color-secondary: #ffb4aa;
+  --color-tertiary: #fff8f4;
+  --color-error: #ffb4ab;
+
+  /* Dashboard specific variables mapped to design system tokens */
+  --color-arc-950: var(--arc-950);
+  --color-arc-900: var(--arc-900);
+  --color-arc-800: var(--arc-800);
+  --color-arc-750: var(--arc-750);
+  --color-arc-700: var(--arc-700);
+  --color-arc-600: var(--arc-600);
+  --color-arc-500: var(--arc-500);
+  --color-arc-400: var(--arc-400);
+  --color-arc-300: var(--arc-300);
+  --color-arc-200: var(--arc-200);
+  --color-arc-100: var(--arc-100);
+  --color-arc-50:  var(--arc-50);
+  
+  --color-buy:     var(--buy);
+  --color-hold:    var(--hold);
+  --color-fail:    var(--fail);
+  --color-accent:  var(--accent);
+
+  --font-sans: var(--font-geist), var(--font-inter), system-ui, sans-serif;
+  --font-mono: var(--font-mono), ui-monospace, monospace;
 }
 
 :root {
+  /* Mapping premium dark mode tokens directly to dashboard theme colors */
+  --arc-950: #0e0e0f; /* Lowest container */
+  --arc-900: #131314; /* Background */
+  --arc-800: rgba(20, 20, 21, 0.85); /* Obsidian base */
+  --arc-750: rgba(32, 31, 32, 0.9); /* Lighter obsidian container */
+  --arc-700: rgba(255, 255, 255, 0.06); /* Thin glass border */
+  --arc-600: rgba(114, 255, 112, 0.25); /* Accent neon highlight border */
+  --arc-500: #84967e; /* Green-ish outline label */
+  --arc-400: #b9ccb2; /* Pale green content text */
+  --arc-300: #CBD5E1; /* Secondary standard text */
+  --arc-200: #e5e2e3; /* Core text */
+  --arc-100: #e5e2e3; /* Main text */
+  --arc-50:  #ffffff; /* Title text */
+  
+  --buy:     #72ff70; /* Neon Green buy */
+  --hold:    #e7bf99; /* Amber hold */
+  --fail:    #ffb4ab; /* Pinkish red fail */
+  --accent:  #72ff70; /* Default highlight to green */
+  
   color-scheme: dark;
+}
+
+.light {
+  /* Soft grey/green theme for light mode if toggled */
+  --arc-950: #f4f6f4;
+  --arc-900: #fafbfa;
+  --arc-800: #ffffff;
+  --arc-750: #f0f2f0;
+  --arc-700: rgba(0, 0, 0, 0.08);
+  --arc-600: rgba(0, 110, 22, 0.2);
+  --arc-500: #5d6e59;
+  --arc-400: #3b4b37;
+  --arc-300: #475569;
+  --arc-200: #1e293b;
+  --arc-100: #0f172a;
+  --arc-50:  #000000;
+  
+  --buy:     #00aa1c;
+  --hold:    #c47700;
+  --fail:    #d9001b;
+  --accent:  #008f16;
+  
+  color-scheme: light;
 }
 
 * {
@@ -33,29 +96,59 @@
 }
 
 html {
-  background-color: #0B0D14;
-  color: #C4CAD6;
+  background-color: var(--arc-900);
+  color: var(--arc-100);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 body {
   min-height: 100vh;
-  background-color: #0B0D14;
+  background-color: var(--arc-900);
+  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+}
+
+/* Glass & Obsidian custom utility classes from Stitch Mockup */
+.glass-surface {
+  background: rgba(19, 19, 20, 0.6);
+  backdrop-filter: blur(32px);
+  border: 1px solid rgba(132, 150, 126, 0.1);
+}
+
+.obsidian-card {
+  background: rgba(14, 14, 15, 0.8);
+  backdrop-filter: blur(40px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.obsidian-card:hover {
+  border-color: rgba(114, 255, 112, 0.3);
+  background: rgba(20, 20, 21, 0.9);
+}
+
+.neon-glow {
+  box-shadow: 0 0 15px rgba(114, 255, 112, 0.15);
+}
+
+.grid-bg {
+  background-image: linear-gradient(rgba(114, 255, 112, 0.02) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(114, 255, 112, 0.02) 1px, transparent 1px);
+  background-size: 40px 40px;
 }
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #252B3B; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #3D4663; }
+::-webkit-scrollbar-thumb { background: var(--arc-700); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--arc-600); }
 
 /* Animations */
 @keyframes fadeIn  { from { opacity: 0; } to { opacity: 1; } }
 @keyframes slideUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(99,102,241,0.4); }
-  50%       { box-shadow: 0 0 0 6px rgba(99,102,241,0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(114, 255, 112, 0.3); }
+  50%       { box-shadow: 0 0 0 6px rgba(114, 255, 112, 0); }
 }
 
 .animate-fade-in  { animation: fadeIn  0.3s ease-out; }
