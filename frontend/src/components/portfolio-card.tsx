@@ -11,6 +11,14 @@ interface PortfolioCardProps {
   cycles: CycleLog[];
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function getScore(cycle: any): number | null {
+  if (typeof cycle.score === 'number' && isFinite(cycle.score)) return cycle.score;
+  const d = cycle.decision;
+  if (d && typeof d === 'object' && typeof d.score === 'number' && isFinite(d.score)) return d.score;
+  return null;
+}
+
 export function PortfolioCard({ portfolio, cycles }: PortfolioCardProps) {
   const currentValue  = portfolio?.currentValue  ?? START_VALUE;
   const peakValue     = portfolio?.peakValue     ?? START_VALUE;
@@ -22,7 +30,7 @@ export function PortfolioCard({ portfolio, cycles }: PortfolioCardProps) {
   const drawdown   = peakValue > 0 ? Math.max(0, (peakValue - currentValue) / peakValue * 100) : 0;
   const drawdownW  = Math.min(100, (drawdown / MAX_DRAWDOWN) * 100);
 
-  const scores     = cycles.map(c => c.score).filter(s => typeof s === 'number' && isFinite(s));
+  const scores = cycles.map(c => getScore(c)).filter((s): s is number => s !== null);
   const avgScore   = scores.length ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
   const trades     = portfolio?.tradesHistory?.length ?? 0;
 

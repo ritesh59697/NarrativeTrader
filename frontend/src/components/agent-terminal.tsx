@@ -14,6 +14,41 @@ interface LogLine {
   type: 'buy' | 'sell' | 'fail' | 'hold' | 'info' | 'default';
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function getDecisionStr(cycle: any): 'BUY' | 'HOLD' | 'FAILED' {
+  if (!cycle) return 'HOLD';
+  const d = cycle.decision;
+  if (typeof d === 'string') {
+    const u = d.toUpperCase();
+    if (u === 'BUY') return 'BUY';
+    if (u === 'FAILED') return 'FAILED';
+    return 'HOLD';
+  }
+  if (d && typeof d === 'object') {
+    const a = String(d.action ?? '').toUpperCase();
+    if (cycle.status === 'EXECUTION_FAILED') return 'FAILED';
+    if (a === 'BUY') return 'BUY';
+    return 'HOLD';
+  }
+  if (cycle.status === 'EXECUTION_FAILED') return 'FAILED';
+  return 'HOLD';
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function getScore(cycle: any): number | null {
+  if (typeof cycle.score === 'number' && isFinite(cycle.score)) return cycle.score;
+  const d = cycle.decision;
+  if (d && typeof d === 'object' && typeof d.score === 'number' && isFinite(d.score)) return d.score;
+  return null;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function getNarrativeName(cycle: any): string {
+  const name = typeof cycle.narrativeName === 'string' ? cycle.narrativeName.trim() : '';
+  if (name && name.toLowerCase() !== 'unknown') return name;
+  return '—';
+}
+
 function getType(text: string): LogLine['type'] {
   if (text.startsWith('✅') || text.includes('BUY')) return 'buy';
   if (text.startsWith('❌') || text.includes('FAIL')) return 'fail';
@@ -32,7 +67,7 @@ const typeColor: Record<LogLine['type'], string> = {
 };
 
 export function AgentTerminal({ cycles }: AgentTerminalProps) {
-  const endRef   = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const [lines, setLines] = useState<LogLine[]>([]);
 
   useEffect(() => {
@@ -40,9 +75,10 @@ export function AgentTerminal({ cycles }: AgentTerminalProps) {
 
     cycles.forEach((cycle, ci) => {
       const time = formatTime(cycle.timestamp);
-      const decision = cycle.decision ?? 'HOLD';
-      const score = typeof cycle.score === 'number' ? cycle.score.toFixed(1) : '—';
-      const narrative = cycle.narrativeName?.trim() || '—';
+      const decision = getDecisionStr(cycle);
+      const scoreVal = getScore(cycle);
+      const score = scoreVal !== null ? scoreVal.toFixed(1) : '—';
+      const narrative = getNarrativeName(cycle);
 
       const summary = `[${time}] #${cycle.cycleNumber ?? ci + 1} · ${narrative} · ${decision} · score ${score}/10`;
       built.push({ key: `${cycle.timestamp}-${ci}-summary`, text: summary, type: getType(decision) });
@@ -69,7 +105,9 @@ export function AgentTerminal({ cycles }: AgentTerminalProps) {
   }, [cycles]);
 
   useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
   }, [lines]);
 
   return (
@@ -85,7 +123,7 @@ export function AgentTerminal({ cycles }: AgentTerminalProps) {
         <span className="ml-auto text-arc-600 text-[10px] font-mono">{lines.length} lines</span>
       </div>
 
-      <div className="h-40 overflow-y-auto px-4 py-3 bg-arc-950 font-mono text-[11px] leading-relaxed space-y-0.5">
+      <div ref={scrollRef} className="h-40 overflow-y-auto px-4 py-3 bg-arc-950 font-mono text-[11px] leading-relaxed space-y-0.5">
         {lines.length === 0 && (
           <p className="text-arc-600">Waiting for agent cycles…</p>
         )}
@@ -94,7 +132,6 @@ export function AgentTerminal({ cycles }: AgentTerminalProps) {
             {line.text}
           </div>
         ))}
-        <div ref={endRef} />
       </div>
     </div>
   );

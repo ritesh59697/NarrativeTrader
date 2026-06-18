@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 @theme {
   --color-arc-950: #05060A;
@@ -36,8 +35,6 @@
 html {
   background-color: #0B0D14;
   color: #C4CAD6;
-  font-family: 'Inter', system-ui, sans-serif;
-  font-size: 14px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -60,7 +57,6 @@ body {
   0%, 100% { box-shadow: 0 0 0 0 rgba(99,102,241,0.4); }
   50%       { box-shadow: 0 0 0 6px rgba(99,102,241,0); }
 }
-@keyframes spin-slow { to { transform: rotate(360deg); } }
 
 .animate-fade-in  { animation: fadeIn  0.3s ease-out; }
 .animate-slide-up { animation: slideUp 0.4s ease-out; }

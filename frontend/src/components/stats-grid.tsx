@@ -8,16 +8,45 @@ interface StatsGridProps {
   portfolio: PortfolioData | null;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function getDecisionStr(cycle: any): 'BUY' | 'HOLD' | 'FAILED' {
+  if (!cycle) return 'HOLD';
+  const d = cycle.decision;
+  if (typeof d === 'string') {
+    const u = d.toUpperCase();
+    if (u === 'BUY') return 'BUY';
+    if (u === 'FAILED') return 'FAILED';
+    return 'HOLD';
+  }
+  if (d && typeof d === 'object') {
+    const a = String(d.action ?? '').toUpperCase();
+    if (cycle.status === 'EXECUTION_FAILED') return 'FAILED';
+    if (a === 'BUY') return 'BUY';
+    return 'HOLD';
+  }
+  if (cycle.status === 'EXECUTION_FAILED') return 'FAILED';
+  return 'HOLD';
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function getScore(cycle: any): number | null {
+  if (typeof cycle.score === 'number' && isFinite(cycle.score)) return cycle.score;
+  const d = cycle.decision;
+  if (d && typeof d === 'object' && typeof d.score === 'number' && isFinite(d.score)) return d.score;
+  return null;
+}
+
+
 export function StatsGrid({ cycles, portfolio }: StatsGridProps) {
   const lastCycle = cycles[cycles.length - 1];
-  const buyCycles   = cycles.filter(c => c.decision === 'BUY').length;
-  const failCycles  = cycles.filter(c => c.decision === 'FAILED').length;
-  const holdCycles  = cycles.filter(c => c.decision === 'HOLD').length;
+  const buyCycles   = cycles.filter(c => getDecisionStr(c) === 'BUY').length;
+  const failCycles  = cycles.filter(c => getDecisionStr(c) === 'FAILED').length;
+  const holdCycles  = cycles.filter(c => getDecisionStr(c) === 'HOLD').length;
   const trades      = portfolio?.tradesHistory?.length ?? 0;
   const llm         = lastCycle?.llmUsed ?? '—';
   const openPos     = portfolio?.openPositions?.length ?? 0;
 
-  const scores = cycles.map(c => c.score).filter(s => typeof s === 'number' && isFinite(s));
+  const scores = cycles.map(c => getScore(c)).filter((s): s is number => s !== null);
   const avgScore = scores.length ? (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1) : '—';
 
   const stats = [
