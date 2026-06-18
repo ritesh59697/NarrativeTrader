@@ -1,0 +1,26 @@
+# ── Secrets & environment ────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ── Dependencies ──────────────────────────────────────────────────────────────
+node_modules/
+
+# ── Build output ──────────────────────────────────────────────────────────────
+dist/
+
+# ── Runtime logs (agent state — not for source control) ──────────────────────
+logs/
+*.log
+
+# ── One-off scripts ───────────────────────────────────────────────────────────
+approveUSDC.ts
+test_cmc_responses.ts
+
+# ── OS & editor noise ─────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/
+.idea/

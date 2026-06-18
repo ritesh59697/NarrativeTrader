@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>NarrativeTrader</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="brand">NARRATIVETRADER</div>
+      <div class="agent-state" aria-live="polite">
+        <span id="status-dot" class="status-dot is-active"></span>
+        <span id="cycle-number" class="cycle-number">#—</span>
+        <span id="status-label">ACTIVE</span>
+      </div>
+      <div class="network-pill">BSC TESTNET</div>
+    </header>
+
+    <div class="app-shell">
+      <aside class="sidebar">
+        <section class="portfolio-panel" aria-labelledby="portfolio-label">
+          <h1 id="portfolio-label" class="section-label">PORTFOLIO</h1>
+          <div id="portfolio-value" class="primary-number">$—</div>
+          <div class="started-value">Started $100.00</div>
+          <div id="pnl-line" class="pnl-line">—</div>
+          <div id="drawdown-line" class="drawdown-line">Drawdown: — / 15% max</div>
+          <div class="drawdown-bar" aria-hidden="true">
+            <div id="drawdown-fill" class="drawdown-fill"></div>
+          </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <section class="stats-panel" aria-labelledby="stats-label">
+          <h2 id="stats-label" class="section-label">STATS</h2>
+          <div class="stat-row">
+            <span>Cycles run</span>
+            <strong id="cycles-run">—</strong>
+          </div>
+          <div class="stat-row">
+            <span>Trades executed</span>
+            <strong id="trades-executed">—</strong>
+          </div>
+          <div class="stat-row">
+            <span>Avg score</span>
+            <strong id="avg-score">—</strong>
+          </div>
+          <div class="stat-row">
+            <span>LLM</span>
+            <strong id="llm-used">—</strong>
+          </div>
+          <div id="next-scan" class="next-scan">Next scan —</div>
+        </section>
+      </aside>
+
+      <main class="main-panel">
+        <section class="cycles-section" aria-labelledby="cycles-label">
+          <div class="section-head">
+            <h2 id="cycles-label" class="section-label">RECENT CYCLES</h2>
+            <span id="updated-age" class="updated-age">Updated —</span>
+          </div>
+          <div id="cycle-feed" class="cycle-feed" aria-live="polite"></div>
+        </section>
+
+        <section class="log-section" aria-labelledby="log-label">
+          <h2 id="log-label" class="section-label">AGENT LOG</h2>
+          <div id="terminal-log" class="terminal-log" role="log" aria-live="polite"></div>
+        </section>
+      </main>
+    </div>
+
+    <script src="app.js" defer></script>
+  </body>
+</html>

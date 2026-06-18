@@ -1,0 +1,25 @@
+{
+  "name": "narrativetrader",
+  "version": "1.0.0",
+  "description": "Autonomous crypto trading agent detecting emerging narratives and trading on BSC Testnet",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "ts-node --transpile-only src/index.ts",
+    "dev": "node -r ts-node/register --watch src/index.ts",
+    "build": "tsc",
+    "ui": "npx -y serve . -l 3000"
+  },
+  "dependencies": {
+    "@bnb-chain/bnbagent-sdk": "file:local-packages/bnbagent-sdk",
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "dotenv": "^16.4.5",
+    "groq-sdk": "^0.3.3",
+    "node-fetch": "^2.7.0",
+    "viem": "^2.13.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.7",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  }
+}
