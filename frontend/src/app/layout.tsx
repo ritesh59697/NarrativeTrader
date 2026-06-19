@@ -37,8 +37,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       suppressHydrationWarning
     >
       <body
-        className="bg-surface-container-lowest text-on-background overflow-x-hidden"
-        style={{ fontFamily: 'var(--font-inter), system-ui, sans-serif' }}
+        style={{
+          background:  '#0a0a12',
+          color:       '#e8e0f0',
+          overflowX:   'hidden',
+          fontFamily:  'Inter, system-ui, sans-serif',
+          margin:      0,
+          padding:     0,
+        }}
       >
         {children}
       </body>

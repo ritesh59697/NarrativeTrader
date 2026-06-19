@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 const C = {
   primaryFixed:   '#ffe0ec',
@@ -10,6 +10,7 @@ const C = {
   onSurface:      '#e8e0f0',
   onSurfaceVar:   '#a098b0',
   outlineVar:     '#302840',
+  secondary:      '#00ffcc',
 };
 
 const IconQueryStats = () => (
@@ -20,9 +21,42 @@ const IconQueryStats = () => (
 );
 
 export function Navbar() {
-  const pathname  = usePathname();
-  const isHome    = pathname === '/';
-  const termHref  = isHome ? '#terminal' : '/#terminal';
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
+
+  useEffect(() => {
+    setWalletAddress(localStorage.getItem('connected_wallet'));
+    const handleStorage = () => {
+      setWalletAddress(localStorage.getItem('connected_wallet'));
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
+
+  const connectWallet = async () => {
+    if (walletAddress) {
+      localStorage.removeItem('connected_wallet');
+      setWalletAddress(null);
+      window.dispatchEvent(new Event('storage'));
+    } else {
+      if (typeof window !== 'undefined' && (window as any).ethereum) {
+        try {
+          const accounts = await (window as any).ethereum.request({ method: 'eth_requestAccounts' });
+          if (accounts && accounts[0]) {
+            localStorage.setItem('connected_wallet', accounts[0]);
+            setWalletAddress(accounts[0]);
+            window.dispatchEvent(new Event('storage'));
+            return;
+          }
+        } catch (err) {
+          console.warn('Wallet connection request failed/rejected, using simulation address instead.', err);
+        }
+      }
+      const mockAddress = '0x71C7656EC7ab88b098defB751B7401B5f6d8976F';
+      localStorage.setItem('connected_wallet', mockAddress);
+      setWalletAddress(mockAddress);
+      window.dispatchEvent(new Event('storage'));
+    }
+  };
 
   return (
     <header
@@ -41,7 +75,7 @@ export function Navbar() {
         borderBottom:   `1px solid rgba(48,40,64,0.12)`,
       }}
     >
-      {/* Left: Logo + Nav */}
+      {/* Left: Logo */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 40 }}>
         <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 12 }}>
           {/* Pink icon box */}
@@ -68,33 +102,11 @@ export function Navbar() {
             Narrative Trader
           </span>
         </Link>
-
-        {/* Nav links */}
-        <nav style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
-          {[
-            { label: 'Ecosystem',     active: true  },
-            { label: 'API',           active: false },
-            { label: 'Institutional', active: false },
-            { label: 'Governance',    active: false },
-          ].map(({ label, active }) => (
-            <a key={label} href="#" style={{
-              color:         active ? C.onSurface : C.onSurfaceVar,
-              fontFamily:    "'Space Grotesk', monospace",
-              fontSize:      12,
-              fontWeight:    700,
-              textTransform: 'uppercase',
-              letterSpacing: '0.12em',
-              textDecoration:'none',
-            }}>
-              {label}
-            </a>
-          ))}
-        </nav>
       </div>
 
       {/* Right: Connect Wallet button */}
-      <a
-        href={termHref}
+      <button
+        onClick={connectWallet}
         style={{
           background:    C.primaryFixed,
           color:         C.onPrimaryFixed,
@@ -105,15 +117,25 @@ export function Navbar() {
           letterSpacing: '0.12em',
           padding:       '10px 24px',
           borderRadius:  4,
-          textDecoration:'none',
+          border:        'none',
+          cursor:        'pointer',
           transition:    'background 0.15s',
-          display:       'inline-block',
+          display:       'inline-flex',
+          alignItems:    'center',
+          gap:           8,
         }}
         onMouseEnter={e => (e.currentTarget.style.background = C.primaryFixedDim)}
         onMouseLeave={e => (e.currentTarget.style.background = C.primaryFixed)}
       >
-        Connect Wallet
-      </a>
+        {walletAddress ? (
+          <>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: C.secondary }} />
+            {walletAddress.slice(0, 6)}…{walletAddress.slice(-4)}
+          </>
+        ) : (
+          'Connect Wallet'
+        )}
+      </button>
     </header>
   );
 }

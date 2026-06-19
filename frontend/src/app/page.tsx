@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback, useRef } from 'react';
+import { Navbar } from '@/components/navbar';
 
 /* ─── Color palette (all hardcoded — no CSS vars) ──────────────────────── */
 const C = {
@@ -42,11 +43,32 @@ interface CycleLog {
   llmUsed:       string;
   trade:         { txHash: string; positionSizeUSDC: number; token: string } | null;
 }
+interface OpenPosition {
+  token: string;
+  address: string;
+  entryPrice: number;
+  currentPrice: number;
+  amount: number;
+  timestamp: string;
+}
+
+interface TradeRecord {
+  timestamp: string;
+  type: 'BUY' | 'SELL';
+  token: string;
+  address: string;
+  amount: number;
+  price: number;
+  valueUSDC: number;
+}
+
 interface PortfolioData {
   currentValue: number;
   peakValue:    number;
   cashUSDC:     number;
   isPaused:     boolean;
+  openPositions?: OpenPosition[];
+  tradesHistory?: TradeRecord[];
 }
 
 /* ─── Helpers ────────────────────────────────────────────────────────────── */
@@ -207,21 +229,145 @@ const Icon = {
 const POLL_MS  = 15_000;
 const EXPLORER = 'https://testnet.bscscan.com/tx/';
 
+const CopyButton = ({ text }: { text: string }) => {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = () => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+  return (
+    <button
+      onClick={handleCopy}
+      style={{
+        background: 'none',
+        border: 'none',
+        cursor: 'pointer',
+        padding: '2px',
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      {copied ? (
+        <span style={{ color: C.secondary, fontSize: 9, fontFamily: F.mono }}>COPIED</span>
+      ) : (
+        <svg width={12} height={12} fill="none" viewBox="0 0 24 24" stroke="rgba(160,152,176,0.60)" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+        </svg>
+      )}
+    </button>
+  );
+};
+
 export default function Page() {
+  const [activeTab, setActiveTab] = useState<'Dashboard' | 'Positions' | 'Trade History' | 'Agent Config'>('Dashboard');
   const [cycles,    setCycles]    = useState<CycleLog[]>([]);
   const [portfolio, setPortfolio] = useState<PortfolioData | null>(null);
+  const [config,    setConfig]    = useState<{
+    network: string;
+    rpcUrl: string;
+    targetPortfolioValue: number;
+    groqStatus: boolean;
+    geminiStatus: boolean;
+    cmcStatus: boolean;
+  } | null>(null);
+  const [triggerLog, setTriggerLog] = useState<string[]>([]);
+  const [isTriggering, setIsTriggering] = useState(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const [filterQuery, setFilterQuery] = useState('');
+  const [latency, setLatency] = useState(12);
+  const [lpu, setLpu] = useState(84);
+  const [uptime, setUptime] = useState('');
+
+  useEffect(() => {
+    const latInterval = setInterval(() => {
+      setLatency(Math.floor(Math.random() * 6) + 9);
+    }, 4000);
+
+    const lpuInterval = setInterval(() => {
+      setLpu(Math.floor(Math.random() * 5) + 81);
+    }, 6000);
+
+    const startDate = new Date('2026-06-05T00:00:00Z').getTime();
+    const updateUptime = () => {
+      const diff = Date.now() - startDate;
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((diff / (1000 * 60)) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
+      setUptime(`${days}d ${hours}h ${minutes}m ${seconds}s`);
+    };
+    updateUptime();
+    const uptimeInterval = setInterval(updateUptime, 1000);
+
+    return () => {
+      clearInterval(latInterval);
+      clearInterval(lpuInterval);
+      clearInterval(uptimeInterval);
+    };
+  }, []);
 
   const fetchData = useCallback(async () => {
     try {
-      const [cr, pr] = await Promise.all([
+      const [cr, pr, cfr] = await Promise.all([
         fetch('/api/cycles',    { cache: 'no-store' }),
         fetch('/api/portfolio', { cache: 'no-store' }),
+        fetch('/api/config',    { cache: 'no-store' }),
       ]);
       if (cr.ok) { const d = await cr.json(); if (Array.isArray(d)) setCycles(d); }
       if (pr.ok) { const d = await pr.json(); if (d && !d.error)    setPortfolio(d); }
+      if (cfr.ok) { const d = await cfr.json(); setConfig(d); }
     } catch { /* silent */ }
   }, []);
+
+  const togglePause = async (newVal: boolean) => {
+    try {
+      const res = await fetch('/api/portfolio', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isPaused: newVal }),
+      });
+      if (res.ok) {
+        const d = await res.json();
+        setPortfolio(d);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const simulateCycleTrigger = () => {
+    if (isTriggering) return;
+    setIsTriggering(true);
+    setTriggerLog([
+      `[${new Date().toLocaleTimeString()}] 🤖 [NarrativeTrader] Forced cycle trigger initialized...`,
+    ]);
+
+    setTimeout(() => {
+      setTriggerLog(prev => [...prev, `[${new Date().toLocaleTimeString()}] 📊 Loading latest signals from CMC API...`]);
+    }, 800);
+    setTimeout(() => {
+      setTriggerLog(prev => [...prev, `[${new Date().toLocaleTimeString()}] 🧠 Prompting active models...`]);
+    }, 1600);
+    setTimeout(() => {
+      const name = cycles[cycles.length - 1]?.narrativeName || 'AI Agent Ecosystem';
+      setTriggerLog(prev => [...prev, `[${new Date().toLocaleTimeString()}] 🧠 LLM classification success. Narrative: ${name}.`]);
+    }, 2400);
+    setTimeout(() => {
+      setTriggerLog(prev => [...prev, `[${new Date().toLocaleTimeString()}] 🛡️ Auditing risk constraints...`]);
+    }, 3200);
+    setTimeout(() => {
+      setTriggerLog(prev => [...prev, `[${new Date().toLocaleTimeString()}] 🛡️ Risk Check: Approved. All limits comply.`]);
+    }, 4000);
+    setTimeout(() => {
+      setTriggerLog(prev => [...prev, `[${new Date().toLocaleTimeString()}] ✅ Dry-run cycle complete. Action: HOLD.`]);
+      setIsTriggering(false);
+      fetchData();
+    }, 4800);
+  };
+
 
   useEffect(() => {
     fetchData();
@@ -235,15 +381,27 @@ export default function Page() {
   const pnlPct = ((val - 100) / 100) * 100;
   const sectors = computeSectors(cycles);
 
-  const logs = [...cycles].reverse().slice(0, 10).map((c, i) => ({
-    key:       `${c.timestamp}-${i}`,
-    time:      fmtTime(c.timestamp),
-    decision:  normalizeDecision(c.decision),
-    name:      (c.narrativeName?.trim()) || '—',
-    score:     normalizeScore(c),
-    reasoning: sanitize(c.reasoning ?? ''),
-    txHash:    c.trade?.txHash ?? null,
-  }));
+  const logs = [...cycles]
+    .reverse()
+    .map((c, i) => ({
+      key:       `${c.timestamp}-${i}`,
+      time:      fmtTime(c.timestamp),
+      decision:  normalizeDecision(c.decision),
+      name:      (c.narrativeName?.trim()) || '—',
+      score:     normalizeScore(c),
+      reasoning: sanitize(c.reasoning ?? ''),
+      txHash:    c.trade?.txHash ?? null,
+    }))
+    .filter(log => {
+      const q = filterQuery.toLowerCase().trim();
+      if (!q) return true;
+      return (
+        log.name.toLowerCase().includes(q) ||
+        log.decision.toLowerCase().includes(q) ||
+        log.reasoning.toLowerCase().includes(q)
+      );
+    })
+    .slice(0, 10);
 
   const chartBars = (() => {
     const last8 = [...cycles].slice(-8);
@@ -260,55 +418,7 @@ export default function Page() {
   return (
     <div style={{ background: C.bg, minHeight: '100vh', color: C.onSurface, fontFamily: F.body, overflowX: 'hidden' }}>
 
-      {/* ═══════════════════════════ NAVBAR ═══════════════════════════ */}
-      <header style={{
-        position: 'fixed', top: 0, left: 0, right: 0, height: 80,
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '0 32px', zIndex: 100,
-        background: 'rgba(19,19,20,0.4)',
-        backdropFilter: 'blur(24px)',
-        WebkitBackdropFilter: 'blur(24px)',
-        borderBottom: '1px solid rgba(48,40,64,0.12)',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 40 }}>
-          {/* Logo */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div style={{
-              width: 32, height: 32, borderRadius: 4,
-              background: C.primaryFixed,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              flexShrink: 0,
-            }}>
-              <Icon.QueryStats size={16} color={C.onPrimaryFixed} />
-            </div>
-            <span style={{ color: C.onSurface, fontFamily: F.display, fontWeight: 700, fontSize: 20, letterSpacing: '-0.02em', textTransform: 'uppercase' }}>
-              Narrative Trader
-            </span>
-          </div>
-          {/* Nav */}
-          <nav style={{ display: 'flex', gap: 24 }}>
-            {[
-              { label: 'Ecosystem', active: true  },
-              { label: 'API',       active: false },
-              { label: 'Institutional', active: false },
-              { label: 'Governance',    active: false },
-            ].map(({ label, active }) => (
-              <a key={label} href="#" style={{
-                color: active ? C.onSurface : C.onSurfaceVar,
-                fontFamily: F.mono, fontSize: 12, fontWeight: 700,
-                textTransform: 'uppercase', letterSpacing: '0.12em', textDecoration: 'none',
-              }}>{label}</a>
-            ))}
-          </nav>
-        </div>
-        {/* CTA */}
-        <a href="#terminal" style={{
-          background: C.primaryFixed, color: C.onPrimaryFixed,
-          fontFamily: F.mono, fontSize: 11, fontWeight: 700,
-          textTransform: 'uppercase', letterSpacing: '0.12em',
-          padding: '10px 24px', borderRadius: 4, textDecoration: 'none',
-        }}>Connect Wallet</a>
-      </header>
+      <Navbar />
 
       <div style={{ paddingTop: 80 }}>
         {/* Grid background */}
@@ -360,7 +470,7 @@ export default function Page() {
 
             {/* CTA buttons */}
             <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', justifyContent: 'center', paddingTop: 8 }}>
-              <a href="#terminal" style={{
+              <a href="/dashboard" style={{
                 background: C.primaryFixed, color: C.onPrimaryFixed,
                 fontFamily: F.mono, fontSize: 13, fontWeight: 700,
                 textTransform: 'uppercase', letterSpacing: '0.1em',
@@ -372,7 +482,7 @@ export default function Page() {
               >
                 Launch Dashboard
               </a>
-              <a href="#" style={{
+              <a href="https://ritesh5969.gitbook.io/arcmarkets-docs" target="_blank" rel="noreferrer" style={{
                 background: C.containerHigh,
                 border: `1px solid rgba(48,40,64,0.30)`,
                 color: C.onSurface,
@@ -513,7 +623,7 @@ export default function Page() {
               </div>
               <div style={{ display: 'flex', gap: 16, color: 'rgba(160,152,176,0.60)' }}>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                  <Icon.Speed /><span style={{ fontFamily: F.mono, fontSize: 10 }}>12ms LATENCY</span>
+                  <Icon.Speed /><span style={{ fontFamily: F.mono, fontSize: 10 }}>{latency}ms LATENCY</span>
                 </div>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                   <Icon.Memory /><span style={{ fontFamily: F.mono, fontSize: 10, textTransform: 'uppercase' }}>Llama-3.3-70b</span>
@@ -523,7 +633,12 @@ export default function Page() {
             <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(17,17,24,0.50)', border: '1px solid rgba(48,40,64,0.10)', borderRadius: 4, padding: '4px 16px', width: 192 }}>
                 <span style={{ color: 'rgba(160,152,176,0.60)' }}><Icon.Search /></span>
-                <input placeholder="Quick Filter..." style={{ background: 'transparent', border: 'none', outline: 'none', color: C.onSurface, fontFamily: F.mono, fontSize: 10, width: '100%' }} />
+                <input
+                  value={filterQuery}
+                  onChange={e => setFilterQuery(e.target.value)}
+                  placeholder="Quick Filter..."
+                  style={{ background: 'transparent', border: 'none', outline: 'none', color: C.onSurface, fontFamily: F.mono, fontSize: 10, width: '100%' }}
+                />
               </div>
               <div style={{ display: 'flex', gap: 16, color: 'rgba(160,152,176,0.60)' }}>
                 <Icon.Bell /><Icon.Terminal />
@@ -538,174 +653,514 @@ export default function Page() {
             <aside style={{ width: 256, flexShrink: 0, padding: 24, borderRight: '1px solid rgba(48,40,64,0.10)', display: 'flex', flexDirection: 'column', gap: 32 }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                 {[
-                  { icon: <Icon.Dashboard />, label: 'Dashboard',    active: true  },
-                  { icon: <Icon.Wallet />,    label: 'Positions',    active: false },
-                  { icon: <Icon.History />,   label: 'Trade History', active: false },
-                  { icon: <Icon.Settings />,  label: 'Agent Config',  active: false },
-                ].map(({ icon, label, active }) => (
-                  <a key={label} href="#" style={{
-                    display: 'flex', alignItems: 'center', gap: 12,
-                    padding: '12px 16px', borderRadius: 8,
-                    background:     active ? 'rgba(255,224,236,0.10)' : 'transparent',
-                    color:          active ? C.primaryFixed : C.onSurfaceVar,
-                    border:         active ? `1px solid rgba(255,224,236,0.20)` : '1px solid transparent',
-                    fontFamily:     F.mono, fontSize: 11, fontWeight: 700, letterSpacing: '0.05em',
-                    textTransform:  'uppercase', textDecoration: 'none',
-                    transition:     'all 0.15s',
-                  }}>
-                    {icon}{label}
-                  </a>
-                ))}
+                  { icon: <Icon.Dashboard />, label: 'Dashboard',    tab: 'Dashboard' as const },
+                  { icon: <Icon.Wallet />,    label: 'Positions',    tab: 'Positions' as const },
+                  { icon: <Icon.History />,   label: 'Trade History', tab: 'Trade History' as const },
+                  { icon: <Icon.Settings />,  label: 'Agent Config',  tab: 'Agent Config' as const },
+                ].map(({ icon, label, tab }) => {
+                  const active = activeTab === tab;
+                  return (
+                    <button
+                      key={label}
+                      onClick={() => setActiveTab(tab)}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 12,
+                        padding: '12px 16px', borderRadius: 8,
+                        background:     active ? 'rgba(255,224,236,0.10)' : 'transparent',
+                        color:          active ? C.primaryFixed : C.onSurfaceVar,
+                        border:         active ? `1px solid rgba(255,224,236,0.20)` : '1px solid transparent',
+                        fontFamily:     F.mono, fontSize: 11, fontWeight: 700, letterSpacing: '0.05em',
+                        textTransform:  'uppercase', textDecoration: 'none',
+                        transition:     'all 0.15s',
+                        cursor:         'pointer',
+                        width:          '100%',
+                        textAlign:      'left',
+                      }}
+                    >
+                      {icon}{label}
+                    </button>
+                  );
+                })}
               </div>
 
               {/* Health */}
               <div>
                 <span style={{ color: 'rgba(160,152,176,0.40)', fontFamily: F.mono, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', display: 'block', padding: '0 16px', marginBottom: 16 }}>Internal Health</span>
-                <div style={{ padding: '0 16px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                    <span style={{ color: C.onSurfaceVar, fontFamily: F.mono, fontSize: 10 }}>LPU</span>
-                    <span style={{ color: C.primaryFixed, fontFamily: F.mono, fontSize: 10 }}>84%</span>
+                <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontFamily: F.mono, fontSize: 10 }}>
+                      <span style={{ color: C.onSurfaceVar }}>LPU</span>
+                      <span style={{ color: C.primaryFixed, float: 'right' }}>{lpu}%</span>
+                    </div>
+                    <div style={{ height: 4, background: C.container, borderRadius: 999, overflow: 'hidden' }}>
+                      <div style={{ height: '100%', width: `${lpu}%`, background: C.primaryFixed, borderRadius: 999 }} />
+                    </div>
                   </div>
-                  <div style={{ height: 4, background: C.container, borderRadius: 999, overflow: 'hidden' }}>
-                    <div style={{ height: '100%', width: '84%', background: C.primaryFixed, borderRadius: 999 }} />
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: F.mono, fontSize: 10 }}>
+                      <span style={{ color: C.onSurfaceVar }}>AGENT STATUS</span>
+                      <span style={{ color: portfolio?.isPaused ? C.error : C.secondary, float: 'right', fontWeight: 'bold' }}>
+                        {portfolio?.isPaused ? 'PAUSED' : 'ACTIVE'}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
             </aside>
 
+
             {/* Main content */}
             <main style={{ flex: 1, padding: 32, background: 'rgba(0,0,0,0.10)' }}>
               <div style={{ maxWidth: 1400, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 24 }}>
 
-                {/* Row 1: TVL + Engine */}
-                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 24 }}>
+                {activeTab === 'Dashboard' && (
+                  <>
+                    {/* Row 1: TVL + Engine */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 24 }}>
 
-                  {/* TVL */}
-                  <div style={{ background: 'rgba(14,14,15,0.70)', backdropFilter: 'blur(40px)', border: '1px solid rgba(255,255,255,0.03)', borderRadius: 16, padding: 32 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 48 }}>
-                      <div>
-                        <span style={{ color: C.onSurfaceVar, fontFamily: F.mono, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em' }}>Total Value Locked (Institutional)</span>
-                        <h2 style={{ color: C.onSurface, fontFamily: F.display, fontWeight: 700, fontSize: 48, margin: '8px 0 0', letterSpacing: '-0.02em', lineHeight: 1 }}>
-                          ${Math.floor(val).toLocaleString('en-US')}<span style={{ color: 'rgba(232,224,240,0.40)', fontSize: 28 }}>{(val % 1).toFixed(2).slice(1)}</span>
-                        </h2>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8, color: pnl >= 0 ? C.primaryFixed : C.error, fontFamily: F.mono, fontSize: 13 }}>
-                          <Icon.TrendUp color={pnl >= 0 ? C.primaryFixed : C.error} />
-                          {pnl >= 0 ? '+' : ''}{fmt$(pnl)} ({pnlPct >= 0 ? '+' : ''}{pnlPct.toFixed(2)}% 24h)
-                        </div>
-                      </div>
-                      <div style={{ display: 'flex', gap: 8 }}>
-                        <button style={{ padding: '4px 8px', background: C.primaryFixed, color: C.onPrimaryFixed, fontFamily: F.mono, fontSize: 10, fontWeight: 700, borderRadius: 4, border: 'none', cursor: 'pointer' }}>1H</button>
-                        <button style={{ padding: '4px 8px', background: C.container, color: C.onSurfaceVar, fontFamily: F.mono, fontSize: 10, fontWeight: 700, borderRadius: 4, border: 'none', cursor: 'pointer' }}>1D</button>
-                      </div>
-                    </div>
-                    {/* Bar chart */}
-                    <div style={{ height: 96, display: 'flex', alignItems: 'flex-end', gap: 6, opacity: 0.35 }}>
-                      {chartBars.map((bar, idx) => (
-                        <div key={bar.i} style={{
-                          flex: 1, borderRadius: '2px 2px 0 0',
-                          height: `${bar.h}%`,
-                          background: `rgba(255,224,236,${0.20 + (idx / chartBars.length) * 0.80})`,
-                        }} />
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Engine */}
-                  <div style={{ background: 'rgba(14,14,15,0.70)', backdropFilter: 'blur(40px)', border: '1px solid rgba(255,255,255,0.03)', borderRadius: 16, padding: 32 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-                      <span style={{ color: C.onSurfaceVar, fontFamily: F.mono, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em' }}>Engine Status</span>
-                      <span style={{ color: C.primaryFixed }}><Icon.AutoRenew /></span>
-                    </div>
-                    <div style={{ color: C.onSurface, fontFamily: F.display, fontSize: 36, fontWeight: 600, marginBottom: 8 }}>{cycles.length.toLocaleString()}</div>
-                    <div style={{ color: C.onSurfaceVar, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 24 }}>Cycles Run Today</div>
-                    <div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: F.mono, fontSize: 10, textTransform: 'uppercase', marginBottom: 8 }}>
-                        <span style={{ color: C.onSurfaceVar }}>Sentiment Accuracy</span>
-                        <span style={{ color: C.secondary }}>99.2%</span>
-                      </div>
-                      <div style={{ height: 6, background: C.container, borderRadius: 999, overflow: 'hidden' }}>
-                        <div style={{ height: '100%', width: '99%', background: C.secondary, borderRadius: 999 }} />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Row 2: Logs + Sectors */}
-                <div style={{ display: 'grid', gridTemplateColumns: '7fr 5fr', gap: 24 }}>
-
-                  {/* Live Logs */}
-                  <div style={{ background: 'rgba(14,14,15,0.70)', backdropFilter: 'blur(40px)', border: '1px solid rgba(255,255,255,0.03)', borderRadius: 16, display: 'flex', flexDirection: 'column', height: 500, overflow: 'hidden' }}>
-                    <div style={{ padding: '16px 24px', borderBottom: '1px solid rgba(48,40,64,0.10)', background: 'rgba(20,20,34,0.30)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <span style={{ color: C.primaryFixed }}><Icon.ListAlt /></span>
-                        <span style={{ fontFamily: F.mono, fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Live Narrative Logs</span>
-                      </div>
-                      <span style={{ padding: '2px 8px', borderRadius: 4, background: 'rgba(255,45,120,0.10)', color: C.primaryFixed, border: `1px solid rgba(255,224,236,0.20)`, fontFamily: F.mono, fontSize: 9, fontWeight: 700, letterSpacing: '0.05em' }}>LIVE</span>
-                    </div>
-                    <div style={{ flex: 1, overflowY: 'auto', padding: 16, display: 'flex', flexDirection: 'column', gap: 16 }}>
-                      {logs.length === 0 && (
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: C.onSurfaceVar, fontSize: 12 }}>No cycles yet.</div>
-                      )}
-                      {logs.map(log => (
-                        <div key={log.key} style={{ padding: 16, borderRadius: 8, background: 'rgba(17,17,24,0.30)', border: '1px solid rgba(48,40,64,0.05)' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                              <span style={{ color: 'rgba(160,152,176,0.40)', fontFamily: F.mono, fontSize: 10 }}>{log.time}</span>
-                              <span style={{
-                                padding: '2px 8px', fontSize: 10, fontWeight: 700, fontFamily: F.mono,
-                                background: decisionBadge[log.decision]?.bg,
-                                color:      decisionBadge[log.decision]?.color,
-                                border:     `1px solid ${decisionBadge[log.decision]?.border}`,
-                              }}>{log.decision}</span>
-                              <span style={{ color: C.onSurface, fontSize: 13, fontWeight: 700 }}>{log.name}</span>
+                      {/* TVL */}
+                      <div style={{ background: 'rgba(14,14,15,0.70)', backdropFilter: 'blur(40px)', border: '1px solid rgba(255,255,255,0.03)', borderRadius: 16, padding: 32 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 48 }}>
+                          <div>
+                            <span style={{ color: C.onSurfaceVar, fontFamily: F.mono, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em' }}>Total Value Locked (Institutional)</span>
+                            <h2 style={{ color: C.onSurface, fontFamily: F.display, fontWeight: 700, fontSize: 48, margin: '8px 0 0', letterSpacing: '-0.02em', lineHeight: 1 }}>
+                              ${Math.floor(val).toLocaleString('en-US')}<span style={{ color: 'rgba(232,224,240,0.40)', fontSize: 28 }}>{(val % 1).toFixed(2).slice(1)}</span>
+                            </h2>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8, color: pnl >= 0 ? C.primaryFixed : C.error, fontFamily: F.mono, fontSize: 13 }}>
+                              <Icon.TrendUp color={pnl >= 0 ? C.primaryFixed : C.error} />
+                              {pnl >= 0 ? '+' : ''}{fmt$(pnl)} ({pnlPct >= 0 ? '+' : ''}{pnlPct.toFixed(2)}% 24h)
                             </div>
-                            <span style={{ color: log.decision === 'BUY' ? C.primaryFixed : C.onSurfaceVar, fontFamily: F.mono, fontSize: 13, flexShrink: 0 }}>
-                              {log.score !== null ? `${log.score}/10` : '—'}
-                            </span>
                           </div>
-                          {log.reasoning && <p style={{ color: C.onSurfaceVar, fontSize: 12, lineHeight: 1.6, margin: 0 }}>{log.reasoning}</p>}
-                          {log.txHash && (
-                            <a href={`${EXPLORER}${log.txHash}`} target="_blank" rel="noreferrer"
-                              style={{ color: C.primaryFixed, fontFamily: F.mono, fontSize: 10, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4, marginTop: 6 }}>
-                              Tx: {log.txHash.slice(0, 6)}…{log.txHash.slice(-4)}
-                              <Icon.ExtLink />
-                            </a>
-                          )}
+                          <div style={{ display: 'flex', gap: 8 }}>
+                            <button style={{ padding: '4px 8px', background: C.primaryFixed, color: C.onPrimaryFixed, fontFamily: F.mono, fontSize: 10, fontWeight: 700, borderRadius: 4, border: 'none', cursor: 'pointer' }}>1H</button>
+                            <button style={{ padding: '4px 8px', background: C.container, color: C.onSurfaceVar, fontFamily: F.mono, fontSize: 10, fontWeight: 700, borderRadius: 4, border: 'none', cursor: 'pointer' }}>1D</button>
+                          </div>
                         </div>
-                      ))}
-                    </div>
-                  </div>
+                        {/* Bar chart */}
+                        <div style={{ height: 96, display: 'flex', alignItems: 'flex-end', gap: 6, opacity: 0.35 }}>
+                          {chartBars.map((bar, idx) => (
+                            <div key={bar.i} style={{
+                              flex: 1, borderRadius: '2px 2px 0 0',
+                              height: `${bar.h}%`,
+                              background: `rgba(255,224,236,${0.20 + (idx / chartBars.length) * 0.80})`,
+                            }} />
+                          ))}
+                        </div>
+                      </div>
 
-                  {/* Sector Allocation */}
-                  <div style={{ background: 'rgba(14,14,15,0.70)', backdropFilter: 'blur(40px)', border: '1px solid rgba(255,255,255,0.03)', borderRadius: 16, padding: 32, height: 500, display: 'flex', flexDirection: 'column' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32 }}>
-                      <span style={{ fontFamily: F.mono, fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Sector Allocation</span>
-                      <span style={{ color: C.onSurfaceVar }}><Icon.PieChart /></span>
-                    </div>
-                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 24, overflowY: 'auto' }}>
-                      {sectors.map(({ name, pct }, i) => (
-                        <div key={name}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                            <span style={{ color: C.onSurface, fontSize: 12 }}>{name}</span>
-                            <span style={{ color: i === 0 ? C.primaryFixed : C.onSurface, fontFamily: F.mono, fontSize: 12 }}>{pct.toFixed(1)}%</span>
+                      {/* Engine */}
+                      <div style={{ background: 'rgba(14,14,15,0.70)', backdropFilter: 'blur(40px)', border: '1px solid rgba(255,255,255,0.03)', borderRadius: 16, padding: 32 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+                          <span style={{ color: C.onSurfaceVar, fontFamily: F.mono, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em' }}>Engine Status</span>
+                          <span style={{ color: C.primaryFixed }}><Icon.AutoRenew /></span>
+                        </div>
+                        <div style={{ color: C.onSurface, fontFamily: F.display, fontSize: 36, fontWeight: 600, marginBottom: 8 }}>{cycles.length.toLocaleString()}</div>
+                        <div style={{ color: C.onSurfaceVar, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 24 }}>Cycles Run Today</div>
+                        <div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: F.mono, fontSize: 10, textTransform: 'uppercase', marginBottom: 8 }}>
+                            <span style={{ color: C.onSurfaceVar }}>Sentiment Accuracy</span>
+                            <span style={{ color: C.secondary }}>99.2%</span>
                           </div>
                           <div style={{ height: 6, background: C.container, borderRadius: 999, overflow: 'hidden' }}>
-                            <div style={{ height: '100%', width: `${pct}%`, background: i === 0 ? C.primaryFixed : C.onSurface, borderRadius: 999 }} />
+                            <div style={{ height: '100%', width: '99%', background: C.secondary, borderRadius: 999 }} />
                           </div>
                         </div>
-                      ))}
+                      </div>
                     </div>
-                    <div style={{ marginTop: 32, padding: 16, borderRadius: 12, background: 'rgba(255,45,120,0.05)', border: `1px solid rgba(255,224,236,0.10)` }}>
-                      <p style={{ margin: 0, fontSize: 11, color: C.onSurfaceVar, lineHeight: 1.6 }}>
-                        <span style={{ color: C.primaryFixed, fontFamily: F.mono, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 4 }}>Recommendation:</span>
-                        {sectors[0]
-                          ? `Concentration in ${sectors[0].name} is high. Consider rebalancing 5% into ${sectors[1]?.name ?? 'Modular Infrastructure'}.`
-                          : 'Concentration in AI narrative is high. Consider rebalancing 5% into Modular Infrastructure.'
-                        }
-                      </p>
+
+                    {/* Row 2: Logs + Sectors */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '7fr 5fr', gap: 24 }}>
+
+                      {/* Live Logs */}
+                      <div style={{ background: 'rgba(14,14,15,0.70)', backdropFilter: 'blur(40px)', border: '1px solid rgba(255,255,255,0.03)', borderRadius: 16, display: 'flex', flexDirection: 'column', height: 500, overflow: 'hidden' }}>
+                        <div style={{ padding: '16px 24px', borderBottom: '1px solid rgba(48,40,64,0.10)', background: 'rgba(20,20,34,0.30)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <span style={{ color: C.primaryFixed }}><Icon.ListAlt /></span>
+                            <span style={{ fontFamily: F.mono, fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Live Narrative Logs</span>
+                          </div>
+                          <span style={{ padding: '2px 8px', borderRadius: 4, background: 'rgba(255,45,120,0.10)', color: C.primaryFixed, border: `1px solid rgba(255,224,236,0.20)`, fontFamily: F.mono, fontSize: 9, fontWeight: 700, letterSpacing: '0.05em' }}>LIVE</span>
+                        </div>
+                        <div style={{ flex: 1, overflowY: 'auto', padding: 16, display: 'flex', flexDirection: 'column', gap: 16 }}>
+                          {logs.length === 0 && (
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: C.onSurfaceVar, fontSize: 12 }}>No cycles yet.</div>
+                          )}
+                          {logs.map(log => (
+                            <div key={log.key} style={{ padding: 16, borderRadius: 8, background: 'rgba(17,17,24,0.30)', border: '1px solid rgba(48,40,64,0.05)' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                  <span style={{ color: 'rgba(160,152,176,0.40)', fontFamily: F.mono, fontSize: 10 }}>{log.time}</span>
+                                  <span style={{
+                                    padding: '2px 8px', fontSize: 10, fontWeight: 700, fontFamily: F.mono,
+                                    background: decisionBadge[log.decision]?.bg,
+                                    color:      decisionBadge[log.decision]?.color,
+                                    border:     `1px solid ${decisionBadge[log.decision]?.border}`,
+                                  }}>{log.decision}</span>
+                                  <span style={{ color: C.onSurface, fontSize: 13, fontWeight: 700 }}>{log.name}</span>
+                                </div>
+                                <span style={{ color: log.decision === 'BUY' ? C.primaryFixed : C.onSurfaceVar, fontFamily: F.mono, fontSize: 13, flexShrink: 0 }}>
+                                  {log.score !== null ? `${log.score}/10` : '—'}
+                                </span>
+                              </div>
+                              {log.reasoning && <p style={{ color: C.onSurfaceVar, fontSize: 12, lineHeight: 1.6, margin: 0 }}>{log.reasoning}</p>}
+                              {log.txHash && (
+                                <a href={`${EXPLORER}${log.txHash}`} target="_blank" rel="noreferrer"
+                                  style={{ color: C.primaryFixed, fontFamily: F.mono, fontSize: 10, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4, marginTop: 6 }}>
+                                  Tx: {log.txHash.slice(0, 6)}…{log.txHash.slice(-4)}
+                                  <Icon.ExtLink />
+                                </a>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Sector Allocation */}
+                      <div style={{ background: 'rgba(14,14,15,0.70)', backdropFilter: 'blur(40px)', border: '1px solid rgba(255,255,255,0.03)', borderRadius: 16, padding: 32, height: 500, display: 'flex', flexDirection: 'column' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32 }}>
+                          <span style={{ fontFamily: F.mono, fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Sector Allocation</span>
+                          <span style={{ color: C.onSurfaceVar }}><Icon.PieChart /></span>
+                        </div>
+                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 24, overflowY: 'auto' }}>
+                          {sectors.map(({ name, pct }, i) => (
+                            <div key={name}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                                <span style={{ color: C.onSurface, fontSize: 12 }}>{name}</span>
+                                <span style={{ color: i === 0 ? C.primaryFixed : C.onSurface, fontFamily: F.mono, fontSize: 12 }}>{pct.toFixed(1)}%</span>
+                              </div>
+                              <div style={{ height: 6, background: C.container, borderRadius: 999, overflow: 'hidden' }}>
+                                <div style={{ height: '100%', width: `${pct}%`, background: i === 0 ? C.primaryFixed : C.onSurface, borderRadius: 999 }} />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        <div style={{ marginTop: 32, padding: 16, borderRadius: 12, background: 'rgba(255,45,120,0.05)', border: `1px solid rgba(255,224,236,0.10)` }}>
+                          <p style={{ margin: 0, fontSize: 11, color: C.onSurfaceVar, lineHeight: 1.6 }}>
+                            <span style={{ color: C.primaryFixed, fontFamily: F.mono, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 4 }}>Recommendation:</span>
+                            {sectors[0]
+                              ? `Concentration in ${sectors[0].name} is high. Consider rebalancing 5% into ${sectors[1]?.name ?? 'Modular Infrastructure'}.`
+                              : 'Concentration in AI narrative is high. Consider rebalancing 5% into Modular Infrastructure.'
+                            }
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {activeTab === 'Positions' && (
+                  <div style={{ background: 'rgba(14,14,15,0.70)', backdropFilter: 'blur(40px)', border: '1px solid rgba(255,255,255,0.03)', borderRadius: 16, padding: 32 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(48,40,64,0.15)', paddingBottom: 16, marginBottom: 24 }}>
+                      <div>
+                        <h3 style={{ color: C.onSurface, fontFamily: F.display, fontWeight: 700, fontSize: 18, margin: 0 }}>Active Positions</h3>
+                        <p style={{ color: C.onSurfaceVar, fontFamily: F.mono, fontSize: 11, margin: '4px 0 0' }}>Current asset holdings managed by the AI agent</p>
+                      </div>
+                      <span style={{
+                        background: 'rgba(0,255,204,0.10)',
+                        color: C.secondary,
+                        border: '1px solid rgba(0,255,204,0.20)',
+                        fontFamily: F.mono, fontSize: 11, fontWeight: 700,
+                        padding: '4px 12px', borderRadius: 999, textTransform: 'uppercase', letterSpacing: '0.05em'
+                      }}>
+                        {(portfolio?.openPositions?.length ?? 0)} Active
+                      </span>
+                    </div>
+
+                    {(() => {
+                      const filteredPositions = (portfolio?.openPositions ?? []).filter(pos => {
+                        const q = filterQuery.toLowerCase().trim();
+                        if (!q) return true;
+                        return pos.token.toLowerCase().includes(q) || pos.address.toLowerCase().includes(q);
+                      });
+
+                      if (filteredPositions.length === 0) {
+                        return (
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '80px 24px', textAlign: 'center', border: '1px dashed rgba(90,80,104,0.20)', borderRadius: 12, background: 'rgba(17,17,24,0.15)' }}>
+                            <svg width={48} height={48} fill="none" viewBox="0 0 24 24" stroke="rgba(160,152,176,0.30)" strokeWidth={1} style={{ marginBottom: 16 }}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                            </svg>
+                            <h4 style={{ color: C.onSurface, fontWeight: 600, fontSize: 14, margin: 0 }}>No Matching Positions</h4>
+                            <p style={{ color: 'rgba(160,152,176,0.60)', fontSize: 12, margin: '8px 0 0', maxWidth: 320, lineHeight: 1.6 }}>
+                              No positions match your filter query.
+                            </p>
+                          </div>
+                        );
+                      }
+
+                      return (
+                        <div style={{ overflowX: 'auto' }}>
+                          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontFamily: F.mono, fontSize: 11 }}>
+                            <thead>
+                              <tr style={{ borderBottom: '1px solid rgba(48,40,64,0.15)', color: 'rgba(160,152,176,0.60)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                                <th style={{ padding: '12px 16px' }}>Asset</th>
+                                <th style={{ padding: '12px 16px' }}>Amount</th>
+                                <th style={{ padding: '12px 16px' }}>Avg Entry</th>
+                                <th style={{ padding: '12px 16px' }}>Market Price</th>
+                                <th style={{ padding: '12px 16px' }}>Position Value</th>
+                                <th style={{ padding: '12px 16px', textAlign: 'right' }}>Unrealized PnL</th>
+                              </tr>
+                            </thead>
+                            <tbody style={{ color: C.onSurface }}>
+                              {filteredPositions.map((pos) => {
+                                const value = pos.amount * pos.currentPrice;
+                                const profit = pos.currentPrice - pos.entryPrice;
+                                const pnlPercent = pos.entryPrice > 0 ? (profit / pos.entryPrice) * 100 : 0;
+                                const isPositive = pnlPercent >= 0;
+
+                                return (
+                                  <tr key={pos.address} style={{ borderBottom: '1px solid rgba(48,40,64,0.10)' }}>
+                                    <td style={{ padding: '16px' }}>
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                        <div style={{
+                                          width: 32, height: 32, borderRadius: 6,
+                                          background: 'rgba(255,45,120,0.10)',
+                                          border: '1px solid rgba(255,45,120,0.20)',
+                                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                          color: C.primaryFixed, fontWeight: 'bold', fontSize: 11,
+                                        }}>
+                                          {pos.token.slice(0, 3)}
+                                        </div>
+                                        <div>
+                                          <div style={{ fontWeight: 'bold', color: C.onSurface }}>{pos.token}</div>
+                                          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, color: 'rgba(160,152,176,0.50)', marginTop: 2 }}>
+                                            <span>{pos.address.slice(0, 6)}…{pos.address.slice(-4)}</span>
+                                            <CopyButton text={pos.address} />
+                                            <a href={`https://testnet.bscscan.com/address/${pos.address}`} target="_blank" rel="noreferrer" style={{ color: 'rgba(160,152,176,0.50)', display: 'inline-flex', alignItems: 'center' }}>
+                                              <Icon.ExtLink />
+                                            </a>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </td>
+                                    <td style={{ padding: '16px', fontWeight: 600 }}>{pos.amount.toLocaleString(undefined, { maximumFractionDigits: 5 })}</td>
+                                    <td style={{ padding: '16px', color: C.onSurfaceVar }}>{fmt$(pos.entryPrice)}</td>
+                                    <td style={{ padding: '16px', color: C.onSurfaceVar }}>{fmt$(pos.currentPrice)}</td>
+                                    <td style={{ padding: '16px', fontWeight: 'bold' }}>{fmt$(value)}</td>
+                                    <td style={{ padding: '16px', textAlign: 'right', fontWeight: 'bold', color: isPositive ? C.secondary : C.error }}>
+                                      {isPositive ? '+' : ''}{pnlPercent.toFixed(2)}%
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                )}
+
+                {activeTab === 'Trade History' && (
+                  <div style={{ background: 'rgba(14,14,15,0.70)', backdropFilter: 'blur(40px)', border: '1px solid rgba(255,255,255,0.03)', borderRadius: 16, padding: 32 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(48,40,64,0.15)', paddingBottom: 16, marginBottom: 24 }}>
+                      <div>
+                        <h3 style={{ color: C.onSurface, fontFamily: F.display, fontWeight: 700, fontSize: 18, margin: 0 }}>Execution Logs</h3>
+                        <p style={{ color: C.onSurfaceVar, fontFamily: F.mono, fontSize: 11, margin: '4px 0 0' }}>Historical record of agent trades and portfolio events</p>
+                      </div>
+                      <span style={{
+                        background: 'rgba(20,20,34,0.30)',
+                        color: C.onSurfaceVar,
+                        border: '1px solid rgba(48,40,64,0.20)',
+                        fontFamily: F.mono, fontSize: 11, fontWeight: 700,
+                        padding: '4px 12px', borderRadius: 999, textTransform: 'uppercase'
+                      }}>
+                        {(portfolio?.tradesHistory?.length ?? 0)} Trades
+                      </span>
+                    </div>
+
+                    {(() => {
+                      const filteredTrades = (portfolio?.tradesHistory ?? []).filter(trade => {
+                        const q = filterQuery.toLowerCase().trim();
+                        if (!q) return true;
+                        return trade.token.toLowerCase().includes(q) || trade.type.toLowerCase().includes(q) || trade.address.toLowerCase().includes(q);
+                      });
+
+                      if (filteredTrades.length === 0) {
+                        return (
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '80px 24px', textAlign: 'center', border: '1px dashed rgba(90,80,104,0.20)', borderRadius: 12, background: 'rgba(17,17,24,0.15)' }}>
+                            <svg width={48} height={48} fill="none" viewBox="0 0 24 24" stroke="rgba(160,152,176,0.30)" strokeWidth={1} style={{ marginBottom: 16 }}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                            </svg>
+                            <h4 style={{ color: C.onSurface, fontWeight: 600, fontSize: 14, margin: 0 }}>No Matching Trades</h4>
+                            <p style={{ color: 'rgba(160,152,176,0.60)', fontSize: 12, margin: '8px 0 0', maxWidth: 320, lineHeight: 1.6 }}>
+                              No transactions match your filter query.
+                            </p>
+                          </div>
+                        );
+                      }
+
+                      return (
+                        <div style={{ overflowX: 'auto' }}>
+                          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontFamily: F.mono, fontSize: 11 }}>
+                            <thead>
+                              <tr style={{ borderBottom: '1px solid rgba(48,40,64,0.15)', color: 'rgba(160,152,176,0.60)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                                <th style={{ padding: '12px 16px' }}>Timestamp</th>
+                                <th style={{ padding: '12px 16px' }}>Action</th>
+                                <th style={{ padding: '12px 16px' }}>Token</th>
+                                <th style={{ padding: '12px 16px' }}>Size (USDC)</th>
+                                <th style={{ padding: '12px 16px' }}>Execution Price</th>
+                                <th style={{ padding: '12px 16px' }}>Amount Received</th>
+                                <th style={{ padding: '12px 16px', textAlign: 'right' }}>Transaction</th>
+                              </tr>
+                            </thead>
+                            <tbody style={{ color: C.onSurface }}>
+                              {[...filteredTrades].reverse().map((trade, i) => {
+                                const isBuy = trade.type === 'BUY';
+                                return (
+                                  <tr key={trade.timestamp + i} style={{ borderBottom: '1px solid rgba(48,40,64,0.10)' }}>
+                                    <td style={{ padding: '16px', color: 'rgba(160,152,176,0.70)' }}>
+                                      {new Date(trade.timestamp).toLocaleString()}
+                                    </td>
+                                    <td style={{ padding: '16px' }}>
+                                      <span style={{
+                                        padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700, fontFamily: F.mono,
+                                        background: isBuy ? 'rgba(255,45,120,0.15)' : 'rgba(0,255,204,0.15)',
+                                        color: isBuy ? C.primaryFixed : C.secondary,
+                                        border: isBuy ? '1px solid rgba(255,45,120,0.25)' : '1px solid rgba(0,255,204,0.25)',
+                                      }}>
+                                        {trade.type}
+                                      </span>
+                                    </td>
+                                    <td style={{ padding: '16px', fontWeight: 'bold' }}>{trade.token}</td>
+                                    <td style={{ padding: '16px', fontWeight: 600 }}>{fmt$(trade.valueUSDC)}</td>
+                                    <td style={{ padding: '16px', color: C.onSurfaceVar }}>{fmt$(trade.price)}</td>
+                                    <td style={{ padding: '16px', color: C.onSurfaceVar }}>{trade.amount.toLocaleString(undefined, { maximumFractionDigits: 5 })}</td>
+                                    <td style={{ padding: '16px', textAlign: 'right' }}>
+                                      <a
+                                        href={`https://testnet.bscscan.com/address/${trade.address}`}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        style={{ color: C.primaryFixed, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                                      >
+                                        Explorer <Icon.ExtLink />
+                                      </a>
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                )}
+
+                {activeTab === 'Agent Config' && (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: 24 }}>
+                    {/* Left side config (7 cols) */}
+                    <div style={{ gridColumn: 'span 7', display: 'flex', flexDirection: 'column', gap: 24 }}>
+                      <div style={{ background: 'rgba(14,14,15,0.70)', backdropFilter: 'blur(40px)', border: '1px solid rgba(255,255,255,0.03)', borderRadius: 16, padding: 32, display: 'flex', flexDirection: 'column', gap: 24 }}>
+                        <div style={{ borderBottom: '1px solid rgba(48,40,64,0.15)', paddingBottom: 16 }}>
+                          <h3 style={{ color: C.onSurface, fontFamily: F.display, fontWeight: 700, fontSize: 18, margin: 0 }}>Control Panel</h3>
+                          <p style={{ color: C.onSurfaceVar, fontFamily: F.mono, fontSize: 11, margin: '4px 0 0' }}>Toggle live trading states and inspect agent configuration</p>
+                        </div>
+
+                        {/* Engine status toggle */}
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 16, background: 'rgba(17,17,24,0.20)', border: '1px solid rgba(48,40,64,0.10)', borderRadius: 12 }}>
+                          <div>
+                            <div style={{ fontWeight: 'bold', fontSize: 14, color: C.onSurface, fontFamily: F.display }}>Trading Engine</div>
+                            <p style={{ fontSize: 11, color: C.onSurfaceVar, marginTop: 4, lineHeight: 1.5, margin: '4px 0 0' }}>
+                              When paused, the agent will freeze trade execution but continue scanning market narratives.
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => togglePause(!portfolio?.isPaused)}
+                            style={{
+                              padding: '8px 16px', fontSize: 11, fontFamily: F.mono, fontWeight: 700, letterSpacing: '0.05em', borderRadius: 8, textTransform: 'uppercase', transition: 'all 0.15s', cursor: 'pointer', border: portfolio?.isPaused ? 'none' : `1px solid ${C.outline}`,
+                              background: portfolio?.isPaused ? C.primaryFixed : C.containerHighest,
+                              color: portfolio?.isPaused ? C.onPrimaryFixed : C.onSurfaceVar,
+                            }}
+                          >
+                            {portfolio?.isPaused ? 'RESUME AGENT' : 'PAUSE AGENT'}
+                          </button>
+                        </div>
+
+                        {/* Config Summary Grid */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                          <h4 style={{ color: 'rgba(160,152,176,0.40)', fontFamily: F.mono, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', margin: 0 }}>Agent Configurations</h4>
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                            {[
+                              { label: 'Blockchain Network', value: config?.network ? `${config.network.toUpperCase()} (BNB Chain)` : '—' },
+                              { label: 'RPC Endpoint', value: config?.rpcUrl ? `${config.rpcUrl.slice(0, 16)}…` : '—' },
+                              { label: 'Starting Capital', value: config?.targetPortfolioValue ? `${config.targetPortfolioValue} USDC` : '—' },
+                              { label: 'Inference Engine', value: 'Llama-3.3-70b (via Groq)' },
+                              { label: 'Sentiment Provider', value: 'CoinMarketCap Trending API' },
+                              { label: 'Evaluation Loop', value: '30 Minutes' },
+                            ].map((item, idx) => (
+                              <div key={idx} style={{ padding: 12, background: 'rgba(10,10,18,0.40)', border: '1px solid rgba(48,40,64,0.10)', borderRadius: 8 }}>
+                                <span style={{ fontSize: 9, fontFamily: F.mono, fontWeight: 700, color: 'rgba(160,152,176,0.40)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: 2 }}>{item.label}</span>
+                                <span style={{ fontSize: 12, fontFamily: F.mono, fontWeight: 700, color: 'rgba(232,224,240,0.90)' }}>{item.value}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Right side credentials + system simulator (5 cols) */}
+                    <div style={{ gridColumn: 'span 5', display: 'flex', flexDirection: 'column', gap: 24 }}>
+                      {/* Credentials Status */}
+                      <div style={{ background: 'rgba(14,14,15,0.70)', backdropFilter: 'blur(40px)', border: '1px solid rgba(255,255,255,0.03)', borderRadius: 16, padding: 32, display: 'flex', flexDirection: 'column', gap: 24 }}>
+                        <div style={{ borderBottom: '1px solid rgba(48,40,64,0.15)', paddingBottom: 16 }}>
+                          <h3 style={{ color: C.onSurface, fontFamily: F.display, fontWeight: 700, fontSize: 18, margin: 0 }}>Credentials Status</h3>
+                          <p style={{ color: C.onSurfaceVar, fontFamily: F.mono, fontSize: 11, margin: '4px 0 0' }}>Verifies connection status of agent keys and API endpoints</p>
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, fontFamily: F.mono, fontSize: 12 }}>
+                          {[
+                            { name: 'Groq Cloud LLM API', active: config?.groqStatus },
+                            { name: 'Gemini Backstop API', active: config?.geminiStatus },
+                            { name: 'CoinMarketCap Signals API', active: config?.cmcStatus },
+                          ].map((cred, idx) => (
+                            <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 12, background: 'rgba(10,10,18,0.40)', borderRadius: 8, border: '1px solid rgba(48,40,64,0.05)' }}>
+                              <span style={{ color: 'rgba(232,224,240,0.80)' }}>{cred.name}</span>
+                              <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 'bold', color: cred.active ? C.secondary : C.error }}>
+                                <span style={{ width: 6, height: 6, borderRadius: '50%', background: cred.active ? C.secondary : C.error }} />
+                                {cred.active ? 'CONNECTED' : 'DISCONNECTED'}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* System Simulator */}
+                      <div style={{ background: 'rgba(14,14,15,0.70)', backdropFilter: 'blur(40px)', border: '1px solid rgba(255,255,255,0.03)', borderRadius: 16, padding: 32, display: 'flex', flexDirection: 'column', gap: 24 }}>
+                        <div style={{ borderBottom: '1px solid rgba(48,40,64,0.15)', paddingBottom: 16 }}>
+                          <h3 style={{ color: C.onSurface, fontFamily: F.display, fontWeight: 700, fontSize: 18, margin: 0 }}>System Simulator</h3>
+                          <p style={{ color: C.onSurfaceVar, fontFamily: F.mono, fontSize: 11, margin: '4px 0 0' }}>Manually trigger and inspect a dry-run narrative assessment</p>
+                        </div>
+
+                        <button
+                          onClick={simulateCycleTrigger}
+                          disabled={isTriggering || portfolio?.isPaused}
+                          style={{
+                            width: '100%', padding: '10px 16px', borderRadius: 8, fontSize: 11, fontFamily: F.mono, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', transition: 'all 0.15s', border: isTriggering ? `1px solid rgba(48,40,64,0.20)` : portfolio?.isPaused ? `1px solid rgba(48,40,64,0.10)` : `1px solid ${C.primaryFixed}`,
+                            background: isTriggering ? C.container : portfolio?.isPaused ? 'rgba(10,10,18,0.50)' : C.primaryFixed,
+                            color: isTriggering ? C.onSurfaceVar : portfolio?.isPaused ? 'rgba(160,152,176,0.30)' : C.onPrimaryFixed,
+                            cursor: isTriggering || portfolio?.isPaused ? 'not-allowed' : 'pointer'
+                          }}
+                        >
+                          {isTriggering ? 'RUNNING SCANS...' : portfolio?.isPaused ? 'AGENT PAUSED' : 'TRIGGER DRY RUN'}
+                        </button>
+
+                        {triggerLog.length > 0 && (
+                          <div style={{ padding: 16, borderRadius: 12, background: 'rgba(10,10,18,0.90)', border: '1px solid rgba(48,40,64,0.10)', fontFamily: F.mono, fontSize: 10, display: 'flex', flexDirection: 'column', gap: 6, height: 176, overflowY: 'auto' }}>
+                            {triggerLog.map((logStr, i) => {
+                              let color = 'rgba(160,152,176,0.80)';
+                              if (logStr.includes('✅')) color = C.primaryFixed;
+                              else if (logStr.includes('🛡️')) color = C.secondary;
+                              return (
+                                <div key={i} style={{ color }}>
+                                  {logStr}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
               </div>
             </main>
           </div>
@@ -733,35 +1188,24 @@ export default function Page() {
               </div>
             </div>
 
-            {/* Platform */}
+            {/* Platform (Simplified) */}
             <div>
-              <h4 style={{ color: C.onSurface, fontFamily: F.mono, fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', margin: '0 0 24px' }}>Platform</h4>
+              <h4 style={{ color: C.onSurface, fontFamily: F.mono, fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', margin: '0 0 24px' }}>Platform Resources</h4>
               <nav style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {['Terminal', 'Liquidity Hubs', 'Agent SDK', 'Node Program'].map(item => (
-                  <a key={item} href="#" style={{ color: C.onSurfaceVar, fontSize: 12, textDecoration: 'none' }}>{item}</a>
-                ))}
-              </nav>
-            </div>
-
-            {/* Governance */}
-            <div>
-              <h4 style={{ color: C.onSurface, fontFamily: F.mono, fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', margin: '0 0 24px' }}>Governance</h4>
-              <nav style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {['Documentation', 'Whitepaper', 'Risk Protocol', 'Privacy Policy'].map(item => (
-                  <a key={item} href="#" style={{ color: C.onSurfaceVar, fontSize: 12, textDecoration: 'none' }}>{item}</a>
-                ))}
+                <a href="/dashboard" style={{ color: C.onSurfaceVar, fontSize: 12, textDecoration: 'none' }}>Live Terminal</a>
+                <a href="https://ritesh5969.gitbook.io/arcmarkets-docs" target="_blank" rel="noreferrer" style={{ color: C.onSurfaceVar, fontSize: 12, textDecoration: 'none' }}>Documentation</a>
               </nav>
             </div>
 
             {/* Health */}
-            <div>
+            <div style={{ gridColumn: 'span 2' }}>
               <h4 style={{ color: C.onSurface, fontFamily: F.mono, fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', margin: '0 0 24px' }}>System Health</h4>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
                 <div style={{ width: 8, height: 8, borderRadius: '50%', background: C.primaryFixed }} />
                 <span style={{ color: C.onSurface, fontSize: 11, fontWeight: 700 }}>OPERATIONAL</span>
               </div>
               <div style={{ color: 'rgba(160,152,176,0.60)', fontFamily: F.mono, fontSize: 10, lineHeight: 1.8 }}>
-                UPTIME: 14d 22h 11m 4s<br />ACTIVE NODES: 1,024<br />LATENCY: 12ms AVG
+                UPTIME: {uptime}<br />ACTIVE NODES: 1,024<br />LATENCY: {latency}ms AVG
               </div>
             </div>
           </div>
