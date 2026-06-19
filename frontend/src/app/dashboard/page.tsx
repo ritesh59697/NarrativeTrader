@@ -419,24 +419,24 @@ export default function Dashboard() {
           </div>
         </div>
         
-        {/* Spacious, premium text buttons mapping to Title Case */}
-        <nav className="flex-1 space-y-3 mt-4">
+        {/* Spacious, premium capsule cards mapping to Title Case */}
+        <nav className="flex-1 space-y-2 mt-4 px-4">
           {tabs.map((tab) => {
             const active = activeTab === tab.id;
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`w-full flex items-center px-8 py-3 transition-all duration-200 group cursor-pointer text-left border-l-[3px] relative ${
+                className={`w-full flex items-center px-4 py-2.5 transition-all duration-200 group cursor-pointer text-left rounded-lg border ${
                   active 
-                    ? 'text-[#ff2d78] bg-[#ff2d78]/5 border-[#ff2d78]' 
-                    : 'text-[#9494b8] hover:text-white hover:bg-white/[0.02] border-transparent'
+                    ? 'text-white bg-[#ff2d78]/10 border-[#ff2d78]/30 shadow-[0_0_12px_rgba(255,45,120,0.15)]' 
+                    : 'text-[#9494b8] hover:text-white hover:bg-white/[0.03] hover:border-white/5 border-transparent'
                 }`}
               >
                 <span className={`transition-colors ${active ? 'text-[#ff2d78]' : 'text-[#9494b8] group-hover:text-white'}`}>
                   {tab.icon}
                 </span>
-                <span className="font-sans text-[13px] font-semibold tracking-normal ml-4">{tab.label}</span>
+                <span className="font-sans text-[13px] font-semibold tracking-normal ml-3">{tab.label}</span>
               </button>
             );
           })}
@@ -444,8 +444,8 @@ export default function Dashboard() {
 
         {/* Unified Bottom Container */}
         <div className="pt-4 pb-14 mt-auto border-t border-[#1a1a24] space-y-4">
-          <div className="px-6">
-            <div className="bg-[#050507]/40 border border-[#1a1a24] rounded-sm p-4">
+          <div className="px-4">
+            <div className="bg-[#050507]/40 border border-[#222230] rounded-lg p-4">
               <div className="flex justify-between items-center mb-2">
                 <span className="font-mono text-[10px] text-[#9494b8] uppercase tracking-wider">INTERNAL HEALTH</span>
                 <span className="font-mono text-[10px] text-[#ff2d78] font-bold">82%</span>
@@ -462,24 +462,24 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <div className="space-y-1">
+          <div className="px-4 space-y-2">
             <button 
               onClick={() => setActiveTab('Agent Config')}
-              className={`w-full flex items-center px-8 py-2.5 transition-all duration-200 cursor-pointer text-left text-xs ${
-                activeTab === 'Agent Config' ? 'text-[#ff2d78] bg-[#ff2d78]/5 font-bold' : 'text-[#9494b8] hover:text-white hover:bg-white/[0.02]'
+              className={`w-full flex items-center px-4 py-2 rounded-lg border transition-all duration-200 cursor-pointer text-left text-xs ${
+                activeTab === 'Agent Config' 
+                  ? 'text-white bg-[#ff2d78]/10 border-[#ff2d78]/30 shadow-[0_0_12px_rgba(255,45,120,0.15)] font-bold' 
+                  : 'text-[#9494b8] hover:text-white hover:bg-white/[0.03] hover:border-white/5 border-transparent'
               }`}
             >
-              <IconSettings className="w-4.5 h-4.5" />
-              <span className="font-sans ml-4 text-[12px] font-semibold">Settings</span>
+              <IconSettings className="w-4 h-4" />
+              <span className="font-sans ml-3 text-[12px] font-semibold">Settings</span>
             </button>
             <a 
-              className="text-[#9494b8] flex items-center px-8 py-2.5 hover:text-white hover:bg-white/[0.02] transition-all duration-200 text-xs" 
-              href="https://docs.narrativetrader.xyz" 
-              target="_blank" 
-              rel="noreferrer"
+              className="w-full flex items-center px-4 py-2 rounded-lg border transition-all duration-200 cursor-pointer text-left text-xs text-[#9494b8] hover:text-white hover:bg-white/[0.03] hover:border-white/5 border-transparent" 
+              href="/docs"
             >
               <IconHelp className="w-4.5 h-4.5" />
-              <span className="font-sans ml-4 text-[12px] font-semibold">Support</span>
+              <span className="font-sans ml-3 text-[12px] font-semibold">Support</span>
             </a>
           </div>
         </div>
@@ -562,7 +562,7 @@ export default function Dashboard() {
             <div className="col-span-8 space-y-6 flex flex-col">
               
               {/* Total Value Locked Card */}
-              <section className="bg-[#0d0d12] border border-[#1a1a24] rounded-lg p-6 flex flex-col justify-between">
+              <section className="bg-[#0c0c14] border border-[#222230] rounded-xl p-6 flex flex-col justify-between shadow-sm backdrop-blur-[20px] transition-all duration-300 hover:border-[#ff2d78]/20 hover:shadow-[0_0_20px_rgba(255,45,120,0.05)]">
                 <div className="flex justify-between items-start">
                   <div>
                     <span className="font-mono text-[10px] text-[#9494b8] uppercase tracking-wider">Total Value Locked (Institutional)</span>
@@ -616,7 +616,7 @@ export default function Dashboard() {
               </section>
 
               {/* Live Narrative Logs Card */}
-              <section className="bg-[#0d0d12] border border-[#1a1a24] rounded-lg flex flex-col flex-1 min-h-[460px]">
+              <section className="bg-[#0c0c14] border border-[#222230] rounded-xl flex flex-col flex-1 min-h-[460px] shadow-sm backdrop-blur-[20px] transition-all duration-300 hover:border-[#ff2d78]/20 hover:shadow-[0_0_20px_rgba(255,45,120,0.05)]">
                 <div className="px-6 py-4 border-b border-[#1a1a24] flex justify-between items-center shrink-0">
                   <div className="flex items-center gap-2.5">
                     <svg className="w-5 h-5 text-[#ff2d78]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -685,7 +685,7 @@ export default function Dashboard() {
             <div className="col-span-4 space-y-6 flex flex-col">
               
               {/* Engine Status Card */}
-              <section className="bg-[#0d0d12] border border-[#1a1a24] rounded-lg p-6 flex flex-col justify-between">
+              <section className="bg-[#0c0c14] border border-[#222230] rounded-xl p-6 flex flex-col justify-between shadow-sm backdrop-blur-[20px] transition-all duration-300 hover:border-[#ff2d78]/20 hover:shadow-[0_0_20px_rgba(255,45,120,0.05)]">
                 <div className="flex justify-between items-center">
                   <span className="font-mono text-[10px] text-[#9494b8] uppercase tracking-wider">Engine Status</span>
                   <button onClick={fetchData} className="text-[#ff2d78] hover:brightness-125 transition-all cursor-pointer">
@@ -702,9 +702,9 @@ export default function Dashboard() {
                       <span className="text-[#9494b8]">Sentiment Accuracy</span>
                       <span className="text-[#00f0ff]">{sentimentAccuracy.toFixed(1)}%</span>
                     </div>
-                    <div className="h-1 w-full bg-[#1a1a24] rounded-full overflow-hidden">
+                    <div className="h-1.5 w-full bg-[#1a1a24] rounded-full overflow-hidden">
                       <div 
-                        className="h-full bg-[#00f0ff] shadow-[0_0_8px_rgba(0,240,255,0.5)] transition-all duration-500" 
+                        className="h-full bg-[#00f0ff] shadow-[0_0_8px_rgba(0,240,255,0.5)] transition-all duration-500 rounded-full" 
                         style={{ width: `${sentimentAccuracy}%` }}
                       />
                     </div>
@@ -714,15 +714,15 @@ export default function Dashboard() {
                       <span className="text-[#9494b8]">LLM Load</span>
                       <span className="text-[#bc13fe]">{lpu}%</span>
                     </div>
-                    <div className="h-1 w-full bg-[#1a1a24] rounded-full overflow-hidden">
-                      <div className="h-full bg-[#bc13fe] transition-all duration-500 shadow-[0_0_8px_rgba(188,19,254,0.5)]" style={{ width: `${lpu}%` }}></div>
+                    <div className="h-1.5 w-full bg-[#1a1a24] rounded-full overflow-hidden">
+                      <div className="h-full bg-[#bc13fe] transition-all duration-500 shadow-[0_0_8px_rgba(188,19,254,0.5)] rounded-full" style={{ width: `${lpu}%` }}></div>
                     </div>
                   </div>
                 </div>
               </section>
               
               {/* Sector Allocation Card */}
-              <section className="bg-[#0d0d12] border border-[#1a1a24] rounded-lg p-6 flex flex-col justify-between">
+              <section className="bg-[#0c0c14] border border-[#222230] rounded-xl p-6 flex flex-col justify-between shadow-sm backdrop-blur-[20px] transition-all duration-300 hover:border-[#ff2d78]/20 hover:shadow-[0_0_20px_rgba(255,45,120,0.05)]">
                 <div>
                   <div className="flex justify-between items-center mb-6">
                     <span className="font-mono text-[10px] text-[#9494b8] uppercase tracking-wider">Sector Allocation</span>
@@ -745,8 +745,8 @@ export default function Dashboard() {
                             <span className="text-[#9494b8]">{name}</span>
                             <span style={{ color: activeColor.color }}>{pct.toFixed(1)}%</span>
                           </div>
-                          <div className="h-1 bg-[#1a1a24] rounded-full overflow-hidden">
-                            <div className={`h-full ${activeColor.glow}`} style={{ width: `${pct}%`, backgroundColor: activeColor.color }}></div>
+                          <div className="h-1.5 bg-[#1a1a24] rounded-full overflow-hidden">
+                            <div className={`h-full rounded-full ${activeColor.glow}`} style={{ width: `${pct}%`, backgroundColor: activeColor.color }}></div>
                           </div>
                         </div>
                       );
@@ -755,7 +755,7 @@ export default function Dashboard() {
                 </div>
                 
                 {/* Cyber Globe Frame */}
-                <div className="mt-6 border border-[#ff2d78]/20 bg-black/40 rounded-sm overflow-hidden h-36 flex items-center justify-center relative">
+                <div className="mt-6 border border-[#ff2d78]/20 bg-black/40 rounded-lg overflow-hidden h-36 flex items-center justify-center relative">
                   <img 
                     className="w-full h-full object-cover opacity-60 mix-blend-screen" 
                     alt="Cyber globe visualization" 
@@ -766,9 +766,9 @@ export default function Dashboard() {
               </section>
               
               {/* AI Recommendation Card */}
-              <section className="bg-[#0d0d12] border border-[#1a1a24] rounded-lg p-6 flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center gap-2 text-[#ff2d78] mb-3">
+              <section className="bg-[#0c0c14] border border-[#222230] rounded-xl p-6 flex flex-col justify-between shadow-sm backdrop-blur-[20px] transition-all duration-300 hover:border-[#ff2d78]/20 hover:shadow-[0_0_20px_rgba(255,45,120,0.05)] h-full">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 text-[#ff2d78] mb-1">
                     <svg className="w-5 h-5 text-[#ff2d78]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
@@ -785,7 +785,7 @@ export default function Dashboard() {
                 <button 
                   onClick={simulateCycleTrigger}
                   disabled={isTriggering || portfolio?.isPaused}
-                  className="mt-6 w-full py-2.5 bg-transparent hover:bg-[#ff2d78] text-[#ff2d78] hover:text-white border border-[#ff2d78] font-mono text-xs uppercase tracking-widest rounded-sm transition-all duration-300 hover:shadow-[0_0_15px_rgba(255,45,120,0.4)] cursor-pointer disabled:opacity-30 disabled:pointer-events-none font-bold"
+                  className="mt-6 w-full py-2.5 bg-transparent hover:bg-[#ff2d78] text-[#ff2d78] hover:text-white border border-[#ff2d78] font-mono text-xs uppercase tracking-widest rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(255,45,120,0.4)] cursor-pointer disabled:opacity-30 disabled:pointer-events-none font-bold"
                 >
                   {isTriggering ? 'Executing Rebalance...' : 'Execute Rebalance'}
                 </button>
@@ -1102,7 +1102,7 @@ export default function Dashboard() {
             </span>
           </div>
           <div className="flex items-center gap-4">
-            <a className="hover:text-[#ff2d78] transition-colors" href="https://docs.narrativetrader.xyz" target="_blank" rel="noreferrer">API Docs</a>
+            <a className="hover:text-[#ff2d78] transition-colors" href="/docs">API Docs</a>
             <span className="text-[#9494b8]/20">|</span>
             <span className="text-[#bc13fe] font-bold">Encrypted connection active</span>
           </div>

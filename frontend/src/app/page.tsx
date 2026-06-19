@@ -501,7 +501,7 @@ export default function Page() {
               >
                 Launch Dashboard
               </a>
-              <a href="https://docs.narrativetrader.xyz" target="_blank" rel="noreferrer" style={{
+              <a href="/docs" style={{
                 background: C.containerHigh,
                 border: `1px solid rgba(48,40,64,0.30)`,
                 color: C.onSurface,
@@ -1219,7 +1219,7 @@ export default function Page() {
               <h4 style={{ color: C.onSurface, fontFamily: F.mono, fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', margin: '0 0 24px' }}>Platform Resources</h4>
               <nav style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 <a href="/dashboard" style={{ color: C.onSurfaceVar, fontSize: 12, textDecoration: 'none' }}>Live Terminal</a>
-                <a href="https://docs.narrativetrader.xyz" target="_blank" rel="noreferrer" style={{ color: C.onSurfaceVar, fontSize: 12, textDecoration: 'none' }}>Documentation</a>
+                <a href="/docs" style={{ color: C.onSurfaceVar, fontSize: 12, textDecoration: 'none' }}>Documentation</a>
               </nav>
             </div>
 
