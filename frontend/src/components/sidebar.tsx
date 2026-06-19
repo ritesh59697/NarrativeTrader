@@ -78,7 +78,7 @@ export function Sidebar() {
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse" />
-                <span className="text-on-surface-variant text-[10px] font-mono tracking-wider uppercase font-semibold">Mainnet-Alpha</span>
+                <span className="text-on-surface-variant text-[10px] font-mono tracking-wider uppercase font-semibold">Testnet-Alpha</span>
               </div>
               <span className="text-secondary text-[9px] font-mono font-bold">12ms</span>
             </div>

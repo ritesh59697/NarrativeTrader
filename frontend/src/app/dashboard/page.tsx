@@ -502,7 +502,7 @@ export default function Dashboard() {
           <div className="flex items-center gap-8">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-[#ff2d78] pulse-dot-neon"></div>
-              <span className="font-mono text-[10px] text-[#ff2d78] font-bold tracking-widest uppercase">MAINNET-ALPHA</span>
+              <span className="font-mono text-[10px] text-[#ff2d78] font-bold tracking-widest uppercase">TESTNET-ALPHA</span>
             </div>
             <div className="flex items-center gap-2 text-[#9494b8]">
               <IconSensors className="text-[#00f0ff] w-4 h-4" />

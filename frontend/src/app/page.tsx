@@ -280,6 +280,25 @@ export default function Page() {
   const [latency, setLatency] = useState(12);
   const [lpu, setLpu] = useState(84);
   const [uptime, setUptime] = useState('');
+  const [tilt, setTilt] = useState({ x: 8, y: -5 });
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const normalizedX = (x / rect.width) - 0.5;
+    const normalizedY = (y / rect.height) - 0.5;
+    setTilt({
+      x: 8 - (normalizedY * 18),
+      y: -5 + (normalizedX * 18)
+    });
+  };
+
+  const handleMouseLeave = () => {
+    setTilt({ x: 8, y: -5 });
+  };
 
   useEffect(() => {
     const latInterval = setInterval(() => {
@@ -503,15 +522,22 @@ export default function Page() {
                 filter: 'blur(80px)', pointerEvents: 'none',
               }} />
 
-              <div style={{
-                background: 'rgba(14,14,15,0.70)',
-                backdropFilter: 'blur(40px)',
-                border: `1px solid rgba(48,40,64,0.30)`,
-                borderRadius: 16,
-                padding: 32,
-                boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
-                transform: 'perspective(2000px) rotateX(8deg) rotateY(-5deg)',
-              }}>
+              <div 
+                ref={cardRef}
+                onMouseMove={handleMouseMove}
+                onMouseLeave={handleMouseLeave}
+                style={{
+                  background: 'rgba(14,14,15,0.70)',
+                  backdropFilter: 'blur(40px)',
+                  border: `1px solid rgba(48,40,64,0.30)`,
+                  borderRadius: 16,
+                  padding: 32,
+                  boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
+                  transform: `perspective(2000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
+                  transition: 'transform 0.1s ease-out, box-shadow 0.2s',
+                  cursor: 'pointer',
+                }}
+              >
                 {/* Window chrome */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 40, paddingBottom: 24, borderBottom: '1px solid rgba(48,40,64,0.10)' }}>
                   <div style={{ display: 'flex', gap: 12 }}>
@@ -597,7 +623,7 @@ export default function Page() {
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <div style={{ width: 8, height: 8, borderRadius: '50%', background: C.primaryFixed, animation: 'pulse 1.4s ease-in-out infinite' }} />
-                    <span style={{ color: C.primaryFixed, fontFamily: F.mono, fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em' }}>Connected to Mainnet</span>
+                    <span style={{ color: C.primaryFixed, fontFamily: F.mono, fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em' }}>Connected to Testnet</span>
                   </div>
                 </div>
               </div>
@@ -619,7 +645,7 @@ export default function Page() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <div style={{ width: 6, height: 6, borderRadius: '50%', background: C.primaryFixed }} />
-                <span style={{ color: C.primaryFixed, fontFamily: F.mono, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Mainnet-Alpha</span>
+                <span style={{ color: C.primaryFixed, fontFamily: F.mono, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Testnet-Alpha</span>
               </div>
               <div style={{ display: 'flex', gap: 16, color: 'rgba(160,152,176,0.60)' }}>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
