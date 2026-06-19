@@ -331,10 +331,10 @@ export default function Dashboard() {
 
   const elapsed  = useElapsed(lastUpdated);
   
-  // Format starting values logic to scale mock values exactly to reference screens if seeded/default (100 currentValue)
-  const val      = (portfolio?.currentValue ?? 0) === 100 ? 2481000.00 : (portfolio?.currentValue ?? 2481000.00);
-  const pnl      = val === 2481000.00 ? 142201.20 : val - 2481000.00;
-  const pnlPct   = val === 2481000.00 ? 6.08 : (pnl / 2481000.00) * 100;
+  const val      = portfolio?.currentValue ?? 100;
+  const initial  = config?.targetPortfolioValue ?? 100;
+  const pnl      = val - initial;
+  const pnlPct   = initial > 0 ? (pnl / initial) * 100 : 0;
   const sectors  = computeSectors(cycles);
 
   // Map database cycles to beautiful high-fidelity logs matching the reference layout
@@ -364,53 +364,27 @@ export default function Dashboard() {
       );
     });
 
-  // Specifically maps standard seeded history logs to the 3 distinct, beautiful entries in Image 1
-  const logs = baseLogs.map((log, idx) => {
-    if (idx === 0) {
-      return {
-        ...log,
-        time: '13:55:30',
-        decision: 'HOLD' as const,
-        name: 'AI Agent Ecosystem',
-        score: 8.4,
-        reason: 'The AI Agent Ecosystem narrative has the highest score due to its strong momentum (volume delta of 38.5% and price trend of top tokens, particularly VIRTUAL with a 15.2% increase). Sentiment is reaching critical mass with developer platform upgrades.',
-        txHash: '0xad9f2bfb2174fc6c65a29ac5',
-      };
-    }
-    if (idx === 1) {
-      return {
-        ...log,
-        time: '13:42:15',
-        decision: 'SELL' as const,
-        name: 'Modular Infrastructure',
-        score: 9.1,
-        reason: 'Observed significant whale outflow from core modular data availability layers. Divergence detected between narrative social volume and on-chain liquidity depth. Recommend rotating into agent liquidity.',
-        txHash: null,
-      };
-    }
-    if (idx === 2) {
-      return {
-        ...log,
-        time: '13:21:02',
-        decision: 'BUY' as const,
-        name: 'DeFi Liquidity Agents',
-        score: 7.8,
-        reason: 'Emerging pattern in AI-governed vaults showing increased efficiency in cross-chain routing. Narrative score 8/10 meets threshold for accumulation. Signal detected in VIRTUAL pairs.',
-        txHash: null,
-      };
-    }
-    return log;
-  }).slice(0, 3);
+  const logs = baseLogs;
 
   const chartBars = (() => {
     const last10 = [...cycles].slice(-10);
-    if (last10.length === 0 || cycles.length <= 30) {
+    if (last10.length === 0) {
       return [30, 45, 35, 55, 45, 60, 50, 75, 70, 85].map((h, i) => ({ h, i }));
     }
-    return last10.map((c, i) => ({ h: Math.max(15, ((normalizeScore(c) ?? 5) / 10) * 100), i }));
+    const padded = [...last10];
+    while (padded.length < 10) {
+      padded.unshift({
+        status: 'HOLD',
+        decision: { score: 5 }
+      } as any);
+    }
+    return padded.map((c, i) => ({ h: Math.max(15, ((normalizeScore(c) ?? 5) / 10) * 100), i }));
   })();
 
-  const cyclesCount = cycles.length === 30 ? 32842 : cycles.length;
+  const cyclesCount = cycles.length;
+  const sentimentAccuracy = cycles.length > 0
+    ? (cycles.filter(c => (c as any).status !== 'EXECUTION_FAILED' && (c as any).decision !== 'FAILED').length / cycles.length) * 100
+    : 100.0;
 
   const badge = {
     BUY:    { bg: 'rgba(188, 19, 254, 0.1)',  color: '#bc13fe', border: '1px solid rgba(188, 19, 254, 0.25)' },
@@ -439,8 +413,8 @@ export default function Dashboard() {
               </svg>
             </div>
             <div>
-              <h1 className="font-sans text-white text-base tracking-normal uppercase font-bold leading-none">ArcMarkets</h1>
-              <span className="font-mono text-[#ff2d78] tracking-[0.25em] text-[9px] font-bold block mt-0.5">NARRATIVETRADER</span>
+              <h1 className="font-sans text-white text-base tracking-normal uppercase font-bold leading-none">Narrative</h1>
+              <span className="font-mono text-[#ff2d78] tracking-[0.25em] text-[9px] font-bold block mt-0.5">TRADER</span>
             </div>
           </div>
         </div>
@@ -500,7 +474,7 @@ export default function Dashboard() {
             </button>
             <a 
               className="text-[#9494b8] flex items-center px-8 py-2.5 hover:text-white hover:bg-white/[0.02] transition-all duration-200 text-xs" 
-              href="https://ritesh5969.gitbook.io/arcmarkets-docs" 
+              href="https://docs.narrativetrader.xyz" 
               target="_blank" 
               rel="noreferrer"
             >
@@ -726,10 +700,13 @@ export default function Dashboard() {
                   <div>
                     <div className="flex justify-between text-[10px] font-mono mb-1.5 uppercase font-bold">
                       <span className="text-[#9494b8]">Sentiment Accuracy</span>
-                      <span className="text-[#00f0ff]">99.2%</span>
+                      <span className="text-[#00f0ff]">{sentimentAccuracy.toFixed(1)}%</span>
                     </div>
                     <div className="h-1 w-full bg-[#1a1a24] rounded-full overflow-hidden">
-                      <div className="h-full bg-[#00f0ff] w-[99.2%] shadow-[0_0_8px_rgba(0,240,255,0.5)]"></div>
+                      <div 
+                        className="h-full bg-[#00f0ff] shadow-[0_0_8px_rgba(0,240,255,0.5)] transition-all duration-500" 
+                        style={{ width: `${sentimentAccuracy}%` }}
+                      />
                     </div>
                   </div>
                   <div>
@@ -798,7 +775,11 @@ export default function Dashboard() {
                     <span className="text-[10px] font-bold font-mono tracking-widest uppercase">AI Recommendation:</span>
                   </div>
                   <p className="text-xs leading-relaxed text-[#e0e0e6]">
-                    Concentration in AI Agent Ecosystem is reaching local saturation. Consider rebalancing <span className="text-[#ff2d78] font-bold">5%</span> into Modular Infrastructure. Narrative score for Data Availability layers is trending up <span className="text-[#00f0ff] font-bold">+12%</span>.
+                    {cycles && cycles.length > 0 ? (
+                      sanitizeReasoning(cycles[cycles.length - 1].reasoning ?? (cycles[cycles.length - 1].decision as any)?.reasoning ?? '')
+                    ) : (
+                      "No recommendations available yet. Start the agent to initiate narrative scans."
+                    )}
                   </p>
                 </div>
                 <button 
@@ -1115,13 +1096,13 @@ export default function Dashboard() {
         {/* Terminal Footer */}
         <footer className="h-10 px-8 border-t border-[#1a1a24] flex items-center justify-between text-[#9494b8] text-[9px] font-mono tracking-widest uppercase bg-[#0d0d12]/90 shrink-0 z-40">
           <div className="flex items-center gap-6">
-            <span>© 2024 ArcMarkets Foundation v1.0.4-BETA</span>
+            <span>© 2024 Narrative Trader Foundation v1.0.4-BETA</span>
             <span className="flex items-center gap-1.5 text-[#ff2d78] font-bold">
               <span className="w-1.5 h-1.5 rounded-full bg-[#ff2d78] pulse-dot-neon"></span> System Operational
             </span>
           </div>
           <div className="flex items-center gap-4">
-            <a className="hover:text-[#ff2d78] transition-colors" href="https://ritesh5969.gitbook.io/arcmarkets-docs" target="_blank" rel="noreferrer">API Docs</a>
+            <a className="hover:text-[#ff2d78] transition-colors" href="https://docs.narrativetrader.xyz" target="_blank" rel="noreferrer">API Docs</a>
             <span className="text-[#9494b8]/20">|</span>
             <span className="text-[#bc13fe] font-bold">Encrypted connection active</span>
           </div>

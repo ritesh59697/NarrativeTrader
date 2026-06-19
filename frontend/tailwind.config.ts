@@ -10,7 +10,7 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // ArcMarkets Design Tokens
+        // Narrative Trader Design Tokens
         arc: {
           950: '#05060A',
           900: '#0B0D14',

@@ -64,8 +64,8 @@ export function Header({ cycles, portfolio, isLoading, lastUpdatedAt, onRefresh 
             <span className="material-symbols-outlined text-[16px] text-on-primary font-bold">query_stats</span>
           </Link>
           <div>
-            <span className="text-on-surface text-xs font-display font-bold tracking-tight uppercase leading-none block">ArcMarkets</span>
-            <span className="text-primary text-[8px] font-mono block leading-none font-bold uppercase mt-0.5">NarrativeTrader</span>
+            <span className="text-on-surface text-xs font-display font-bold tracking-tight uppercase leading-none block">Narrative</span>
+            <span className="text-primary text-[8px] font-mono block leading-none font-bold uppercase mt-0.5">Trader</span>
           </div>
         </div>
 

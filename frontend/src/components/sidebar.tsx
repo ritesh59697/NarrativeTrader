@@ -25,8 +25,8 @@ export function Sidebar() {
             <span className="material-symbols-outlined text-[18px] text-on-primary font-bold">query_stats</span>
           </div>
           <div>
-            <p className="text-on-surface text-sm font-display font-bold tracking-tight leading-none uppercase">ArcMarkets</p>
-            <p className="text-primary text-[9px] mt-1 font-mono tracking-wider uppercase font-bold">NarrativeTrader</p>
+            <p className="text-on-surface text-sm font-display font-bold tracking-tight leading-none uppercase">Narrative</p>
+            <p className="text-primary text-[9px] mt-1 font-mono tracking-wider uppercase font-bold">Trader</p>
           </div>
         </Link>
 
