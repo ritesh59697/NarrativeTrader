@@ -23,7 +23,6 @@ export function PortfolioCard({ portfolio, cycles }: PortfolioCardProps) {
   const currentValue  = portfolio?.currentValue  ?? START_VALUE;
   const peakValue     = portfolio?.peakValue     ?? START_VALUE;
   const cashUSDC      = portfolio?.cashUSDC      ?? START_VALUE;
-  const openPositions = portfolio?.openPositions  ?? [];
 
   const pnl        = currentValue - START_VALUE;
   const pnlPct     = (pnl / START_VALUE) * 100;
@@ -35,10 +34,10 @@ export function PortfolioCard({ portfolio, cycles }: PortfolioCardProps) {
 
   const pnlPositive = pnl >= 0;
   const drawdownColor = drawdown >= 10 
-    ? 'bg-error shadow-[0_0_8px_rgba(255,180,171,0.4)]' 
+    ? 'bg-error shadow-[0_0_8px_rgba(255,68,68,0.4)]' 
     : drawdown >= 5 
-      ? 'bg-secondary shadow-[0_0_8px_rgba(255,180,170,0.4)]' 
-      : 'bg-primary-fixed shadow-[0_0_8px_rgba(114,255,112,0.4)]';
+      ? 'bg-tertiary shadow-[0_0_8px_rgba(255,224,74,0.4)]' 
+      : 'bg-secondary shadow-[0_0_8px_rgba(0,255,204,0.4)]';
 
   return (
     <div className="obsidian-card rounded-xl overflow-hidden">
@@ -46,15 +45,15 @@ export function PortfolioCard({ portfolio, cycles }: PortfolioCardProps) {
         <div className="flex items-start justify-between mb-5">
           <div>
             <p className="text-on-surface-variant font-mono text-[10px] uppercase tracking-wider font-semibold mb-1">Portfolio Valuation</p>
-            <p className="text-on-surface font-geist text-3xl font-extrabold tracking-tight">
+            <p className="text-on-surface font-display text-3xl font-extrabold tracking-tight">
               {formatMoney(currentValue)}
             </p>
           </div>
           <div className={cn(
             'flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold font-mono border',
             pnlPositive 
-              ? 'bg-primary-fixed/10 text-primary-fixed border-primary-fixed/20 shadow-[0_2px_8px_rgba(114,255,112,0.08)]' 
-              : 'bg-error/10 text-error border-error/20 shadow-[0_2px_8px_rgba(255,180,171,0.08)]'
+              ? 'bg-secondary/10 text-secondary border-secondary/20 shadow-[0_2px_8px_rgba(0,255,204,0.08)]' 
+              : 'bg-error/10 text-error border-error/20 shadow-[0_2px_8px_rgba(255,68,68,0.08)]'
           )}>
             {pnlPositive ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
             {pnlPositive ? '+' : ''}{formatMoney(pnl)} ({pnlPositive ? '+' : ''}{pnlPct.toFixed(2)}%)

@@ -78,7 +78,7 @@ export function StatsGrid({ cycles, portfolio }: StatsGridProps) {
           className="obsidian-card rounded-xl p-5"
         >
           <p className="text-on-surface-variant font-mono text-[10px] uppercase tracking-wider font-semibold mb-2">{stat.label}</p>
-          <p className="text-on-surface font-geist text-2xl font-bold tracking-tight mb-2">{stat.value}</p>
+          <p className="text-on-surface font-display text-2xl font-bold tracking-tight mb-2">{stat.value}</p>
           <p className="text-on-surface-variant/60 font-mono text-[10px] leading-none truncate">{stat.sub}</p>
         </div>
       ))}

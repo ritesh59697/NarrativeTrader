@@ -1,36 +1,45 @@
 import type { Metadata } from 'next';
-import { Inter, IBM_Plex_Mono, Geist } from 'next/font/google';
+import { Sora, Inter, Space_Grotesk } from 'next/font/google';
 import './globals.css';
+
+const sora = Sora({
+  subsets: ['latin'],
+  variable: '--font-sora',
+  display: 'swap',
+  weight: ['400', '500', '600', '700'],
+});
 
 const inter = Inter({
   subsets: ['latin'],
   variable: '--font-inter',
   display: 'swap',
+  weight: ['300', '400', '500', '600', '700'],
 });
 
-const ibmPlexMono = IBM_Plex_Mono({
+const spaceGrotesk = Space_Grotesk({
+  subsets: ['latin'],
+  variable: '--font-space-grotesk',
+  display: 'swap',
   weight: ['400', '500', '600', '700'],
-  subsets: ['latin'],
-  variable: '--font-mono',
-  display: 'swap',
-});
-
-const geist = Geist({
-  subsets: ['latin'],
-  variable: '--font-geist',
-  display: 'swap',
 });
 
 export const metadata: Metadata = {
-  title: 'NarrativeTrader — ArcMarkets',
-  description: 'Autonomous AI crypto trading agent powered by narrative intelligence. Built on BNB Chain.',
-  keywords: ['crypto', 'trading', 'AI agent', 'BNB Chain', 'prediction market', 'DeFi'],
+  title: 'Narrative Trader | AI-Driven Alpha Terminal',
+  description: 'Institutional-grade AI crypto trading. Leverage real-time LLM narrative analysis to capture asymmetric market moves before they hit the tape.',
+  keywords: ['crypto trading', 'AI agent', 'narrative trading', 'BNB Chain', 'DeFi', 'Groq', 'LLM'],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`dark ${inter.variable} ${ibmPlexMono.variable} ${geist.variable}`} suppressHydrationWarning>
-      <body className="bg-arc-900 text-arc-100 antialiased" style={{ fontFamily: 'var(--font-geist), var(--font-inter), system-ui, sans-serif' }}>
+    <html
+      lang="en"
+      className={`dark ${sora.variable} ${inter.variable} ${spaceGrotesk.variable}`}
+      suppressHydrationWarning
+    >
+      <body
+        className="bg-surface-container-lowest text-on-background overflow-x-hidden"
+        style={{ fontFamily: 'var(--font-inter), system-ui, sans-serif' }}
+      >
         {children}
       </body>
     </html>

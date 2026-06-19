@@ -28,10 +28,10 @@ export function OpenPositions({ positions }: OpenPositionsProps) {
   return (
     <div className="obsidian-card rounded-xl overflow-hidden flex flex-col justify-between h-full">
       <div>
-        <div className="px-5 py-4 border-b border-outline-variant/15 bg-surface-container-low/20">
+        <div className="px-5 py-4 border-b border-outline-variant/10 bg-surface-container-low/20">
           <div className="flex items-center justify-between">
             <p className="text-on-surface-variant font-mono text-[10px] uppercase tracking-wider font-semibold">Active Positions</p>
-            <span className="bg-primary-fixed/10 text-primary-fixed border border-primary-fixed/20 text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+            <span className="bg-primary/10 text-primary border border-primary/20 text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
               {positions.length} active
             </span>
           </div>
@@ -46,20 +46,19 @@ export function OpenPositions({ positions }: OpenPositionsProps) {
             return (
               <div key={pos.address} className="p-5 hover:bg-surface-container-low/20 transition-colors">
                 <div className="flex items-center justify-between mb-4">
-                  {/* Left: Token info */}
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-primary-fixed/10 border border-primary-fixed/20 flex items-center justify-center shadow-sm">
-                      <span className="text-primary-fixed text-[11px] font-mono font-extrabold uppercase">
+                    <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
+                      <span className="text-primary text-[11px] font-mono font-extrabold uppercase">
                         {pos.token.slice(0, 3)}
                       </span>
                     </div>
                     <div>
-                      <p className="text-on-surface text-sm font-geist font-bold tracking-tight">{pos.token}</p>
+                      <p className="text-on-surface text-sm font-display font-bold tracking-tight">{pos.token}</p>
                       <a
                         href={`${EXPLORER_ADDR}${pos.address}`}
                         target="_blank"
                         rel="noreferrer"
-                        className="text-on-surface-variant/60 text-[10px] font-mono hover:text-primary-fixed transition-colors flex items-center gap-0.5 mt-0.5"
+                        className="text-on-surface-variant/60 text-[10px] font-mono hover:text-primary transition-colors flex items-center gap-0.5 mt-0.5"
                       >
                         {truncateHash(pos.address, 6)}
                         <ExternalLink className="w-2.5 h-2.5" />
@@ -67,13 +66,12 @@ export function OpenPositions({ positions }: OpenPositionsProps) {
                     </div>
                   </div>
 
-                  {/* Right: Valuation & PnL */}
                   <div className="text-right">
                     <p className="text-on-surface text-sm font-mono font-bold">{formatMoney(posValue)}</p>
                     <span className={cn(
                       'inline-block px-1.5 py-0.5 rounded text-[10px] font-mono font-bold mt-1 border',
-                      positive 
-                        ? 'bg-primary-fixed/10 text-primary-fixed border-primary-fixed/20' 
+                      positive
+                        ? 'bg-secondary/10 text-secondary border-secondary/20'
                         : 'bg-error/10 text-error border-error/20'
                     )}>
                       {positive ? '+' : ''}{pnlPct.toFixed(2)}%
@@ -81,18 +79,17 @@ export function OpenPositions({ positions }: OpenPositionsProps) {
                   </div>
                 </div>
 
-                {/* Bottom details sheet */}
                 <div className="grid grid-cols-3 gap-2 bg-surface-container-lowest/50 p-2.5 rounded-lg border border-outline-variant/10 text-[11px]">
                   <div>
-                    <p className="text-on-surface-variant/40 mb-0.5 font-medium uppercase text-[9px] tracking-wider">Amount</p>
+                    <p className="text-on-surface-variant/40 mb-0.5 font-mono font-semibold uppercase text-[9px] tracking-wider">Amount</p>
                     <p className="text-on-surface/80 font-mono font-semibold">{pos.amount.toFixed(4)}</p>
                   </div>
                   <div>
-                    <p className="text-on-surface-variant/40 mb-0.5 font-medium uppercase text-[9px] tracking-wider">Entry Price</p>
+                    <p className="text-on-surface-variant/40 mb-0.5 font-mono font-semibold uppercase text-[9px] tracking-wider">Entry</p>
                     <p className="text-on-surface/80 font-mono font-semibold">{formatMoney(pos.entryPrice)}</p>
                   </div>
                   <div>
-                    <p className="text-on-surface-variant/40 mb-0.5 font-medium uppercase text-[9px] tracking-wider">Age</p>
+                    <p className="text-on-surface-variant/40 mb-0.5 font-mono font-semibold uppercase text-[9px] tracking-wider">Age</p>
                     <p className="text-on-surface/80 font-mono font-semibold">{formatAge(pos.timestamp)}</p>
                   </div>
                 </div>

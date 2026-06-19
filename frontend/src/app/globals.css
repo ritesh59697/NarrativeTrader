@@ -1,156 +1,150 @@
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
-
+/* ══════════════════════════════════════════════════
+   OBSIDIAN NEXUS — Design System (from Stitch HTML)
+   ══════════════════════════════════════════════════ */
 @theme {
-  /* Premium Stitch mockup variables */
-  --color-primary-fixed: #72ff70;
-  --color-on-primary-fixed: #002203;
-  --color-primary-fixed-dim: #00e639;
-  --color-surface-container: #201f20;
-  --color-surface-container-lowest: #0e0e0f;
-  --color-surface-container-low: #1c1b1c;
-  --color-surface-container-high: #2a2a2b;
-  --color-surface-container-highest: #353436;
-  --color-on-surface: #e5e2e3;
-  --color-on-surface-variant: #b9ccb2;
-  --color-outline: #84967e;
-  --color-outline-variant: #3b4b37;
-  --color-secondary: #ffb4aa;
-  --color-tertiary: #fff8f4;
-  --color-error: #ffb4ab;
+  /* ── Backgrounds ── */
+  --color-background:                 #0a0a12;
+  --color-surface:                    #0f0f1a;
+  --color-surface-dim:                #0f0f1a;
+  --color-surface-bright:             #1a1a2e;
+  --color-surface-container-lowest:   #0a0a12;
+  --color-surface-container-low:      #111118;
+  --color-surface-container:          #141422;
+  --color-surface-container-high:     #1e1e30;
+  --color-surface-container-highest:  #28283e;
 
-  /* Dashboard specific variables mapped to design system tokens */
-  --color-arc-950: var(--arc-950);
-  --color-arc-900: var(--arc-900);
-  --color-arc-800: var(--arc-800);
-  --color-arc-750: var(--arc-750);
-  --color-arc-700: var(--arc-700);
-  --color-arc-600: var(--arc-600);
-  --color-arc-500: var(--arc-500);
-  --color-arc-400: var(--arc-400);
-  --color-arc-300: var(--arc-300);
-  --color-arc-200: var(--arc-200);
-  --color-arc-100: var(--arc-100);
-  --color-arc-50:  var(--arc-50);
-  
-  --color-buy:     var(--buy);
-  --color-hold:    var(--hold);
-  --color-fail:    var(--fail);
-  --color-accent:  var(--accent);
+  /* ── On-surface text ── */
+  --color-on-background:              #e8e0f0;
+  --color-on-surface:                 #e8e0f0;
+  --color-on-surface-variant:         #a098b0;
 
-  --font-sans: var(--font-geist), var(--font-inter), system-ui, sans-serif;
-  --font-mono: var(--font-mono), ui-monospace, monospace;
+  /* ── Primary (Hot Pink) ── */
+  --color-primary:                    #ff2d78;
+  --color-primary-fixed:              #ffe0ec;
+  --color-primary-fixed-dim:          #ff80aa;
+  --color-primary-container:          #b3004e;
+  --color-on-primary:                 #1a0010;
+  --color-on-primary-fixed:           #3d0020;
+  --color-on-primary-fixed-variant:   #8c0038;
+  --color-on-primary-container:       #ffe0ec;
+  --color-inverse-primary:            #8c0038;
+
+  /* ── Secondary (Cyan) ── */
+  --color-secondary:                  #00ffcc;
+  --color-secondary-fixed:            #c0fff4;
+  --color-secondary-fixed-dim:        #00e6b8;
+  --color-secondary-container:        #004d3d;
+  --color-on-secondary:               #001a1a;
+  --color-on-secondary-container:     #c0fff4;
+  --color-on-secondary-fixed:         #001a1a;
+  --color-on-secondary-fixed-variant: #004d4d;
+
+  /* ── Tertiary (Amber) ── */
+  --color-tertiary:                   #ffe04a;
+  --color-tertiary-fixed:             #fff0c0;
+  --color-tertiary-fixed-dim:         #ffe04a;
+  --color-tertiary-container:         #665200;
+  --color-on-tertiary:                #1a1000;
+  --color-on-tertiary-fixed:          #1a1000;
+  --color-on-tertiary-fixed-variant:  #665200;
+  --color-on-tertiary-container:      #fff0c0;
+
+  /* ── Outline ── */
+  --color-outline:                    #5a5068;
+  --color-outline-variant:            #302840;
+
+  /* ── Error ── */
+  --color-error:                      #ff4444;
+  --color-error-container:            #3d0f0f;
+  --color-on-error:                   #1a0000;
+  --color-on-error-container:         #ffa0a0;
+
+  /* ── Surface tint/inverse ── */
+  --color-surface-tint:               #ff2d78;
+  --color-inverse-surface:            #e8e0f0;
+  --color-inverse-on-surface:         #0a0a12;
+
+  /* ── Fonts ── */
+  --font-display:  'Sora', sans-serif;
+  --font-headline: 'Sora', sans-serif;
+  --font-body:     'Inter', system-ui, sans-serif;
+  --font-label:    'Space Grotesk', monospace;
+  --font-mono:     'Space Grotesk', monospace;
+
+  /* Legacy compat */
+  --color-arc-900: #0a0a12;
+  --color-arc-800: #141422;
+  --color-arc-700: #302840;
+  --color-arc-500: #5a5068;
+  --color-arc-300: #a098b0;
+  --color-arc-100: #e8e0f0;
 }
 
-:root {
-  /* Mapping premium dark mode tokens directly to dashboard theme colors */
-  --arc-950: #0e0e0f; /* Lowest container */
-  --arc-900: #131314; /* Background */
-  --arc-800: rgba(20, 20, 21, 0.85); /* Obsidian base */
-  --arc-750: rgba(32, 31, 32, 0.9); /* Lighter obsidian container */
-  --arc-700: rgba(255, 255, 255, 0.06); /* Thin glass border */
-  --arc-600: rgba(114, 255, 112, 0.25); /* Accent neon highlight border */
-  --arc-500: #84967e; /* Green-ish outline label */
-  --arc-400: #b9ccb2; /* Pale green content text */
-  --arc-300: #CBD5E1; /* Secondary standard text */
-  --arc-200: #e5e2e3; /* Core text */
-  --arc-100: #e5e2e3; /* Main text */
-  --arc-50:  #ffffff; /* Title text */
-  
-  --buy:     #72ff70; /* Neon Green buy */
-  --hold:    #e7bf99; /* Amber hold */
-  --fail:    #ffb4ab; /* Pinkish red fail */
-  --accent:  #72ff70; /* Default highlight to green */
-  
-  color-scheme: dark;
-}
-
-.light {
-  /* Soft grey/green theme for light mode if toggled */
-  --arc-950: #f4f6f4;
-  --arc-900: #fafbfa;
-  --arc-800: #ffffff;
-  --arc-750: #f0f2f0;
-  --arc-700: rgba(0, 0, 0, 0.08);
-  --arc-600: rgba(0, 110, 22, 0.2);
-  --arc-500: #5d6e59;
-  --arc-400: #3b4b37;
-  --arc-300: #475569;
-  --arc-200: #1e293b;
-  --arc-100: #0f172a;
-  --arc-50:  #000000;
-  
-  --buy:     #00aa1c;
-  --hold:    #c47700;
-  --fail:    #d9001b;
-  --accent:  #008f16;
-  
-  color-scheme: light;
-}
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html {
-  background-color: var(--arc-900);
-  color: var(--arc-100);
+  background:  #0a0a12;
+  color:       #e8e0f0;
+  font-family: 'Inter', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
+  color-scheme: dark;
 }
 
 body {
   min-height: 100vh;
-  background-color: var(--arc-900);
-  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+  background: #0a0a12;
+  overflow-x: hidden;
 }
 
-/* Glass & Obsidian custom utility classes from Stitch Mockup */
+/* ── Custom CSS classes (from Stitch HTML) ── */
+
 .glass-surface {
-  background: rgba(19, 19, 20, 0.6);
-  backdrop-filter: blur(32px);
-  border: 1px solid rgba(132, 150, 126, 0.1);
+  background: rgba(19, 19, 20, 0.4);
+  backdrop-filter: blur(24px);
 }
 
 .obsidian-card {
-  background: rgba(14, 14, 15, 0.8);
+  background: rgba(14, 14, 15, 0.7);
   backdrop-filter: blur(40px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  transition: all 0.2s ease;
 }
 
 .obsidian-card:hover {
-  border-color: rgba(114, 255, 112, 0.3);
-  background: rgba(20, 20, 21, 0.9);
+  border-color: rgba(255, 224, 236, 0.12);
+  background: rgba(20, 20, 32, 0.85);
 }
 
 .neon-glow {
-  box-shadow: 0 0 15px rgba(114, 255, 112, 0.15);
+  box-shadow: 0 0 15px rgba(255, 224, 236, 0.12);
 }
 
 .grid-bg {
-  background-image: linear-gradient(rgba(114, 255, 112, 0.02) 1px, transparent 1px),
-                    linear-gradient(90deg, rgba(114, 255, 112, 0.02) 1px, transparent 1px);
-  background-size: 40px 40px;
+  background-image:
+    linear-gradient(rgba(255, 45, 120, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 45, 120, 0.02) 1px, transparent 1px);
+  background-size: 32px 32px;
 }
 
-/* Scrollbar */
-::-webkit-scrollbar { width: 6px; height: 6px; }
+.hero-gradient {
+  background: radial-gradient(circle at 50% 50%, rgba(255, 45, 120, 0.06) 0%, transparent 70%);
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--arc-700); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--arc-600); }
+::-webkit-scrollbar-thumb { background: rgba(255, 224, 236, 0.15); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255, 224, 236, 0.3); }
 
-/* Animations */
-@keyframes fadeIn  { from { opacity: 0; } to { opacity: 1; } }
-@keyframes slideUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(114, 255, 112, 0.3); }
-  50%       { box-shadow: 0 0 0 6px rgba(114, 255, 112, 0); }
-}
+/* ── Animations ── */
+@keyframes blink-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+@keyframes slide-up  { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
 
-.animate-fade-in  { animation: fadeIn  0.3s ease-out; }
-.animate-slide-up { animation: slideUp 0.4s ease-out; }
-.animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+.animate-dot   { animation: blink-dot 1.4s ease-in-out infinite; }
+.animate-intro { animation: slide-up 0.6s ease-out forwards; }

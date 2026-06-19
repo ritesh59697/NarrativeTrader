@@ -25,7 +25,7 @@ export function Header({ cycles, portfolio, isLoading, lastUpdatedAt, onRefresh 
     return () => clearInterval(tick);
   }, [lastUpdatedAt]);
 
-  // Reset countdown when new data arrives
+  // Reset countdown when data changes
   useEffect(() => {
     setCountdown(1800);
   }, [cycles.length]);
@@ -50,22 +50,22 @@ export function Header({ cycles, portfolio, isLoading, lastUpdatedAt, onRefresh 
   }
 
   const statusColor = isPaused || decision === 'FAILED'
-    ? 'bg-error shadow-[0_0_8px_rgba(255,180,171,0.4)]'
-    : decision === 'BUY' ? 'bg-primary-fixed shadow-[0_0_8px_rgba(114,255,112,0.4)]' : 'bg-secondary shadow-[0_0_8px_rgba(255,180,170,0.4)]';
+    ? 'bg-error shadow-[0_0_8px_rgba(255,68,68,0.4)]'
+    : decision === 'BUY' ? 'bg-primary shadow-[0_0_8px_rgba(255,45,120,0.4)]' : 'bg-secondary shadow-[0_0_8px_rgba(0,255,204,0.4)]';
 
   const statusLabel = isPaused ? 'PAUSED' : decision === 'BUY' ? 'ACTIVE' : decision === 'FAILED' ? 'FAILED' : 'RUNNING';
 
   return (
-    <header className="sticky top-0 z-20 border-b border-outline-variant/10 bg-background/60 backdrop-blur-[40px]">
+    <header className="sticky top-0 z-20 border-b border-outline-variant/10 bg-surface-container-lowest/60 backdrop-blur-[40px]">
       <div className="flex items-center justify-between h-16 px-6">
         {/* Mobile Logo & Title */}
         <div className="flex items-center gap-2.5 lg:hidden">
-          <Link href="/" className="w-7 h-7 rounded-lg bg-gradient-to-tr from-primary-fixed to-primary-fixed-dim flex items-center justify-center shadow-[0_0_8px_rgba(114,255,112,0.2)]">
-            <Bot className="w-4.5 h-4.5 text-on-primary-fixed" />
+          <Link href="/" className="w-8 h-8 rounded bg-primary flex items-center justify-center shadow-[0_0_8px_rgba(255,45,120,0.2)]">
+            <span className="material-symbols-outlined text-[16px] text-on-primary font-bold">query_stats</span>
           </Link>
           <div>
-            <span className="text-on-surface text-xs font-geist font-bold tracking-tight uppercase leading-none block">ArcMarkets</span>
-            <span className="text-primary-fixed text-[8px] font-mono block leading-none font-bold uppercase mt-0.5">NarrativeTrader</span>
+            <span className="text-on-surface text-xs font-display font-bold tracking-tight uppercase leading-none block">ArcMarkets</span>
+            <span className="text-primary text-[8px] font-mono block leading-none font-bold uppercase mt-0.5">NarrativeTrader</span>
           </div>
         </div>
 
