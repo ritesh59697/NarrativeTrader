@@ -470,7 +470,7 @@ export default function Page() {
 
             {/* CTA buttons */}
             <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', justifyContent: 'center', paddingTop: 8 }}>
-              <a href="#terminal" style={{
+              <a href="/dashboard" style={{
                 background: C.primaryFixed, color: C.onPrimaryFixed,
                 fontFamily: F.mono, fontSize: 13, fontWeight: 700,
                 textTransform: 'uppercase', letterSpacing: '0.1em',
@@ -1192,7 +1192,7 @@ export default function Page() {
             <div>
               <h4 style={{ color: C.onSurface, fontFamily: F.mono, fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', margin: '0 0 24px' }}>Platform Resources</h4>
               <nav style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <a href="#terminal" style={{ color: C.onSurfaceVar, fontSize: 12, textDecoration: 'none' }}>Live Terminal</a>
+                <a href="/dashboard" style={{ color: C.onSurfaceVar, fontSize: 12, textDecoration: 'none' }}>Live Terminal</a>
                 <a href="https://ritesh5969.gitbook.io/arcmarkets-docs" target="_blank" rel="noreferrer" style={{ color: C.onSurfaceVar, fontSize: 12, textDecoration: 'none' }}>Documentation</a>
               </nav>
             </div>

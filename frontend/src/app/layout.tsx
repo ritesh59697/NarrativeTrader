@@ -36,6 +36,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`dark ${sora.variable} ${inter.variable} ${spaceGrotesk.variable}`}
       suppressHydrationWarning
     >
+      <head>
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+      </head>
       <body
         style={{
           background:  '#0a0a12',
