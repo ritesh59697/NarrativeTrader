@@ -233,10 +233,10 @@ export default function Page() {
       {/* ─── Hero Section ─────────────────────────────────────────────────── */}
       <main style={{ position: 'relative', zIndex: 1, padding: '160px 24px 64px', maxWidth: 1400, margin: '0 auto' }}>
         
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr lg(1.2fr)', gap: 64, alignItems: 'center', minHeight: '65vh' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 64, alignItems: 'center', minHeight: '65vh', justifyContent: 'space-between' }}>
           
           {/* Left Text Column */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 24, zIndex: 2 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 24, zIndex: 2, flex: '1 1 600px' }}>
             
             {/* Status Indicator */}
             <div style={{
@@ -362,7 +362,7 @@ export default function Page() {
           </div>
 
           {/* Right Widget Preview Column (3D Tilt Card) */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 24, justifyContent: 'center' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 24, justifyContent: 'center', flex: '1 1 500px' }}>
             <div style={{ position: 'relative', width: '100%', maxWidth: '1280px' }}>
               
               {/* glow backdrop behind the 3D card */}
