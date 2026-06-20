@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { Navbar } from '@/components/navbar';
 
@@ -56,16 +56,71 @@ interface PortfolioData {
   tradesHistory?: { timestamp: string; type: string; token: string; valueUSDC: number }[];
 }
 
+function fmt$(v: number | null | undefined) {
+  if (v == null || !isFinite(v)) return '$—';
+  if (v >= 1_000_000) return `$${(v / 1_000_000).toFixed(3)}M`;
+  if (v >= 1_000) return `$${v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  return `$${v.toFixed(2)}`;
+}
+
+function getLLM(cycles: CycleLog[]) {
+  const c = [...cycles].reverse().find(x => x.llmUsed && x.llmUsed !== 'failed');
+  if (c?.llmUsed === 'gemini') return { name: 'Gemini', sub: 'Flash · 2.0' };
+  return { name: 'Groq', sub: 'Llama-3.3-70b · Flash' };
+}
+
+const Icon = {
+  TrendUp: ({ color = 'currentColor' }: { color?: string }) => (
+    <svg width={16} height={16} fill="none" viewBox="0 0 24 24" stroke={color} strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+    </svg>
+  ),
+  Loop: ({ color = 'currentColor' }: { color?: string }) => (
+    <svg width={20} height={20} fill="none" viewBox="0 0 24 24" stroke={color} strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+    </svg>
+  ),
+  Psych: ({ color = 'currentColor' }: { color?: string }) => (
+    <svg width={20} height={20} fill="none" viewBox="0 0 24 24" stroke={color} strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+    </svg>
+  ),
+};
+
 export default function Page() {
   const [cycles, setCycles] = useState<CycleLog[]>([]);
   const [portfolio, setPortfolio] = useState<PortfolioData | null>(null);
+  const [config, setConfig] = useState<{ targetPortfolioValue: number } | null>(null);
   const [activeStep, setActiveStep] = useState(0);
+
+  const [latency, setLatency] = useState(12);
+  const [lpu, setLpu] = useState(84);
+  const [tilt, setTilt] = useState({ x: 8, y: -5 });
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const normalizedX = (x / rect.width) - 0.5;
+    const normalizedY = (y / rect.height) - 0.5;
+    setTilt({
+      x: 8 - (normalizedY * 18),
+      y: -5 + (normalizedX * 18)
+    });
+  };
+
+  const handleMouseLeave = () => {
+    setTilt({ x: 8, y: -5 });
+  };
 
   const fetchData = useCallback(async () => {
     try {
-      const [cr, pr] = await Promise.all([
+      const [cr, pr, cfr] = await Promise.all([
         fetch('/api/cycles', { cache: 'no-store' }),
         fetch('/api/portfolio', { cache: 'no-store' }),
+        fetch('/api/config', { cache: 'no-store' }),
       ]);
       if (cr.ok) {
         const d = await cr.json();
@@ -74,6 +129,10 @@ export default function Page() {
       if (pr.ok) {
         const d = await pr.json();
         if (d && !d.error) setPortfolio(d);
+      }
+      if (cfr.ok) {
+        const d = await cfr.json();
+        setConfig(d);
       }
     } catch {
       /* silent */
@@ -86,7 +145,22 @@ export default function Page() {
     return () => clearInterval(interval);
   }, [fetchData]);
 
-  // Rotate pipeline highlight step every 2 seconds for micro-animation effect
+  useEffect(() => {
+    const latInterval = setInterval(() => {
+      setLatency(Math.floor(Math.random() * 6) + 9);
+    }, 4000);
+
+    const lpuInterval = setInterval(() => {
+      setLpu(Math.floor(Math.random() * 5) + 81);
+    }, 6000);
+
+    return () => {
+      clearInterval(latInterval);
+      clearInterval(lpuInterval);
+    };
+  }, []);
+
+  // Rotate pipeline highlight step every 2.5 seconds for micro-animation effect
   useEffect(() => {
     const timer = setInterval(() => {
       setActiveStep((prev) => (prev + 1) % 5);
@@ -100,6 +174,12 @@ export default function Page() {
   const isAgentPaused = portfolio?.isPaused ?? false;
 
   // Calculate dynamic stats
+  const val = portfolio?.currentValue ?? 50;
+  const initial = config?.targetPortfolioValue ?? 50;
+  const pnl = val - initial;
+  const pnlPct = initial > 0 ? (pnl / initial) * 100 : 0;
+  const llm = getLLM(cycles);
+
   const totalAllocatedVolume = portfolio?.tradesHistory?.reduce((sum, t) => sum + (t.valueUSDC ?? 0), 0) ?? 0;
   const sentimentAccuracy = cycles.length > 0 
     ? Math.min(96, Math.max(78, 80 + (cycles.filter(c => c.score >= 6 && c.decision === 'BUY').length * 2))) 
@@ -281,124 +361,108 @@ export default function Page() {
 
           </div>
 
-          {/* Right Widget Preview Column */}
+          {/* Right Widget Preview Column (3D Tilt Card) */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24, justifyContent: 'center' }}>
-            
-            <div style={{
-              background: C.surface,
-              borderRadius: 16,
-              border: `1px solid ${C.outlineVar}`,
-              padding: 24,
-              boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 16
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: `1px solid ${C.outlineVar}`, paddingBottom: 16 }}>
-                <span style={{ fontFamily: F.display, fontWeight: 700, fontSize: 15, color: '#ffffff' }}>Latest Cycle Monitor</span>
-                <span style={{
-                  fontSize: 10,
-                  fontFamily: F.mono,
-                  padding: '4px 8px',
-                  borderRadius: 4,
-                  background: 'rgba(0, 255, 204, 0.1)',
-                  color: C.secondary,
-                  border: `1px solid ${C.secondaryGlow}`
-                }}>
-                  CYCLE #{latestCycle?.cycleNumber ?? 1}
-                </span>
-              </div>
+            <div style={{ position: 'relative', width: '100%', maxWidth: '1280px' }}>
+              
+              {/* glow backdrop behind the 3D card */}
+              <div style={{
+                position: 'absolute', inset: -16,
+                background: 'rgba(255,224,236,0.08)',
+                filter: 'blur(80px)', pointerEvents: 'none',
+              }} />
 
-              {latestCycle ? (
-                <>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-                    <div>
-                      <span style={{ fontSize: 10, fontFamily: F.mono, color: C.onSurfaceVar }}>Conviction Sector</span>
-                      <div style={{ fontSize: 16, fontWeight: 700, color: C.primaryFixedDim, marginTop: 4 }}>
-                        {latestCycle.narrativeName || 'Unknown'}
-                      </div>
-                    </div>
-                    <div>
-                      <span style={{ fontSize: 10, fontFamily: F.mono, color: C.onSurfaceVar }}>Decision Action</span>
-                      <div style={{
-                        fontSize: 12,
-                        fontFamily: F.mono,
-                        fontWeight: 700,
-                        color: latestCycle.decision === 'BUY' ? C.primaryFixedDim : C.secondary,
-                        background: latestCycle.decision === 'BUY' ? C.primaryGlow : C.secondaryGlow,
-                        padding: '4px 8px',
-                        borderRadius: 4,
-                        display: 'inline-block',
-                        marginTop: 4
-                      }}>
-                        {String(latestCycle.decision)}
-                      </div>
-                    </div>
+              <div
+                ref={cardRef}
+                onMouseMove={handleMouseMove}
+                onMouseLeave={handleMouseLeave}
+                style={{
+                  background: 'rgba(13,13,22,0.75)',
+                  backdropFilter: 'blur(40px)',
+                  border: `1px solid ${C.outline}`,
+                  borderRadius: 16,
+                  padding: 32,
+                  boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
+                  transform: `perspective(2000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
+                  transition: 'transform 0.1s ease-out, box-shadow 0.2s',
+                  cursor: 'pointer',
+                  zIndex: 10,
+                  position: 'relative'
+                }}
+              >
+                {/* Window chrome */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32, paddingBottom: 20, borderBottom: `1px solid ${C.outlineVar}` }}>
+                  <div style={{ display: 'flex', gap: 10 }}>
+                    <div style={{ width: 12, height: 12, borderRadius: '50%', background: 'rgba(255,68,68,0.80)' }} />
+                    <div style={{ width: 12, height: 12, borderRadius: '50%', background: 'rgba(0,255,204,0.80)' }} />
+                    <div style={{ width: 12, height: 12, borderRadius: '50%', background: 'rgba(255,224,236,0.80)' }} />
                   </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{ padding: '4px 10px', borderRadius: 4, background: 'rgba(255,45,120,0.06)', border: `1px solid ${C.primaryGlow}` }}>
+                      <span style={{ color: C.primaryFixedDim, fontFamily: F.mono, fontSize: 10, fontWeight: 700, letterSpacing: '0.1em' }}>LIVE FEED</span>
+                    </div>
+                    <span style={{ color: C.onSurfaceVar, fontFamily: F.mono, fontSize: 10, letterSpacing: '0.1em' }}>NARRATIVETRADER TERMINAL V1.0</span>
+                  </div>
+                </div>
 
-                  <div>
-                    <span style={{ fontSize: 10, fontFamily: F.mono, color: C.onSurfaceVar }}>Decision Score</span>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
-                      <div style={{ flex: 1, height: 6, background: C.containerHigh, borderRadius: 3, overflow: 'hidden' }}>
-                        <div style={{ width: `${(latestCycle.score || 0) * 10}%`, height: '100%', background: C.primary, borderRadius: 3 }} />
-                      </div>
-                      <span style={{ fontFamily: F.mono, fontSize: 12, fontWeight: 700, color: '#ffffff' }}>
-                        {latestCycle.score || 0}/10
+                {/* Stats grid */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24, marginBottom: 32 }}>
+                  {/* Portfolio */}
+                  <div style={{ background: C.containerLow, border: `1px solid ${C.outlineVar}`, borderRadius: 12, padding: 20 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+                      <span style={{ color: C.onSurfaceVar, fontFamily: F.mono, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Portfolio</span>
+                      <Icon.TrendUp color={C.primaryFixedDim} />
+                    </div>
+                    <div style={{ color: C.onSurface, fontFamily: F.display, fontSize: 32, fontWeight: 600, letterSpacing: '-0.02em' }}>{fmt$(val)}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6 }}>
+                      <span style={{ color: pnl >= 0 ? C.secondary : C.error, fontFamily: F.mono, fontSize: 11 }}>
+                        {pnl >= 0 ? '+' : ''}{pnlPct.toFixed(2)}%
                       </span>
                     </div>
                   </div>
 
-                  <div style={{ background: C.containerLow, border: `1px solid ${C.outlineVar}`, borderRadius: 8, padding: 12 }}>
-                    <span style={{ fontSize: 9, fontFamily: F.mono, color: C.onSurfaceVar, textTransform: 'uppercase', display: 'block', marginBottom: 6 }}>Reasoning Output</span>
-                    <p style={{ fontSize: 12, lineHeight: 1.5, color: C.onSurface, margin: 0, maxHeight: 80, overflowY: 'auto' }}>
-                      {latestCycle.reasoning}
-                    </p>
+                  {/* Cycles */}
+                  <div style={{ background: C.containerLow, border: `1px solid ${C.outlineVar}`, borderRadius: 12, padding: 20 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+                      <span style={{ color: C.onSurfaceVar, fontFamily: F.mono, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Cycles</span>
+                      <Icon.Loop color={C.secondary} />
+                    </div>
+                    <div style={{ color: C.onSurface, fontFamily: F.display, fontSize: 32, fontWeight: 600, letterSpacing: '-0.02em' }}>{cycles.length}</div>
+                    <div style={{ display: 'flex', gap: 4, marginTop: 12 }}>
+                      {[0, 1, 2].map(i => (
+                        <div key={i} style={{
+                          height: 4, flex: 1, borderRadius: 999,
+                          background: i < 2 ? C.primary : (cycles.length > 20 ? C.primary : C.outlineVar),
+                        }} />
+                      ))}
+                    </div>
                   </div>
-                </>
-              ) : (
-                <div style={{ textAlign: 'center', padding: '32px 0', color: C.onSurfaceVar, fontSize: 13 }}>
-                  No active cycles found. Start the agent daemon to display live telemetry.
+
+                  {/* LLM */}
+                  <div style={{ background: C.containerLow, border: `1px solid ${C.outlineVar}`, borderRadius: 12, padding: 20 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+                      <span style={{ color: C.onSurfaceVar, fontFamily: F.mono, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>LLM Engine</span>
+                      <Icon.Psych color={C.tertiary} />
+                    </div>
+                    <div style={{ color: C.onSurface, fontFamily: F.display, fontSize: 26, fontWeight: 600, letterSpacing: '-0.02em', marginTop: 4 }}>{llm.name}</div>
+                    <span style={{ color: C.onSurfaceVar, fontFamily: F.mono, fontSize: 10, display: 'block', marginTop: 4 }}>{llm.sub}</span>
+                  </div>
                 </div>
-              )}
-            </div>
 
-            {/* Secondary Active Portfolio Card */}
-            <div style={{
-              background: C.surface,
-              borderRadius: 16,
-              border: `1px solid ${C.outlineVar}`,
-              padding: 24,
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center'
-            }}>
-              <div>
-                <span style={{ fontSize: 10, fontFamily: F.mono, color: C.onSurfaceVar, textTransform: 'uppercase' }}>Active Open Positions</span>
-                <span style={{ fontSize: 22, fontWeight: 700, color: '#ffffff', display: 'block', marginTop: 4 }}>
-                  {activePositionsCount} / 3 Pools
-                </span>
-              </div>
-              <div style={{ display: 'flex', gap: 8 }}>
-                {portfolio?.openPositions && portfolio.openPositions.length > 0 ? (
-                  portfolio.openPositions.map((pos, idx) => (
-                    <span key={idx} style={{
-                      fontSize: 11,
-                      fontFamily: F.mono,
-                      padding: '6px 12px',
-                      borderRadius: 4,
-                      background: C.containerHigh,
-                      border: `1px solid ${C.outlineVar}`,
-                      color: C.onSurface
-                    }}>
-                      {pos.token}
-                    </span>
-                  ))
-                ) : (
-                  <span style={{ fontSize: 11, color: C.onSurfaceVar, fontFamily: F.mono }}>All Cash (100% USDC)</span>
-                )}
-              </div>
-            </div>
+                {/* Status bar */}
+                <div style={{ paddingTop: 20, borderTop: `1px solid ${C.outlineVar}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                    <span style={{ color: C.onSurfaceVar, fontFamily: F.mono, fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em' }}>System Status: Optimal</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{ width: 6, height: 6, borderRadius: '50%', background: C.secondary, animation: 'pulse 1.4s ease-in-out infinite' }} />
+                    <span style={{ color: C.secondary, fontFamily: F.mono, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Connected to Testnet</span>
+                  </div>
+                </div>
 
+              </div>
+
+            </div>
           </div>
 
         </div>
