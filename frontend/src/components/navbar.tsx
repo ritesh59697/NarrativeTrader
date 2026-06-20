@@ -68,7 +68,7 @@ export function Navbar() {
       </div>
 
       {/* Right: RainbowKit Connect Button */}
-      <ConnectButton />
+      <ConnectButton showBalance={false} />
     </header>
   );
 }

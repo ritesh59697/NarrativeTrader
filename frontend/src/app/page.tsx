@@ -5,43 +5,43 @@ import { Navbar } from '@/components/navbar';
 
 /* ─── Color palette (all hardcoded — no CSS vars) ──────────────────────── */
 const C = {
-  bg:              '#0a0a12',
-  surface:         '#0f0f1a',
-  containerLow:    '#111118',
-  container:       '#141422',
-  containerHigh:   '#1e1e30',
-  containerHighest:'#28283e',
-  onSurface:       '#e8e0f0',
-  onSurfaceVar:    '#a098b0',
-  primary:         '#ff2d78',
-  primaryFixed:    '#ffe0ec',
+  bg: '#0a0a12',
+  surface: '#0f0f1a',
+  containerLow: '#111118',
+  container: '#141422',
+  containerHigh: '#1e1e30',
+  containerHighest: '#28283e',
+  onSurface: '#e8e0f0',
+  onSurfaceVar: '#a098b0',
+  primary: '#ff2d78',
+  primaryFixed: '#ffe0ec',
   primaryFixedDim: '#ff80aa',
-  onPrimaryFixed:  '#3d0020',
-  secondary:       '#00ffcc',
-  tertiary:        '#ffe04a',
-  tertiaryFixed:   '#fff0c0',
-  outline:         '#5a5068',
-  outlineVar:      '#302840',
-  error:           '#ff4444',
+  onPrimaryFixed: '#3d0020',
+  secondary: '#00ffcc',
+  tertiary: '#ffe04a',
+  tertiaryFixed: '#fff0c0',
+  outline: '#5a5068',
+  outlineVar: '#302840',
+  error: '#ff4444',
 };
 
 /* ─── Fonts ─────────────────────────────────────────────────────────────── */
 const F = {
   display: "'Sora', sans-serif",
-  body:    "'Inter', system-ui, sans-serif",
-  mono:    "'Space Grotesk', monospace",
+  body: "'Inter', system-ui, sans-serif",
+  mono: "'Space Grotesk', monospace",
 };
 
 /* ─── Types ─────────────────────────────────────────────────────────────── */
 interface CycleLog {
-  timestamp:     string;
-  cycleNumber:   number;
+  timestamp: string;
+  cycleNumber: number;
   narrativeName: string;
-  score:         number;
-  decision:      string | { action?: string; score?: number };
-  reasoning:     string;
-  llmUsed:       string;
-  trade:         { txHash: string; positionSizeUSDC: number; token: string } | null;
+  score: number;
+  decision: string | { action?: string; score?: number };
+  reasoning: string;
+  llmUsed: string;
+  trade: { txHash: string; positionSizeUSDC: number; token: string } | null;
 }
 interface OpenPosition {
   token: string;
@@ -64,9 +64,9 @@ interface TradeRecord {
 
 interface PortfolioData {
   currentValue: number;
-  peakValue:    number;
-  cashUSDC:     number;
-  isPaused:     boolean;
+  peakValue: number;
+  cashUSDC: number;
+  isPaused: boolean;
   openPositions?: OpenPosition[];
   tradesHistory?: TradeRecord[];
 }
@@ -75,7 +75,7 @@ interface PortfolioData {
 function fmt$(v: number | null | undefined) {
   if (v == null || !isFinite(v)) return '$—';
   if (v >= 1_000_000) return `$${(v / 1_000_000).toFixed(3)}M`;
-  if (v >= 1_000)     return `$${v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  if (v >= 1_000) return `$${v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   return `$${v.toFixed(2)}`;
 }
 function fmtTime(ts: string) {
@@ -86,7 +86,7 @@ function fmtTime(ts: string) {
 function normalizeDecision(raw: any): 'BUY' | 'HOLD' | 'FAILED' {
   if (!raw) return 'HOLD';
   const d = String(typeof raw === 'object' ? (raw.action ?? '') : raw).toUpperCase();
-  if (d === 'BUY')    return 'BUY';
+  if (d === 'BUY') return 'BUY';
   if (d === 'FAILED') return 'FAILED';
   return 'HOLD';
 }
@@ -115,9 +115,9 @@ function computeSectors(cycles: CycleLog[]) {
   });
   const total = Object.values(counts).reduce((s, v) => s + v, 0);
   const FALLBACK = [
-    { name: 'AI Agent Ecosystem',     pct: 42.5 },
+    { name: 'AI Agent Ecosystem', pct: 42.5 },
     { name: 'Modular Infrastructure', pct: 21.0 },
-    { name: 'DeFi Liquidity',         pct: 15.8 },
+    { name: 'DeFi Liquidity', pct: 15.8 },
   ];
   if (total === 0) return FALLBACK;
   return Object.entries(counts).sort(([, a], [, b]) => b - a).slice(0, 4).map(([name, n]) => ({
@@ -226,7 +226,7 @@ const Icon = {
 };
 
 /* ═══════════════════════════════════════════════════════════════ PAGE ══ */
-const POLL_MS  = 15_000;
+const POLL_MS = 15_000;
 const EXPLORER = 'https://testnet.bscscan.com/tx/';
 
 const CopyButton = ({ text }: { text: string }) => {
@@ -262,9 +262,9 @@ const CopyButton = ({ text }: { text: string }) => {
 
 export default function Page() {
   const [activeTab, setActiveTab] = useState<'Dashboard' | 'Positions' | 'Trade History' | 'Agent Config'>('Dashboard');
-  const [cycles,    setCycles]    = useState<CycleLog[]>([]);
+  const [cycles, setCycles] = useState<CycleLog[]>([]);
   const [portfolio, setPortfolio] = useState<PortfolioData | null>(null);
-  const [config,    setConfig]    = useState<{
+  const [config, setConfig] = useState<{
     network: string;
     rpcUrl: string;
     targetPortfolioValue: number;
@@ -332,12 +332,12 @@ export default function Page() {
   const fetchData = useCallback(async () => {
     try {
       const [cr, pr, cfr] = await Promise.all([
-        fetch('/api/cycles',    { cache: 'no-store' }),
+        fetch('/api/cycles', { cache: 'no-store' }),
         fetch('/api/portfolio', { cache: 'no-store' }),
-        fetch('/api/config',    { cache: 'no-store' }),
+        fetch('/api/config', { cache: 'no-store' }),
       ]);
       if (cr.ok) { const d = await cr.json(); if (Array.isArray(d)) setCycles(d); }
-      if (pr.ok) { const d = await pr.json(); if (d && !d.error)    setPortfolio(d); }
+      if (pr.ok) { const d = await pr.json(); if (d && !d.error) setPortfolio(d); }
       if (cfr.ok) { const d = await cfr.json(); setConfig(d); }
     } catch { /* silent */ }
   }, []);
@@ -401,23 +401,23 @@ export default function Page() {
     return () => { if (pollRef.current) clearInterval(pollRef.current); };
   }, [fetchData]);
 
-  const llm    = getLLM(cycles);
-  const val      = portfolio?.currentValue ?? 100;
-  const initial  = config?.targetPortfolioValue ?? 100;
-  const pnl      = val - initial;
-  const pnlPct   = initial > 0 ? (pnl / initial) * 100 : 0;
+  const llm = getLLM(cycles);
+  const val = portfolio?.currentValue ?? 100;
+  const initial = config?.targetPortfolioValue ?? 100;
+  const pnl = val - initial;
+  const pnlPct = initial > 0 ? (pnl / initial) * 100 : 0;
   const sectors = computeSectors(cycles);
 
   const logs = [...cycles]
     .reverse()
     .map((c, i) => ({
-      key:       `${c.timestamp}-${i}`,
-      time:      fmtTime(c.timestamp),
-      decision:  normalizeDecision(c.decision),
-      name:      (c.narrativeName?.trim()) || '—',
-      score:     normalizeScore(c),
+      key: `${c.timestamp}-${i}`,
+      time: fmtTime(c.timestamp),
+      decision: normalizeDecision(c.decision),
+      name: (c.narrativeName?.trim()) || '—',
+      score: normalizeScore(c),
       reasoning: sanitize(c.reasoning ?? ''),
-      txHash:    c.trade?.txHash ?? null,
+      txHash: c.trade?.txHash ?? null,
     }))
     .filter(log => {
       const q = filterQuery.toLowerCase().trim();
@@ -437,9 +437,9 @@ export default function Page() {
   })();
 
   const decisionBadge: Record<string, { bg: string; color: string; border: string }> = {
-    BUY:    { bg: 'rgba(255,45,120,0.10)',  color: C.primaryFixed, border: 'rgba(255,224,236,0.20)' },
-    HOLD:   { bg: 'rgba(0,255,204,0.10)',   color: C.secondary,    border: 'rgba(0,255,204,0.20)'   },
-    FAILED: { bg: 'rgba(255,68,68,0.10)',   color: C.error,        border: 'rgba(255,68,68,0.20)'   },
+    BUY: { bg: 'rgba(255,45,120,0.10)', color: C.primaryFixed, border: 'rgba(255,224,236,0.20)' },
+    HOLD: { bg: 'rgba(0,255,204,0.10)', color: C.secondary, border: 'rgba(0,255,204,0.20)' },
+    FAILED: { bg: 'rgba(255,68,68,0.10)', color: C.error, border: 'rgba(255,68,68,0.20)' },
   };
 
   return (
@@ -504,8 +504,8 @@ export default function Page() {
                 padding: '16px 40px', borderRadius: 8, textDecoration: 'none',
                 transition: 'transform 0.15s',
               }}
-              onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.02)')}
-              onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1)')}
+                onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.02)')}
+                onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1)')}
               >
                 Launch Dashboard
               </a>
@@ -530,7 +530,7 @@ export default function Page() {
                 filter: 'blur(80px)', pointerEvents: 'none',
               }} />
 
-              <div 
+              <div
                 ref={cardRef}
                 onMouseMove={handleMouseMove}
                 onMouseLeave={handleMouseLeave}
@@ -586,7 +586,7 @@ export default function Page() {
                     </div>
                     <div style={{ color: C.onSurface, fontFamily: F.display, fontSize: 40, fontWeight: 600, letterSpacing: '-0.02em' }}>{cycles.length}</div>
                     <div style={{ display: 'flex', gap: 6, marginTop: 16 }}>
-                      {[0,1,2].map(i => (
+                      {[0, 1, 2].map(i => (
                         <div key={i} style={{
                           height: 6, flex: 1, borderRadius: 999,
                           background: i < 2 ? C.primaryFixed : (cycles.length > 20 ? C.primaryFixed : 'rgba(48,40,64,0.30)'),
@@ -687,10 +687,10 @@ export default function Page() {
             <aside style={{ width: 256, flexShrink: 0, padding: 24, borderRight: '1px solid rgba(48,40,64,0.10)', display: 'flex', flexDirection: 'column', gap: 32 }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                 {[
-                  { icon: <Icon.Dashboard />, label: 'Dashboard',    tab: 'Dashboard' as const },
-                  { icon: <Icon.Wallet />,    label: 'Positions',    tab: 'Positions' as const },
-                  { icon: <Icon.History />,   label: 'Trade History', tab: 'Trade History' as const },
-                  { icon: <Icon.Settings />,  label: 'Agent Config',  tab: 'Agent Config' as const },
+                  { icon: <Icon.Dashboard />, label: 'Dashboard', tab: 'Dashboard' as const },
+                  { icon: <Icon.Wallet />, label: 'Positions', tab: 'Positions' as const },
+                  { icon: <Icon.History />, label: 'Trade History', tab: 'Trade History' as const },
+                  { icon: <Icon.Settings />, label: 'Agent Config', tab: 'Agent Config' as const },
                 ].map(({ icon, label, tab }) => {
                   const active = activeTab === tab;
                   return (
@@ -700,15 +700,15 @@ export default function Page() {
                       style={{
                         display: 'flex', alignItems: 'center', gap: 12,
                         padding: '12px 16px', borderRadius: 8,
-                        background:     active ? 'rgba(255,224,236,0.10)' : 'transparent',
-                        color:          active ? C.primaryFixed : C.onSurfaceVar,
-                        border:         active ? `1px solid rgba(255,224,236,0.20)` : '1px solid transparent',
-                        fontFamily:     F.mono, fontSize: 11, fontWeight: 700, letterSpacing: '0.05em',
-                        textTransform:  'uppercase', textDecoration: 'none',
-                        transition:     'all 0.15s',
-                        cursor:         'pointer',
-                        width:          '100%',
-                        textAlign:      'left',
+                        background: active ? 'rgba(255,224,236,0.10)' : 'transparent',
+                        color: active ? C.primaryFixed : C.onSurfaceVar,
+                        border: active ? `1px solid rgba(255,224,236,0.20)` : '1px solid transparent',
+                        fontFamily: F.mono, fontSize: 11, fontWeight: 700, letterSpacing: '0.05em',
+                        textTransform: 'uppercase', textDecoration: 'none',
+                        transition: 'all 0.15s',
+                        cursor: 'pointer',
+                        width: '100%',
+                        textAlign: 'left',
                       }}
                     >
                       {icon}{label}
@@ -794,9 +794,9 @@ export default function Page() {
                           {(() => {
                             const accuracy = cycles.length > 0
                               ? (cycles.filter(c => {
-                                  const decision = normalizeDecision(c.decision);
-                                  return decision !== 'FAILED' && (c as any).status !== 'EXECUTION_FAILED';
-                                }).length / cycles.length) * 100
+                                const decision = normalizeDecision(c.decision);
+                                return decision !== 'FAILED' && (c as any).status !== 'EXECUTION_FAILED';
+                              }).length / cycles.length) * 100
                               : 100;
                             return (
                               <>
@@ -838,8 +838,8 @@ export default function Page() {
                                   <span style={{
                                     padding: '2px 8px', fontSize: 10, fontWeight: 700, fontFamily: F.mono,
                                     background: decisionBadge[log.decision]?.bg,
-                                    color:      decisionBadge[log.decision]?.color,
-                                    border:     `1px solid ${decisionBadge[log.decision]?.border}`,
+                                    color: decisionBadge[log.decision]?.color,
+                                    border: `1px solid ${decisionBadge[log.decision]?.border}`,
                                   }}>{log.decision}</span>
                                   <span style={{ color: C.onSurface, fontSize: 13, fontWeight: 700 }}>{log.name}</span>
                                 </div>
@@ -1224,7 +1224,7 @@ export default function Page() {
                                 );
                               })}
                             </div>
-                            
+
                             {/* Dynamic simulation logs screen */}
                             <div style={{ padding: 12, borderRadius: 8, background: 'rgba(10,10,18,0.90)', border: `1px solid rgba(48,40,64,0.10)`, fontFamily: F.mono, fontSize: 9, display: 'flex', flexDirection: 'column', gap: 4, height: 112, overflowY: 'auto' }}>
                               {triggerLog.map((logStr, i) => {
@@ -1324,7 +1324,7 @@ export default function Page() {
           </div>
 
           <div style={{ maxWidth: 1400, margin: '64px auto 0', paddingTop: 32, borderTop: '1px solid rgba(48,40,64,0.10)', display: 'flex', justifyContent: 'space-between' }}>
-            <span style={{ color: 'rgba(160,152,176,0.40)', fontFamily: F.mono, fontSize: 10 }}>© 2024 NARRATIVE TRADER FOUNDATION. V1.0.4-BETA</span>
+            <span style={{ color: 'rgba(160,152,176,0.40)', fontFamily: F.mono, fontSize: 10 }}>© 2026 NARRATIVE TRADER FOUNDATION. V1.0.4-BETA</span>
             <span style={{ color: 'rgba(160,152,176,0.40)', fontFamily: F.mono, fontSize: 10, textTransform: 'uppercase' }}>ENCRYPTED END-TO-END CONNECTION</span>
           </div>
         </footer>

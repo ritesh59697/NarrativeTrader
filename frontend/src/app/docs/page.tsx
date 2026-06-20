@@ -24,7 +24,7 @@ export default function DocsPage() {
             <span className="font-mono text-[#ff2d78] tracking-[0.25em] text-[9px] font-bold block mt-0.5">TRADER</span>
           </div>
         </div>
-        <Link 
+        <Link
           href="/#terminal"
           className="bg-transparent hover:bg-white/5 border border-[#333344] text-[#e0e0e6] font-sans text-xs px-5 py-2 rounded font-bold transition-all uppercase tracking-widest cursor-pointer flex items-center gap-2"
         >
@@ -37,7 +37,7 @@ export default function DocsPage() {
 
       {/* Main Content Area */}
       <main className="max-w-5xl mx-auto px-6 py-12 space-y-12 relative z-10">
-        
+
         {/* Title Block */}
         <div className="space-y-4">
           <div className="flex items-center gap-2">
@@ -54,7 +54,7 @@ export default function DocsPage() {
 
         {/* Documentation Sections */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          
+
           {/* Card 1: Overview */}
           <section className="bg-[#0c0c14] border border-[#222230] rounded-xl p-6 shadow-sm backdrop-blur-[20px] transition-all duration-300 hover:border-[#ff2d78]/20 hover:shadow-[0_0_20px_rgba(255,45,120,0.05)]">
             <h3 className="text-base font-sans font-bold text-white mb-4 uppercase tracking-wider flex items-center gap-2">
@@ -182,7 +182,7 @@ export default function DocsPage() {
 
       {/* Footer */}
       <footer className="h-12 border-t border-[#1a1a24] flex items-center justify-between text-[#9494b8] text-[9px] font-mono tracking-widest uppercase bg-[#0d0d12]/90 sticky bottom-0 z-50 px-8">
-        <span>© 2024 Narrative Trader Foundation v1.0.4-BETA</span>
+        <span>© 2026 Narrative Trader Foundation v1.0.4-BETA</span>
         <span className="text-[#bc13fe] font-bold">Local Connection Secure</span>
       </footer>
     </div>
