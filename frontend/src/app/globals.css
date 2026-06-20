@@ -34,8 +34,8 @@
   --color-inverse-primary:            #8c0038;
 
   /* ── Secondary (Neon Cyan) ── */
-  --color-secondary:                  #00f0ff;
-  --color-secondary-fixed:            #00f0ff;
+  --color-secondary:                  #00ffcc;
+  --color-secondary-fixed:            #00ffcc;
   --color-secondary-fixed-dim:        #00e6b8;
   --color-secondary-container:        #004d3d;
   --color-on-secondary:               #050507;
@@ -175,8 +175,8 @@ body {
 }
 
 .text-neon-cyan {
-  color: #00f0ff;
-  text-shadow: 0 0 8px rgba(0, 240, 255, 0.5);
+  color: #00ffcc;
+  text-shadow: 0 0 8px rgba(0, 255, 204, 0.5);
 }
 
 /* ── Scrollbar ── */

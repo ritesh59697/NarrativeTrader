@@ -8,7 +8,7 @@ export default function DocsPage() {
       {/* Background Radial Glows */}
       <div className="absolute inset-0 pointer-events-none opacity-20 overflow-hidden">
         <div className="absolute -top-[10%] -left-[10%] w-[600px] h-[600px] bg-[#ff2d78]/10 blur-[120px] rounded-full"></div>
-        <div className="absolute top-[40%] right-[10%] w-[500px] h-[500px] bg-[#00f0ff]/10 blur-[100px] rounded-full"></div>
+        <div className="absolute top-[40%] right-[10%] w-[500px] h-[500px] bg-[#00ffcc]/10 blur-[100px] rounded-full"></div>
       </div>
 
       {/* Main Navbar */}
@@ -41,8 +41,8 @@ export default function DocsPage() {
         {/* Title Block */}
         <div className="space-y-4">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#00f0ff] pulse-dot-neon"></span>
-            <span className="font-mono text-xs text-[#00f0ff] font-bold tracking-widest uppercase">System Docs & API Reference</span>
+            <span className="w-2 h-2 rounded-full bg-[#00ffcc] pulse-dot-neon"></span>
+            <span className="font-mono text-xs text-[#00ffcc] font-bold tracking-widest uppercase">System Docs & API Reference</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-sans font-bold text-white tracking-tight leading-tight">
             ArcMarkets Protocol Overview
@@ -74,7 +74,7 @@ export default function DocsPage() {
           {/* Card 2: Core Loop */}
           <section className="bg-[#0c0c14] border border-[#222230] rounded-xl p-6 shadow-sm backdrop-blur-[20px] transition-all duration-300 hover:border-[#ff2d78]/20 hover:shadow-[0_0_20px_rgba(255,45,120,0.05)]">
             <h3 className="text-base font-sans font-bold text-white mb-4 uppercase tracking-wider flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#00f0ff]" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#00ffcc]" />
               2. Agent Architecture
             </h3>
             <ul className="space-y-2 text-xs leading-relaxed text-[#9494b8] list-disc list-inside">
@@ -150,13 +150,13 @@ export default function DocsPage() {
               </thead>
               <tbody className="divide-y divide-[#1a1a24]/50">
                 <tr className="hover:bg-white/5 transition-colors">
-                  <td className="py-3 px-4"><span className="text-[#00f0ff] font-bold">GET</span></td>
+                  <td className="py-3 px-4"><span className="text-[#00ffcc] font-bold">GET</span></td>
                   <td className="py-3 px-4 text-white">/api/cycles</td>
                   <td className="py-3 px-4 text-[#9494b8]">Returns historical records of narrative scoring metrics and rebalances.</td>
                   <td className="py-3 px-4 text-right text-white">CycleLog[]</td>
                 </tr>
                 <tr className="hover:bg-white/5 transition-colors">
-                  <td className="py-3 px-4"><span className="text-[#00f0ff] font-bold">GET</span></td>
+                  <td className="py-3 px-4"><span className="text-[#00ffcc] font-bold">GET</span></td>
                   <td className="py-3 px-4 text-white">/api/portfolio</td>
                   <td className="py-3 px-4 text-[#9494b8]">Returns current valuations, open asset allocations, and historical swaps.</td>
                   <td className="py-3 px-4 text-right text-white">PortfolioData</td>
@@ -168,7 +168,7 @@ export default function DocsPage() {
                   <td className="py-3 px-4 text-right text-white">PortfolioData</td>
                 </tr>
                 <tr className="hover:bg-white/5 transition-colors">
-                  <td className="py-3 px-4"><span className="text-[#00f0ff] font-bold">GET</span></td>
+                  <td className="py-3 px-4"><span className="text-[#00ffcc] font-bold">GET</span></td>
                   <td className="py-3 px-4 text-white">/api/config</td>
                   <td className="py-3 px-4 text-[#9494b8]">Retrieves general network state parameters and API status flags.</td>
                   <td className="py-3 px-4 text-right text-white">ConfigData</td>

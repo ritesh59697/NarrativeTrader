@@ -400,7 +400,7 @@ export default function Dashboard() {
 
   const badge = {
     BUY:    { bg: 'rgba(188, 19, 254, 0.1)',  color: '#bc13fe', border: '1px solid rgba(188, 19, 254, 0.25)' },
-    HOLD:   { bg: 'rgba(0, 240, 255, 0.1)',   color: '#00f0ff', border: '1px solid rgba(0, 240, 255, 0.25)'   },
+    HOLD:   { bg: 'rgba(0, 255, 204, 0.1)',   color: '#00ffcc', border: '1px solid rgba(0, 255, 204, 0.25)'   },
     SELL:   { bg: 'rgba(255, 45, 120, 0.1)',  color: '#ff2d78', border: '1px solid rgba(255, 45, 120, 0.25)'  },
     FAILED: { bg: 'rgba(255, 68, 68, 0.1)',   color: '#ff4444', border: '1px solid rgba(255, 68, 68, 0.25)'   },
   };
@@ -413,10 +413,10 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="font-sans text-sm min-h-screen bg-[#07070b] text-[#e0e0e6] grid grid-cols-1 md:grid-cols-[260px_1fr] relative overflow-x-hidden">
+    <div className="font-sans text-sm min-h-screen bg-[#0a0a12] text-[#e0e0e6] grid grid-cols-1 md:grid-cols-[260px_1fr] relative overflow-x-hidden">
       
       {/* Sidebar Navigation Shell */}
-      <aside className="hidden md:flex w-[260px] md:sticky md:top-4 md:h-[calc(100vh-2rem)] md:my-4 md:ml-4 rounded-2xl border border-white/10 bg-[#0d0d12] flex-col py-6 z-50 shadow-2xl shadow-black/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+      <aside className="hidden md:flex w-[260px] md:sticky md:top-4 md:h-[calc(100vh-2rem)] md:my-4 md:ml-4 rounded-2xl border border-[#302840] bg-[#0f0f1a] flex-col py-6 z-50 shadow-2xl shadow-black/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
         <div className="px-6 mb-8">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-[#ff2d78] rounded-lg flex items-center justify-center shadow-[0_0_15px_rgba(255,45,120,0.5)]">
@@ -442,7 +442,7 @@ export default function Dashboard() {
                 className={`w-full flex items-center px-4 py-2.5 transition-all duration-200 group cursor-pointer text-left rounded-xl border ${
                   active 
                     ? 'text-white bg-gradient-to-r from-[#ff2d78]/15 to-[#ff2d78]/3 border-[#ff2d78]/35 shadow-[0_4px_25px_rgba(255,45,120,0.1)]' 
-                    : 'text-[#9494b8] hover:text-white hover:bg-white/[0.02] hover:border-white/5 border-transparent'
+                    : 'text-[#9494b8] hover:text-white hover:bg-white/[0.02] hover:border-[#302840]/30 border-transparent'
                 }`}
               >
                 <span className={`transition-colors ${active ? 'text-[#ff2d78]' : 'text-[#9494b8] group-hover:text-white'}`}>
@@ -458,9 +458,9 @@ export default function Dashboard() {
         </nav>
 
         {/* Unified Bottom Container */}
-        <div className="pt-4 pb-4 mt-auto border-t border-white/5 space-y-4">
+        <div className="pt-4 pb-4 mt-auto border-t border-[#302840]/40 space-y-4">
           <div className="px-3">
-            <div className="bg-white/[0.015] border border-white/10 rounded-xl p-4 shadow-inner">
+            <div className="bg-white/[0.015] border border-[#302840] rounded-xl p-4 shadow-inner">
               <div className="flex justify-between items-center mb-2">
                 <span className="font-mono text-[10px] text-[#9494b8] uppercase tracking-wider">INTERNAL HEALTH</span>
                 <span className="font-mono text-[10px] text-[#ff2d78] font-bold">82%</span>
@@ -483,14 +483,14 @@ export default function Dashboard() {
               className={`w-full flex items-center px-4 py-2 rounded-xl border transition-all duration-200 cursor-pointer text-left text-xs ${
                 activeTab === 'Agent Config' 
                   ? 'text-white bg-gradient-to-r from-[#ff2d78]/15 to-[#ff2d78]/3 border-[#ff2d78]/35 shadow-[0_4px_25px_rgba(255,45,120,0.1)] font-bold' 
-                  : 'text-[#9494b8] hover:text-white hover:bg-white/[0.02] hover:border-white/5 border-transparent'
+                  : 'text-[#9494b8] hover:text-white hover:bg-white/[0.02] hover:border-[#302840]/30 border-transparent'
               }`}
             >
               <IconSettings className="w-4 h-4" />
               <span className="font-sans ml-3 text-[12px] font-semibold">Settings</span>
             </button>
             <a 
-              className="w-full flex items-center px-4 py-2 rounded-xl border transition-all duration-200 cursor-pointer text-left text-xs text-[#9494b8] hover:text-white hover:bg-white/[0.02] hover:border-white/5 border-transparent" 
+              className="w-full flex items-center px-4 py-2 rounded-xl border transition-all duration-200 cursor-pointer text-left text-xs text-[#9494b8] hover:text-white hover:bg-white/[0.02] hover:border-[#302840]/30 border-transparent" 
               href="/docs"
             >
               <IconHelp className="w-4.5 h-4.5" />
@@ -501,7 +501,7 @@ export default function Dashboard() {
       </aside>
 
       {/* Main Content Area */}
-      <main className="min-h-screen flex flex-col flex-1 relative bg-[#07070b] min-w-0">
+      <main className="min-h-screen flex flex-col flex-1 relative bg-[#0a0a12] min-w-0">
         
         {/* Subtle Background Texture */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -509,7 +509,7 @@ export default function Dashboard() {
         </div>
 
         {/* Top Status Bar */}
-        <header className="min-h-16 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between px-4 md:px-6 xl:px-8 py-4 bg-[#0d0d12] border-b border-white/10 z-40 shrink-0">
+        <header className="min-h-16 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between px-4 md:px-6 xl:px-8 py-4 bg-[#0f0f1a] border-b border-[#302840] z-40 shrink-0">
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 max-w-full">
             <div className="flex items-center gap-3 md:hidden min-w-full sm:min-w-0">
               <div className="w-8 h-8 bg-[#ff2d78] rounded-md flex items-center justify-center">
@@ -525,7 +525,7 @@ export default function Dashboard() {
               <span className="font-mono text-[10px] text-[#ff2d78] font-bold tracking-widest uppercase">TESTNET-ALPHA</span>
             </div>
             <div className="flex items-center gap-2 text-[#9494b8]">
-              <IconSensors className="text-[#00f0ff] w-4 h-4" />
+              <IconSensors className="text-[#00ffcc] w-4 h-4" />
               <span className="font-mono text-[10px] font-bold uppercase tracking-widest">{latency}MS LATENCY</span>
             </div>
             <div className="flex items-center gap-2 text-[#9494b8]">
@@ -564,7 +564,7 @@ export default function Dashboard() {
             >
               {walletAddress ? (
                 <span className="flex items-center gap-2 font-mono">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#00f0ff]"></span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#00ffcc]"></span>
                   {walletAddress.slice(0, 6)}…{walletAddress.slice(-4)}
                 </span>
               ) : (
@@ -574,7 +574,7 @@ export default function Dashboard() {
           </div>
         </header>
 
-        <nav className="md:hidden z-30 px-4 py-3 bg-[#0d0d12]/90 border-b border-[#20202a] overflow-x-auto scrollbar-hide">
+        <nav className="md:hidden z-30 px-4 py-3 bg-[#0f0f1a]/90 border-b border-[#302840] overflow-x-auto scrollbar-hide">
           <div className="flex gap-2 min-w-max">
             {tabs.map((tab) => {
               const active = activeTab === tab.id;
@@ -604,7 +604,7 @@ export default function Dashboard() {
             <div className="xl:col-span-8 space-y-5 xl:space-y-6 flex flex-col min-w-0">
               
               {/* Total Value Locked Card */}
-              <section className="bg-[#0d0d12] border border-white/10 shadow-2xl rounded-2xl p-4 md:p-6 flex flex-col justify-between transition-all duration-300 hover:border-[#ff2d78]/20 hover:shadow-[0_0_30px_rgba(255,45,120,0.04)]">
+              <section className="bg-[#0f0f1a] border border-[#302840] shadow-2xl rounded-2xl p-4 md:p-6 flex flex-col justify-between transition-all duration-300 hover:border-[#ff2d78]/20 hover:shadow-[0_0_30px_rgba(255,45,120,0.04)]">
                 <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
                   <div className="min-w-0">
                     <span className="font-mono text-[10px] text-[#9494b8] uppercase tracking-wider">Total Value Locked (Institutional)</span>
@@ -617,17 +617,17 @@ export default function Dashboard() {
                         })()}
                       </h2>
                     </div>
-                    <div className="flex items-center gap-1.5 mt-2.5 text-[#00f0ff] font-mono font-bold text-sm">
-                      <svg className="w-4 h-4 text-[#00f0ff]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <div className="flex items-center gap-1.5 mt-2.5 text-[#00ffcc] font-mono font-bold text-sm">
+                      <svg className="w-4 h-4 text-[#00ffcc]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                       </svg>
                       <span>+{fmt$(pnl)} (+{pnlPct.toFixed(2)}% 24h)</span>
                     </div>
                   </div>
                   <div className="flex gap-2 shrink-0">
-                    <button className="bg-white/[0.02] border border-white/5 text-[#9494b8] hover:text-[#e0e0e6] px-3 py-1.5 text-xs rounded-lg font-mono font-bold transition-all cursor-pointer">1H</button>
+                    <button className="bg-white/[0.02] border border-[#302840]/30 text-[#9494b8] hover:text-[#e0e0e6] px-3 py-1.5 text-xs rounded-lg font-mono font-bold transition-all cursor-pointer">1H</button>
                     <button className="bg-[#ff2d78] text-white px-3 py-1.5 text-xs rounded-lg font-mono font-bold shadow-[0_0_12px_rgba(255,45,120,0.4)] hover:brightness-110 transition-all cursor-pointer">24H</button>
-                    <button className="bg-white/[0.02] border border-white/5 text-[#9494b8] hover:text-[#e0e0e6] px-3 py-1.5 text-xs rounded-lg font-mono font-bold transition-all cursor-pointer">7D</button>
+                    <button className="bg-white/[0.02] border border-[#302840]/30 text-[#9494b8] hover:text-[#e0e0e6] px-3 py-1.5 text-xs rounded-lg font-mono font-bold transition-all cursor-pointer">7D</button>
                   </div>
                 </div>
                 
@@ -656,7 +656,7 @@ export default function Dashboard() {
                             <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
                               <stop offset="0%" stopColor="#ff2d78" />
                               <stop offset="50%" stopColor="#bc13fe" />
-                              <stop offset="100%" stopColor="#00f0ff" />
+                              <stop offset="100%" stopColor="#00ffcc" />
                             </linearGradient>
                           </defs>
 
@@ -721,7 +721,7 @@ export default function Dashboard() {
                             }}
                           >
                             <div className="font-bold text-[#ff2d78] mb-0.5 uppercase tracking-wider">PORTFOLIO TVL</div>
-                            <div className="text-[#00f0ff] font-bold text-xs">{fmt$((points[hoveredIndex].h / 100) * initial)}</div>
+                            <div className="text-[#00ffcc] font-bold text-xs">{fmt$((points[hoveredIndex].h / 100) * initial)}</div>
                             <div className="text-[8px] text-[#9494b8] mt-0.5">CYCLE #{hoveredIndex + 1}</div>
                           </div>
                         )}
@@ -732,8 +732,8 @@ export default function Dashboard() {
               </section>
 
               {/* Live Narrative Logs Card */}
-              <section className="bg-[#0d0d12] border border-white/10 shadow-2xl rounded-2xl flex flex-col flex-1 min-h-[380px] lg:min-h-[460px] transition-all duration-300 hover:border-[#ff2d78]/20 hover:shadow-[0_0_30px_rgba(255,45,120,0.04)] min-w-0">
-                <div className="px-4 md:px-6 py-3.5 border-b border-white/5 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 shrink-0">
+              <section className="bg-[#0f0f1a] border border-[#302840] shadow-2xl rounded-2xl flex flex-col flex-1 min-h-[380px] lg:min-h-[460px] transition-all duration-300 hover:border-[#ff2d78]/20 hover:shadow-[0_0_30px_rgba(255,45,120,0.04)] min-w-0">
+                <div className="px-4 md:px-6 py-3.5 border-b border-[#302840]/30 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 shrink-0">
                   <div className="flex items-center gap-2.5">
                     <svg className="w-5 h-5 text-[#ff2d78]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -742,7 +742,7 @@ export default function Dashboard() {
                   </div>
 
                   {/* Category Filter Tabs */}
-                  <div className="flex items-center bg-black/40 border border-white/5 p-0.5 rounded-lg gap-0.5 self-start sm:self-auto">
+                  <div className="flex items-center bg-black/40 border border-[#302840]/30 p-0.5 rounded-lg gap-0.5 self-start sm:self-auto">
                     {(['ALL', 'BUY', 'SELL', 'HOLD'] as const).map((cat) => {
                       const active = filterCategory === cat;
                       const label = cat === 'ALL' ? 'ALL' : cat === 'BUY' ? 'BUYS' : cat === 'SELL' ? 'SELLS' : 'HOLDS';
@@ -806,7 +806,7 @@ export default function Dashboard() {
                               href={`${EXPLORER}${log.txHash}`} 
                               target="_blank" 
                               rel="noreferrer" 
-                              className="font-mono text-[10px] text-[#00f0ff] hover:underline inline-flex items-center gap-1.5 cursor-pointer"
+                              className="font-mono text-[10px] text-[#00ffcc] hover:underline inline-flex items-center gap-1.5 cursor-pointer"
                             >
                               TX: {truncateHash(log.txHash, 6)} <IconOpenInNew className="w-3 h-3" />
                             </a>
@@ -823,7 +823,7 @@ export default function Dashboard() {
             <div className="xl:col-span-4 space-y-5 xl:space-y-6 flex flex-col min-w-0">
               
               {/* Engine Status Card */}
-              <section className="bg-[#0d0d12] border border-white/10 shadow-2xl rounded-2xl p-4 md:p-6 flex flex-col justify-between transition-all duration-300 hover:border-[#ff2d78]/20 hover:shadow-[0_0_30px_rgba(255,45,120,0.04)]">
+              <section className="bg-[#0f0f1a] border border-[#302840] shadow-2xl rounded-2xl p-4 md:p-6 flex flex-col justify-between transition-all duration-300 hover:border-[#ff2d78]/20 hover:shadow-[0_0_30px_rgba(255,45,120,0.04)]">
                 <div className="flex justify-between items-center">
                   <span className="font-mono text-[10px] text-[#9494b8] uppercase tracking-wider">Engine Status</span>
                   <button onClick={fetchData} className="text-[#ff2d78] hover:brightness-125 transition-all cursor-pointer">
@@ -838,11 +838,11 @@ export default function Dashboard() {
                   <div>
                     <div className="flex justify-between text-[10px] font-mono mb-1.5 uppercase font-bold">
                       <span className="text-[#9494b8]">Sentiment Accuracy</span>
-                      <span className="text-[#00f0ff]">{sentimentAccuracy.toFixed(1)}%</span>
+                      <span className="text-[#00ffcc]">{sentimentAccuracy.toFixed(1)}%</span>
                     </div>
                     <div className="h-1.5 w-full bg-[#1a1a24] rounded-full overflow-hidden">
                       <div 
-                        className="h-full bg-[#00f0ff] shadow-[0_0_8px_rgba(0,240,255,0.5)] transition-all duration-500 rounded-full" 
+                        className="h-full bg-[#00ffcc] shadow-[0_0_8px_rgba(0,255,204,0.5)] transition-all duration-500 rounded-full" 
                         style={{ width: `${sentimentAccuracy}%` }}
                       />
                     </div>
@@ -860,11 +860,11 @@ export default function Dashboard() {
               </section>
               
               {/* Sector Allocation Card */}
-              <section className="bg-[#0d0d12] border border-white/10 shadow-2xl rounded-2xl p-4 md:p-6 flex flex-col justify-between transition-all duration-300 hover:border-[#ff2d78]/20 hover:shadow-[0_0_30px_rgba(255,45,120,0.04)]">
+              <section className="bg-[#0f0f1a] border border-[#302840] shadow-2xl rounded-2xl p-4 md:p-6 flex flex-col justify-between transition-all duration-300 hover:border-[#ff2d78]/20 hover:shadow-[0_0_30px_rgba(255,45,120,0.04)]">
                 <div>
                   <div className="flex justify-between items-center mb-6">
                     <span className="font-mono text-[10px] text-[#9494b8] uppercase tracking-wider">Sector Allocation</span>
-                    <svg className="w-5 h-5 text-[#00f0ff]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <svg className="w-5 h-5 text-[#00ffcc]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
                       <path strokeLinecap="round" strokeLinejoin="round" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
                     </svg>
@@ -873,7 +873,7 @@ export default function Dashboard() {
                     {sectors.map(({ name, pct }, i) => {
                       const barColors = [
                         { color: '#ff2d78', glow: 'shadow-[0_0_8px_#ff2d78]' },
-                        { color: '#00f0ff', glow: 'shadow-[0_0_8px_#00f0ff]' },
+                        { color: '#00ffcc', glow: 'shadow-[0_0_8px_#00ffcc]' },
                         { color: '#bc13fe', glow: 'shadow-[0_0_8px_#bc13fe]' },
                       ];
                       const activeColor = barColors[i % 3];
@@ -912,7 +912,7 @@ export default function Dashboard() {
                 </div>
                 
                 {/* Cyber Globe Frame */}
-                <div className="mt-6 border border-white/5 bg-black/40 rounded-xl overflow-hidden h-32 md:h-36 flex items-center justify-center relative">
+                <div className="mt-6 border border-[#302840]/30 bg-black/40 rounded-xl overflow-hidden h-32 md:h-36 flex items-center justify-center relative">
                   <img 
                     className="w-full h-full object-cover opacity-60 mix-blend-screen" 
                     alt="Cyber globe visualization" 
@@ -923,7 +923,7 @@ export default function Dashboard() {
               </section>
               
               {/* AI Recommendation Card */}
-              <section className="bg-[#0d0d12] border border-white/10 shadow-2xl rounded-2xl p-4 md:p-6 flex flex-col justify-between transition-all duration-300 hover:border-[#ff2d78]/20 hover:shadow-[0_0_30px_rgba(255,45,120,0.04)] h-full">
+              <section className="bg-[#0f0f1a] border border-[#302840] shadow-2xl rounded-2xl p-4 md:p-6 flex flex-col justify-between transition-all duration-300 hover:border-[#ff2d78]/20 hover:shadow-[0_0_30px_rgba(255,45,120,0.04)] h-full">
                 {isTriggering ? (
                   <div className="space-y-4 my-2">
                     <div className="flex items-center justify-between">
@@ -952,7 +952,7 @@ export default function Dashboard() {
                             {/* Step dot */}
                             <div className="absolute -left-[23px] top-0.5 flex items-center justify-center">
                               {isDone ? (
-                                <div className="w-4.5 h-4.5 rounded-full bg-[#00f0ff] flex items-center justify-center text-[#050507] text-[9px] font-black shadow-[0_0_8px_#00f0ff]">
+                                <div className="w-4.5 h-4.5 rounded-full bg-[#00ffcc] flex items-center justify-center text-[#050507] text-[9px] font-black shadow-[0_0_8px_#00ffcc]">
                                   ✓
                                 </div>
                               ) : isActive ? (
@@ -977,9 +977,9 @@ export default function Dashboard() {
                     </div>
                     
                     {/* Dynamic simulation logs screen */}
-                    <div className="p-3 rounded-lg bg-black/60 border border-white/5 font-mono text-[9px] h-28 overflow-y-auto scrollbar-hide space-y-1 text-[#9494b8] mt-4">
+                    <div className="p-3 rounded-lg bg-black/60 border border-[#302840]/30 font-mono text-[9px] h-28 overflow-y-auto scrollbar-hide space-y-1 text-[#9494b8] mt-4">
                       {triggerLog.map((logStr, i) => (
-                        <div key={i} className={logStr.includes('✅') ? 'text-[#00f0ff] font-bold' : logStr.includes('🛡️') ? 'text-[#bc13fe]' : logStr.includes('🤖') ? 'text-[#ff2d78]' : ''}>
+                        <div key={i} className={logStr.includes('✅') ? 'text-[#00ffcc] font-bold' : logStr.includes('🛡️') ? 'text-[#bc13fe]' : logStr.includes('🤖') ? 'text-[#ff2d78]' : ''}>
                           {logStr}
                         </div>
                       ))}
@@ -1018,8 +1018,8 @@ export default function Dashboard() {
 
         {activeTab === 'Positions' && (
           <div className="flex-1 p-4 md:p-6 xl:p-8 overflow-y-auto scrollbar-hide z-10 space-y-6 pb-20 md:pb-8">
-            <div className="bg-[#0d0d12] border border-white/10 shadow-2xl rounded-2xl p-6 transition-all duration-300 hover:border-[#ff2d78]/10">
-              <div className="flex items-center justify-between border-b pb-4 border-[#1a1a24] mb-6">
+            <div className="bg-[#0f0f1a] border border-[#302840] shadow-2xl rounded-2xl p-6 transition-all duration-300 hover:border-[#ff2d78]/10">
+              <div className="flex items-center justify-between border-b pb-4 border-[#302840]/30 mb-6">
                 <div>
                   <h3 className="text-lg font-bold text-white uppercase tracking-wider font-mono">Active Positions</h3>
                   <p className="text-xs text-[#9494b8] mt-1">Current asset holdings managed by the AI agent</p>
@@ -1038,7 +1038,7 @@ export default function Dashboard() {
 
                 if (filteredPositions.length === 0) {
                   return (
-                    <div className="flex flex-col items-center justify-center py-20 text-center border border-dashed border-[#1a1a24] rounded-lg bg-black/20">
+                    <div className="flex flex-col items-center justify-center py-20 text-center border border-dashed border-[#302840]/45 rounded-lg bg-black/20">
                       <IconWallet className="w-10 h-10 text-[#9494b8]/30 mb-4 animate-pulse" />
                       <h4 className="text-white font-semibold text-sm">No Active Positions</h4>
                       <p className="text-[#9494b8] text-xs mt-1 max-w-xs leading-relaxed">
@@ -1052,7 +1052,7 @@ export default function Dashboard() {
                   <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                       <thead>
-                        <tr className="border-b border-[#1a1a24] text-[10px] font-bold uppercase tracking-widest text-[#9494b8] font-mono">
+                        <tr className="border-b border-[#302840]/30 text-[10px] font-bold uppercase tracking-widest text-[#9494b8] font-mono">
                           <th className="py-3 px-4">Asset</th>
                           <th className="py-3 px-4">Amount</th>
                           <th className="py-3 px-4">Avg Entry</th>
@@ -1061,7 +1061,7 @@ export default function Dashboard() {
                           <th className="py-3 px-4 text-right">Unrealized PnL</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-[#1a1a24]/50 text-xs font-mono">
+                      <tbody className="divide-y divide-[#302840]/30 text-xs font-mono">
                         {filteredPositions.map((pos) => {
                           const value = pos.amount * pos.currentPrice;
                           const profit = pos.currentPrice - pos.entryPrice;
@@ -1069,7 +1069,7 @@ export default function Dashboard() {
                           const isPositive = pnlPercent >= 0;
 
                           return (
-                            <tr key={pos.address} className="hover:bg-[#1a1a24]/30 transition-colors">
+                            <tr key={pos.address} className="hover:bg-[#302840]/15 transition-colors">
                               <td className="py-4 px-4 flex items-center gap-3">
                                 <div className="w-8 h-8 rounded-sm bg-[#ff2d78]/10 border border-[#ff2d78]/25 flex items-center justify-center text-[#ff2d78] font-bold text-xs shadow-[0_0_8px_rgba(255,45,120,0.15)]">
                                   {pos.token.slice(0, 3)}
@@ -1094,7 +1094,7 @@ export default function Dashboard() {
                               <td className="py-4 px-4 text-[#9494b8]">{fmt$(pos.entryPrice)}</td>
                               <td className="py-4 px-4 text-[#9494b8]">{fmt$(pos.currentPrice)}</td>
                               <td className="py-4 px-4 text-white font-bold">{fmt$(value)}</td>
-                              <td className={`py-4 px-4 text-right font-bold ${isPositive ? 'text-[#00f0ff]' : 'text-[#ff2d78]'}`}>
+                              <td className={`py-4 px-4 text-right font-bold ${isPositive ? 'text-[#00ffcc]' : 'text-[#ff2d78]'}`}>
                                 {isPositive ? '+' : ''}{pnlPercent.toFixed(2)}%
                               </td>
                             </tr>
@@ -1111,8 +1111,8 @@ export default function Dashboard() {
 
         {activeTab === 'Trade History' && (
           <div className="flex-1 p-4 md:p-6 xl:p-8 overflow-y-auto scrollbar-hide z-10 space-y-6 pb-20 md:pb-8">
-            <div className="bg-[#0d0d12] border border-white/10 shadow-2xl rounded-2xl p-6 transition-all duration-300 hover:border-[#ff2d78]/10">
-              <div className="flex items-center justify-between border-b pb-4 border-white/5 mb-6">
+            <div className="bg-[#0f0f1a] border border-[#302840] shadow-2xl rounded-2xl p-6 transition-all duration-300 hover:border-[#ff2d78]/10">
+              <div className="flex items-center justify-between border-b pb-4 border-[#302840]/30 mb-6">
                 <div>
                   <h3 className="text-lg font-bold text-white uppercase tracking-wider font-mono">Execution Logs</h3>
                   <p className="text-xs text-[#9494b8] mt-1">Historical record of agent trades and portfolio events</p>
@@ -1131,7 +1131,7 @@ export default function Dashboard() {
 
                 if (filteredTrades.length === 0) {
                   return (
-                    <div className="flex flex-col items-center justify-center py-20 text-center border border-dashed border-[#1a1a24] rounded-lg bg-black/20">
+                    <div className="flex flex-col items-center justify-center py-20 text-center border border-dashed border-[#302840]/45 rounded-lg bg-black/20">
                       <IconHistory className="w-10 h-10 text-[#9494b8]/30 mb-4 animate-pulse" />
                       <h4 className="text-white font-semibold text-sm">No Matching Trades</h4>
                       <p className="text-[#9494b8] text-xs mt-1 max-w-xs leading-relaxed">
@@ -1145,7 +1145,7 @@ export default function Dashboard() {
                   <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                       <thead>
-                        <tr className="border-b border-[#1a1a24] text-[10px] font-bold uppercase tracking-widest text-[#9494b8] font-mono">
+                        <tr className="border-b border-[#302840]/30 text-[10px] font-bold uppercase tracking-widest text-[#9494b8] font-mono">
                           <th className="py-3 px-4">Timestamp</th>
                           <th className="py-3 px-4">Action</th>
                           <th className="py-3 px-4">Asset</th>
@@ -1155,11 +1155,11 @@ export default function Dashboard() {
                           <th className="py-3 px-4 text-right">Details</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-[#1a1a24]/50 text-xs font-mono">
+                      <tbody className="divide-y divide-[#302840]/30 text-xs font-mono">
                         {filteredTrades.map((trade, idx) => {
                           const isBuy = trade.type === 'BUY';
                           return (
-                            <tr key={idx} className="hover:bg-[#1a1a24]/30 transition-colors">
+                            <tr key={idx} className="hover:bg-[#302840]/15 transition-colors">
                               <td className="py-4 px-4 text-[#9494b8]">
                                 {new Date(trade.timestamp).toLocaleString()}
                               </td>
@@ -1167,9 +1167,9 @@ export default function Dashboard() {
                                 <span 
                                   className="px-2 py-0.5 rounded-sm text-[10px] font-bold font-mono border"
                                   style={{
-                                    background: isBuy ? 'rgba(255, 45, 120, 0.12)' : 'rgba(0, 240, 255, 0.12)',
-                                    color: isBuy ? '#ff2d78' : '#00f0ff',
-                                    borderColor: isBuy ? 'rgba(255, 45, 120, 0.25)' : 'rgba(0, 240, 255, 0.25)',
+                                    background: isBuy ? 'rgba(255, 45, 120, 0.12)' : 'rgba(0, 255, 204, 0.12)',
+                                    color: isBuy ? '#ff2d78' : '#00ffcc',
+                                    borderColor: isBuy ? 'rgba(255, 45, 120, 0.25)' : 'rgba(0, 255, 204, 0.25)',
                                   }}
                                 >
                                   {trade.type}
@@ -1207,14 +1207,14 @@ export default function Dashboard() {
               
               {/* Left Settings */}
               <div className="lg:col-span-7 space-y-6">
-                <div className="bg-[#0d0d12] border border-white/10 shadow-2xl rounded-2xl p-6 space-y-6 transition-all duration-300 hover:border-[#ff2d78]/10">
-                  <div className="border-b pb-4 border-white/5">
+                <div className="bg-[#0f0f1a] border border-[#302840] shadow-2xl rounded-2xl p-6 space-y-6 transition-all duration-300 hover:border-[#ff2d78]/10">
+                  <div className="border-b pb-4 border-[#302840]/30">
                     <h3 className="text-lg font-bold text-white uppercase tracking-wider font-mono">Control Panel</h3>
                     <p className="text-xs text-[#9494b8] mt-1">Toggle live trading states and inspect agent configuration</p>
                   </div>
 
                   {/* Engine status toggle */}
-                  <div className="flex items-center justify-between p-4 bg-white/[0.015] border border-white/5 rounded-2xl">
+                  <div className="flex items-center justify-between p-4 bg-white/[0.015] border border-[#302840]/30 rounded-2xl">
                     <div>
                       <div className="font-bold text-sm text-white font-sans">Trading Engine</div>
                       <p className="text-xs text-[#9494b8] mt-1 leading-relaxed max-w-md">
@@ -1226,7 +1226,7 @@ export default function Dashboard() {
                       className={`px-4 py-2.5 text-xs font-mono font-bold tracking-wider rounded-xl uppercase transition-all shadow-md active:scale-95 cursor-pointer ${
                         portfolio?.isPaused 
                           ? 'bg-[#ff2d78] text-white hover:brightness-110 shadow-[0_0_12px_rgba(255,45,120,0.4)]' 
-                          : 'bg-transparent text-[#9494b8] border border-white/10 hover:text-white hover:bg-white/5'
+                          : 'bg-transparent text-[#9494b8] border border-[#302840] hover:text-white hover:bg-white/5'
                       }`}
                     >
                       {portfolio?.isPaused ? 'RESUME AGENT' : 'PAUSE AGENT'}
@@ -1245,7 +1245,7 @@ export default function Dashboard() {
                         { label: 'Sentiment Provider', value: 'CoinMarketCap Trending API' },
                         { label: 'Evaluation Loop', value: '30 Minutes' },
                       ].map((item, idx) => (
-                        <div key={idx} className="p-3.5 bg-white/[0.015] border border-white/5 rounded-xl hover:bg-white/[0.03] transition-all">
+                        <div key={idx} className="p-3.5 bg-white/[0.015] border border-[#302840]/30 rounded-xl hover:bg-white/[0.03] transition-all">
                           <span className="text-[9px] font-bold text-[#9494b8]/70 font-mono uppercase tracking-wider block mb-1">{item.label}</span>
                           <span className="text-xs font-mono font-bold text-white">{item.value}</span>
                         </div>
@@ -1257,8 +1257,8 @@ export default function Dashboard() {
 
               {/* Right LLM connections & live simulation */}
               <div className="lg:col-span-5 space-y-6">
-                <div className="bg-[#0d0d12] border border-white/10 shadow-2xl rounded-2xl p-6 space-y-6 transition-all duration-300 hover:border-[#ff2d78]/10">
-                  <div className="border-b pb-4 border-white/5">
+                <div className="bg-[#0f0f1a] border border-[#302840] shadow-2xl rounded-2xl p-6 space-y-6 transition-all duration-300 hover:border-[#ff2d78]/10">
+                  <div className="border-b pb-4 border-[#302840]/30">
                     <h3 className="text-lg font-bold text-white uppercase tracking-wider font-mono">Credentials Status</h3>
                     <p className="text-xs text-[#9494b8] mt-1">Verifies connection status of agent keys and API endpoints</p>
                   </div>
@@ -1269,10 +1269,10 @@ export default function Dashboard() {
                       { name: 'Gemini Backstop API', active: config?.geminiStatus },
                       { name: 'CoinMarketCap Signals API', active: config?.cmcStatus },
                     ].map((cred, idx) => (
-                      <div key={idx} className="flex items-center justify-between p-3.5 bg-white/[0.015] border border-white/5 rounded-xl hover:bg-white/[0.03] transition-all">
+                      <div key={idx} className="flex items-center justify-between p-3.5 bg-white/[0.015] border border-[#302840]/30 rounded-xl hover:bg-white/[0.03] transition-all">
                         <span className="text-[#9494b8] font-semibold">{cred.name}</span>
-                        <span className={`flex items-center gap-1.5 font-bold ${cred.active ? 'text-[#00f0ff]' : 'text-[#ff2d78]'}`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${cred.active ? 'bg-[#00f0ff] animate-pulse' : 'bg-[#ff2d78]'}`} />
+                        <span className={`flex items-center gap-1.5 font-bold ${cred.active ? 'text-[#00ffcc]' : 'text-[#ff2d78]'}`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${cred.active ? 'bg-[#00ffcc] animate-pulse' : 'bg-[#ff2d78]'}`} />
                           {cred.active ? 'CONNECTED' : 'DISCONNECTED'}
                         </span>
                       </div>
@@ -1280,8 +1280,8 @@ export default function Dashboard() {
                   </div>
                 </div>
 
-                <div className="bg-[#0d0d12] border border-white/10 shadow-2xl rounded-2xl p-6 space-y-6 transition-all duration-300 hover:border-[#ff2d78]/10">
-                  <div className="border-b pb-4 border-white/5">
+                <div className="bg-[#0f0f1a] border border-[#302840] shadow-2xl rounded-2xl p-6 space-y-6 transition-all duration-300 hover:border-[#ff2d78]/10">
+                  <div className="border-b pb-4 border-[#302840]/30">
                     <h3 className="text-lg font-bold text-white uppercase tracking-wider font-mono">System Simulator</h3>
                     <p className="text-xs text-[#9494b8] mt-1">Manually trigger and inspect a dry-run narrative assessment</p>
                   </div>
@@ -1291,9 +1291,9 @@ export default function Dashboard() {
                     disabled={isTriggering || portfolio?.isPaused}
                     className={`w-full py-2.5 rounded-xl text-xs font-mono font-bold tracking-wider uppercase border transition-all active:scale-[0.98] cursor-pointer ${
                       isTriggering 
-                        ? 'bg-transparent text-[#9494b8]/50 border-white/5' 
+                        ? 'bg-transparent text-[#9494b8]/50 border-[#302840]/30' 
                         : portfolio?.isPaused 
-                          ? 'bg-transparent text-[#9494b8]/30 border-white/5 cursor-not-allowed' 
+                          ? 'bg-transparent text-[#9494b8]/30 border-[#302840]/30 cursor-not-allowed' 
                           : 'bg-[#ff2d78] text-white border-[#ff2d78] shadow-[0_0_12px_rgba(255,45,120,0.4)] hover:brightness-110'
                     }`}
                   >
@@ -1301,9 +1301,9 @@ export default function Dashboard() {
                   </button>
 
                   {triggerLog.length > 0 && (
-                    <div className="p-4 rounded-xl bg-black/60 border border-white/5 font-mono text-[10px] space-y-1.5 h-44 overflow-y-auto scrollbar-hide">
+                    <div className="p-4 rounded-xl bg-black/60 border border-[#302840]/30 font-mono text-[10px] space-y-1.5 h-44 overflow-y-auto scrollbar-hide">
                       {triggerLog.map((logStr, i) => (
-                        <div key={i} className={logStr.includes('✅') ? 'text-[#ff2d78]' : logStr.includes('🛡️') ? 'text-[#00f0ff]' : 'text-[#9494b8]'}>
+                        <div key={i} className={logStr.includes('✅') ? 'text-[#ff2d78]' : logStr.includes('🛡️') ? 'text-[#00ffcc]' : 'text-[#9494b8]'}>
                           {logStr}
                         </div>
                       ))}
@@ -1316,7 +1316,7 @@ export default function Dashboard() {
         )}
 
         {/* Terminal Footer */}
-        <footer className="hidden md:flex min-h-10 px-6 xl:px-8 border-t border-[#1a1a24] items-center justify-between gap-4 text-[#9494b8] text-[9px] font-mono tracking-widest uppercase bg-[#0d0d12]/90 shrink-0 z-40">
+        <footer className="hidden md:flex min-h-10 px-6 xl:px-8 border-t border-[#302840] items-center justify-between gap-4 text-[#9494b8] text-[9px] font-mono tracking-widest uppercase bg-[#0f0f1a]/90 shrink-0 z-40">
           <div className="flex items-center gap-6">
             <span>© 2024 Narrative Trader Foundation v1.0.4-BETA</span>
             <span className="flex items-center gap-1.5 text-[#ff2d78] font-bold">
