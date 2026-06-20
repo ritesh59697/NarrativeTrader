@@ -416,7 +416,7 @@ export default function Dashboard() {
     <div className="font-sans text-sm min-h-screen bg-[#07070b] text-[#e0e0e6] grid grid-cols-1 md:grid-cols-[260px_1fr] relative overflow-x-hidden">
       
       {/* Sidebar Navigation Shell */}
-      <aside className="hidden md:flex w-[260px] md:sticky md:top-4 md:h-[calc(100vh-2rem)] md:my-4 md:ml-4 rounded-2xl border border-white/5 bg-[#0d0d12]/50 backdrop-blur-[35px] flex-col py-6 z-50 shadow-2xl shadow-black/80">
+      <aside className="hidden md:flex w-[260px] md:sticky md:top-4 md:h-[calc(100vh-2rem)] md:my-4 md:ml-4 rounded-2xl border border-white/10 bg-[#0d0d12] flex-col py-6 z-50 shadow-2xl shadow-black/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
         <div className="px-6 mb-8">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-[#ff2d78] rounded-lg flex items-center justify-center shadow-[0_0_15px_rgba(255,45,120,0.5)]">
@@ -460,7 +460,7 @@ export default function Dashboard() {
         {/* Unified Bottom Container */}
         <div className="pt-4 pb-4 mt-auto border-t border-white/5 space-y-4">
           <div className="px-3">
-            <div className="bg-white/[0.015] border border-white/5 rounded-xl p-4 shadow-inner backdrop-blur-md">
+            <div className="bg-white/[0.015] border border-white/10 rounded-xl p-4 shadow-inner">
               <div className="flex justify-between items-center mb-2">
                 <span className="font-mono text-[10px] text-[#9494b8] uppercase tracking-wider">INTERNAL HEALTH</span>
                 <span className="font-mono text-[10px] text-[#ff2d78] font-bold">82%</span>
@@ -509,7 +509,7 @@ export default function Dashboard() {
         </div>
 
         {/* Top Status Bar */}
-        <header className="min-h-16 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between px-4 md:px-6 xl:px-8 py-4 bg-[#0d0d12]/60 backdrop-blur-[30px] border-b border-white/5 z-40 shrink-0">
+        <header className="min-h-16 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between px-4 md:px-6 xl:px-8 py-4 bg-[#0d0d12] border-b border-white/10 z-40 shrink-0">
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 max-w-full">
             <div className="flex items-center gap-3 md:hidden min-w-full sm:min-w-0">
               <div className="w-8 h-8 bg-[#ff2d78] rounded-md flex items-center justify-center">
@@ -604,7 +604,7 @@ export default function Dashboard() {
             <div className="xl:col-span-8 space-y-5 xl:space-y-6 flex flex-col min-w-0">
               
               {/* Total Value Locked Card */}
-              <section className="bg-[#0d0d12]/50 border border-white/5 shadow-2xl rounded-2xl p-4 md:p-6 flex flex-col justify-between backdrop-blur-[30px] transition-all duration-300 hover:border-[#ff2d78]/20 hover:shadow-[0_0_30px_rgba(255,45,120,0.04)]">
+              <section className="bg-[#0d0d12] border border-white/10 shadow-2xl rounded-2xl p-4 md:p-6 flex flex-col justify-between transition-all duration-300 hover:border-[#ff2d78]/20 hover:shadow-[0_0_30px_rgba(255,45,120,0.04)]">
                 <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
                   <div className="min-w-0">
                     <span className="font-mono text-[10px] text-[#9494b8] uppercase tracking-wider">Total Value Locked (Institutional)</span>
@@ -732,7 +732,7 @@ export default function Dashboard() {
               </section>
 
               {/* Live Narrative Logs Card */}
-              <section className="bg-[#0d0d12]/50 border border-white/5 shadow-2xl rounded-2xl flex flex-col flex-1 min-h-[380px] lg:min-h-[460px] backdrop-blur-[30px] transition-all duration-300 hover:border-[#ff2d78]/20 hover:shadow-[0_0_30px_rgba(255,45,120,0.04)] min-w-0">
+              <section className="bg-[#0d0d12] border border-white/10 shadow-2xl rounded-2xl flex flex-col flex-1 min-h-[380px] lg:min-h-[460px] transition-all duration-300 hover:border-[#ff2d78]/20 hover:shadow-[0_0_30px_rgba(255,45,120,0.04)] min-w-0">
                 <div className="px-4 md:px-6 py-3.5 border-b border-white/5 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 shrink-0">
                   <div className="flex items-center gap-2.5">
                     <svg className="w-5 h-5 text-[#ff2d78]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -823,7 +823,7 @@ export default function Dashboard() {
             <div className="xl:col-span-4 space-y-5 xl:space-y-6 flex flex-col min-w-0">
               
               {/* Engine Status Card */}
-              <section className="bg-[#0d0d12]/50 border border-white/5 shadow-2xl rounded-2xl p-4 md:p-6 flex flex-col justify-between backdrop-blur-[30px] transition-all duration-300 hover:border-[#ff2d78]/20 hover:shadow-[0_0_30px_rgba(255,45,120,0.04)]">
+              <section className="bg-[#0d0d12] border border-white/10 shadow-2xl rounded-2xl p-4 md:p-6 flex flex-col justify-between transition-all duration-300 hover:border-[#ff2d78]/20 hover:shadow-[0_0_30px_rgba(255,45,120,0.04)]">
                 <div className="flex justify-between items-center">
                   <span className="font-mono text-[10px] text-[#9494b8] uppercase tracking-wider">Engine Status</span>
                   <button onClick={fetchData} className="text-[#ff2d78] hover:brightness-125 transition-all cursor-pointer">
@@ -860,7 +860,7 @@ export default function Dashboard() {
               </section>
               
               {/* Sector Allocation Card */}
-              <section className="bg-[#0d0d12]/50 border border-white/5 shadow-2xl rounded-2xl p-4 md:p-6 flex flex-col justify-between backdrop-blur-[30px] transition-all duration-300 hover:border-[#ff2d78]/20 hover:shadow-[0_0_30px_rgba(255,45,120,0.04)]">
+              <section className="bg-[#0d0d12] border border-white/10 shadow-2xl rounded-2xl p-4 md:p-6 flex flex-col justify-between transition-all duration-300 hover:border-[#ff2d78]/20 hover:shadow-[0_0_30px_rgba(255,45,120,0.04)]">
                 <div>
                   <div className="flex justify-between items-center mb-6">
                     <span className="font-mono text-[10px] text-[#9494b8] uppercase tracking-wider">Sector Allocation</span>
@@ -923,7 +923,7 @@ export default function Dashboard() {
               </section>
               
               {/* AI Recommendation Card */}
-              <section className="bg-[#0d0d12]/50 border border-white/5 shadow-2xl rounded-2xl p-4 md:p-6 flex flex-col justify-between backdrop-blur-[30px] transition-all duration-300 hover:border-[#ff2d78]/20 hover:shadow-[0_0_30px_rgba(255,45,120,0.04)] h-full">
+              <section className="bg-[#0d0d12] border border-white/10 shadow-2xl rounded-2xl p-4 md:p-6 flex flex-col justify-between transition-all duration-300 hover:border-[#ff2d78]/20 hover:shadow-[0_0_30px_rgba(255,45,120,0.04)] h-full">
                 {isTriggering ? (
                   <div className="space-y-4 my-2">
                     <div className="flex items-center justify-between">
@@ -1018,7 +1018,7 @@ export default function Dashboard() {
 
         {activeTab === 'Positions' && (
           <div className="flex-1 p-4 md:p-6 xl:p-8 overflow-y-auto scrollbar-hide z-10 space-y-6 pb-20 md:pb-8">
-            <div className="bg-[#0d0d12]/50 border border-white/5 shadow-2xl rounded-2xl p-6 backdrop-blur-[30px] transition-all duration-300 hover:border-[#ff2d78]/10">
+            <div className="bg-[#0d0d12] border border-white/10 shadow-2xl rounded-2xl p-6 transition-all duration-300 hover:border-[#ff2d78]/10">
               <div className="flex items-center justify-between border-b pb-4 border-[#1a1a24] mb-6">
                 <div>
                   <h3 className="text-lg font-bold text-white uppercase tracking-wider font-mono">Active Positions</h3>
@@ -1111,7 +1111,7 @@ export default function Dashboard() {
 
         {activeTab === 'Trade History' && (
           <div className="flex-1 p-4 md:p-6 xl:p-8 overflow-y-auto scrollbar-hide z-10 space-y-6 pb-20 md:pb-8">
-            <div className="bg-[#0d0d12]/50 border border-white/5 shadow-2xl rounded-2xl p-6 backdrop-blur-[30px] transition-all duration-300 hover:border-[#ff2d78]/10">
+            <div className="bg-[#0d0d12] border border-white/10 shadow-2xl rounded-2xl p-6 transition-all duration-300 hover:border-[#ff2d78]/10">
               <div className="flex items-center justify-between border-b pb-4 border-white/5 mb-6">
                 <div>
                   <h3 className="text-lg font-bold text-white uppercase tracking-wider font-mono">Execution Logs</h3>
@@ -1207,7 +1207,7 @@ export default function Dashboard() {
               
               {/* Left Settings */}
               <div className="lg:col-span-7 space-y-6">
-                <div className="bg-[#0d0d12]/50 border border-white/5 shadow-2xl rounded-2xl p-6 space-y-6 backdrop-blur-[30px] transition-all duration-300 hover:border-[#ff2d78]/10">
+                <div className="bg-[#0d0d12] border border-white/10 shadow-2xl rounded-2xl p-6 space-y-6 transition-all duration-300 hover:border-[#ff2d78]/10">
                   <div className="border-b pb-4 border-white/5">
                     <h3 className="text-lg font-bold text-white uppercase tracking-wider font-mono">Control Panel</h3>
                     <p className="text-xs text-[#9494b8] mt-1">Toggle live trading states and inspect agent configuration</p>
@@ -1257,7 +1257,7 @@ export default function Dashboard() {
 
               {/* Right LLM connections & live simulation */}
               <div className="lg:col-span-5 space-y-6">
-                <div className="bg-[#0d0d12]/50 border border-white/5 shadow-2xl rounded-2xl p-6 space-y-6 backdrop-blur-[30px] transition-all duration-300 hover:border-[#ff2d78]/10">
+                <div className="bg-[#0d0d12] border border-white/10 shadow-2xl rounded-2xl p-6 space-y-6 transition-all duration-300 hover:border-[#ff2d78]/10">
                   <div className="border-b pb-4 border-white/5">
                     <h3 className="text-lg font-bold text-white uppercase tracking-wider font-mono">Credentials Status</h3>
                     <p className="text-xs text-[#9494b8] mt-1">Verifies connection status of agent keys and API endpoints</p>
@@ -1280,7 +1280,7 @@ export default function Dashboard() {
                   </div>
                 </div>
 
-                <div className="bg-[#0d0d12]/50 border border-white/5 shadow-2xl rounded-2xl p-6 space-y-6 backdrop-blur-[30px] transition-all duration-300 hover:border-[#ff2d78]/10">
+                <div className="bg-[#0d0d12] border border-white/10 shadow-2xl rounded-2xl p-6 space-y-6 transition-all duration-300 hover:border-[#ff2d78]/10">
                   <div className="border-b pb-4 border-white/5">
                     <h3 className="text-lg font-bold text-white uppercase tracking-wider font-mono">System Simulator</h3>
                     <p className="text-xs text-[#9494b8] mt-1">Manually trigger and inspect a dry-run narrative assessment</p>
