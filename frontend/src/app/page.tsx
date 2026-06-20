@@ -1323,8 +1323,9 @@ export default function Page() {
             </div>
           </div>
 
-          <div style={{ maxWidth: 1400, margin: '64px auto 0', paddingTop: 32, borderTop: '1px solid rgba(48,40,64,0.10)', display: 'flex', justifyContent: 'space-between' }}>
+          <div style={{ maxWidth: 1400, margin: '64px auto 0', paddingTop: 32, borderTop: '1px solid rgba(48,40,64,0.10)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ color: 'rgba(160,152,176,0.40)', fontFamily: F.mono, fontSize: 10 }}>© 2026 NARRATIVE TRADER FOUNDATION. V1.0.4-BETA</span>
+            <a href="https://x.com/ritesh59697" target="_blank" rel="noreferrer" style={{ color: C.primaryFixedDim, fontFamily: F.mono, fontSize: 10, fontWeight: 700, textDecoration: 'none' }}>Built by ritesh59697</a>
             <span style={{ color: 'rgba(160,152,176,0.40)', fontFamily: F.mono, fontSize: 10, textTransform: 'uppercase' }}>ENCRYPTED END-TO-END CONNECTION</span>
           </div>
         </footer>
