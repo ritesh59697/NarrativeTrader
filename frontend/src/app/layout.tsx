@@ -1,27 +1,5 @@
 import type { Metadata } from 'next';
-import { Sora, Inter, Space_Grotesk } from 'next/font/google';
 import './globals.css';
-
-const sora = Sora({
-  subsets: ['latin'],
-  variable: '--font-sora',
-  display: 'swap',
-  weight: ['400', '500', '600', '700'],
-});
-
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-inter',
-  display: 'swap',
-  weight: ['300', '400', '500', '600', '700'],
-});
-
-const spaceGrotesk = Space_Grotesk({
-  subsets: ['latin'],
-  variable: '--font-space-grotesk',
-  display: 'swap',
-  weight: ['400', '500', '600', '700'],
-});
 
 export const metadata: Metadata = {
   title: 'Narrative Trader | AI-Driven Alpha Terminal',
@@ -33,7 +11,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en"
-      className={`dark ${sora.variable} ${inter.variable} ${spaceGrotesk.variable}`}
+      className="dark"
       suppressHydrationWarning
     >
       <head>

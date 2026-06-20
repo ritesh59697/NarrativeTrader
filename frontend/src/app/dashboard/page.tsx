@@ -205,6 +205,9 @@ export default function Dashboard() {
   const [lastUpdated, setLastUpdated] = useState(0);
   const [triggerLog, setTriggerLog] = useState<string[]>([]);
   const [isTriggering, setIsTriggering] = useState(false);
+  const [filterCategory, setFilterCategory] = useState<'ALL' | 'BUY' | 'SELL' | 'HOLD'>('ALL');
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [rebalanceStep, setRebalanceStep] = useState<number>(-1);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const [filterQuery, setFilterQuery] = useState('');
@@ -296,31 +299,37 @@ export default function Dashboard() {
   const simulateCycleTrigger = () => {
     if (isTriggering) return;
     setIsTriggering(true);
+    setRebalanceStep(0);
     setTriggerLog([
       `[${new Date().toLocaleTimeString()}] 🤖 [NarrativeTrader] Initializing forced cycle trigger...`,
     ]);
 
     setTimeout(() => {
+      setRebalanceStep(1);
       setTriggerLog(prev => [...prev, `[${new Date().toLocaleTimeString()}] 📊 Fetching trending signals from CoinMarketCap...`]);
-    }, 800);
+    }, 1200);
     setTimeout(() => {
+      setRebalanceStep(2);
       setTriggerLog(prev => [...prev, `[${new Date().toLocaleTimeString()}] 🧠 Sending signal data to LLMs for analysis...`]);
-    }, 1600);
+    }, 2800);
     setTimeout(() => {
+      setRebalanceStep(3);
       const name = cycles[cycles.length - 1]?.narrativeName || 'AI Agent Ecosystem';
       setTriggerLog(prev => [...prev, `[${new Date().toLocaleTimeString()}] 🧠 LLM analysis completed. Market sentiment: BULLISH. Sector: ${name}.`]);
-    }, 2400);
+    }, 4400);
     setTimeout(() => {
+      setRebalanceStep(4);
       setTriggerLog(prev => [...prev, `[${new Date().toLocaleTimeString()}] 🛡️ Running pre-trade risk guard audit...`]);
-    }, 3200);
+    }, 5600);
     setTimeout(() => {
       setTriggerLog(prev => [...prev, `[${new Date().toLocaleTimeString()}] 🛡️ Audit Complete: Risk Check PASSED. All limits comply.`]);
-    }, 4000);
+    }, 6200);
     setTimeout(() => {
       setTriggerLog(prev => [...prev, `[${new Date().toLocaleTimeString()}] ✅ Cycle complete: Decision HOLD (Waiting for narrative drift).`]);
+      setRebalanceStep(-1);
       setIsTriggering(false);
       fetchData();
-    }, 4800);
+    }, 7200);
   };
 
   useEffect(() => {
@@ -364,7 +373,10 @@ export default function Dashboard() {
       );
     });
 
-  const logs = baseLogs;
+  const logs = baseLogs.filter(log => {
+    if (filterCategory === 'ALL') return true;
+    return log.decision === filterCategory;
+  });
 
   const chartBars = (() => {
     const last10 = [...cycles].slice(-10);
@@ -401,13 +413,13 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="font-sans text-sm overflow-hidden h-screen bg-[#050507] text-[#e0e0e6] flex relative">
+    <div className="font-sans text-sm min-h-screen bg-[#07070b] text-[#e0e0e6] grid grid-cols-1 md:grid-cols-[260px_1fr] relative overflow-x-hidden">
       
       {/* Sidebar Navigation Shell */}
-      <aside className="w-[280px] h-screen fixed left-0 top-0 border-r border-[#1a1a24] bg-[#0d0d12] flex flex-col py-8 z-50">
-        <div className="px-8 mb-10">
+      <aside className="hidden md:flex w-[260px] md:sticky md:top-4 md:h-[calc(100vh-2rem)] md:my-4 md:ml-4 rounded-2xl border border-white/5 bg-[#0d0d12]/50 backdrop-blur-[35px] flex-col py-6 z-50 shadow-2xl shadow-black/80">
+        <div className="px-6 mb-8">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-[#ff2d78] rounded flex items-center justify-center shadow-[0_0_15px_rgba(255,45,120,0.5)]">
+            <div className="w-8 h-8 bg-[#ff2d78] rounded-lg flex items-center justify-center shadow-[0_0_15px_rgba(255,45,120,0.5)]">
               <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
@@ -420,38 +432,41 @@ export default function Dashboard() {
         </div>
         
         {/* Spacious, premium capsule cards mapping to Title Case */}
-        <nav className="flex-1 space-y-2 mt-4 px-4">
+        <nav className="flex-1 space-y-1.5 mt-2 px-3">
           {tabs.map((tab) => {
             const active = activeTab === tab.id;
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`w-full flex items-center px-4 py-2.5 transition-all duration-200 group cursor-pointer text-left rounded-lg border ${
+                className={`w-full flex items-center px-4 py-2.5 transition-all duration-200 group cursor-pointer text-left rounded-xl border ${
                   active 
-                    ? 'text-white bg-[#ff2d78]/10 border-[#ff2d78]/30 shadow-[0_0_12px_rgba(255,45,120,0.15)]' 
-                    : 'text-[#9494b8] hover:text-white hover:bg-white/[0.03] hover:border-white/5 border-transparent'
+                    ? 'text-white bg-gradient-to-r from-[#ff2d78]/15 to-[#ff2d78]/3 border-[#ff2d78]/35 shadow-[0_4px_25px_rgba(255,45,120,0.1)]' 
+                    : 'text-[#9494b8] hover:text-white hover:bg-white/[0.02] hover:border-white/5 border-transparent'
                 }`}
               >
                 <span className={`transition-colors ${active ? 'text-[#ff2d78]' : 'text-[#9494b8] group-hover:text-white'}`}>
                   {tab.icon}
                 </span>
                 <span className="font-sans text-[13px] font-semibold tracking-normal ml-3">{tab.label}</span>
+                {active && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#ff2d78] ml-auto pulse-dot-neon"></span>
+                )}
               </button>
             );
           })}
         </nav>
 
         {/* Unified Bottom Container */}
-        <div className="pt-4 pb-14 mt-auto border-t border-[#1a1a24] space-y-4">
-          <div className="px-4">
-            <div className="bg-[#050507]/40 border border-[#222230] rounded-lg p-4">
+        <div className="pt-4 pb-4 mt-auto border-t border-white/5 space-y-4">
+          <div className="px-3">
+            <div className="bg-white/[0.015] border border-white/5 rounded-xl p-4 shadow-inner backdrop-blur-md">
               <div className="flex justify-between items-center mb-2">
                 <span className="font-mono text-[10px] text-[#9494b8] uppercase tracking-wider">INTERNAL HEALTH</span>
                 <span className="font-mono text-[10px] text-[#ff2d78] font-bold">82%</span>
               </div>
-              <div className="h-1 bg-[#1a1a24] rounded-full overflow-hidden">
-                <div className="h-full bg-[#ff2d78] w-[82%] shadow-[0_0_8px_#ff2d78]"></div>
+              <div className="h-1.5 bg-[#1a1a24] rounded-full overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-[#ff2d78] to-[#bc13fe] w-[82%] shadow-[0_0_8px_#ff2d78]"></div>
               </div>
               <div className="flex items-center gap-2 mt-3.5">
                 <div className="w-2 h-2 rounded-full bg-[#ff2d78] pulse-dot-neon"></div>
@@ -462,20 +477,20 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <div className="px-4 space-y-2">
+          <div className="px-3 space-y-1.5">
             <button 
               onClick={() => setActiveTab('Agent Config')}
-              className={`w-full flex items-center px-4 py-2 rounded-lg border transition-all duration-200 cursor-pointer text-left text-xs ${
+              className={`w-full flex items-center px-4 py-2 rounded-xl border transition-all duration-200 cursor-pointer text-left text-xs ${
                 activeTab === 'Agent Config' 
-                  ? 'text-white bg-[#ff2d78]/10 border-[#ff2d78]/30 shadow-[0_0_12px_rgba(255,45,120,0.15)] font-bold' 
-                  : 'text-[#9494b8] hover:text-white hover:bg-white/[0.03] hover:border-white/5 border-transparent'
+                  ? 'text-white bg-gradient-to-r from-[#ff2d78]/15 to-[#ff2d78]/3 border-[#ff2d78]/35 shadow-[0_4px_25px_rgba(255,45,120,0.1)] font-bold' 
+                  : 'text-[#9494b8] hover:text-white hover:bg-white/[0.02] hover:border-white/5 border-transparent'
               }`}
             >
               <IconSettings className="w-4 h-4" />
               <span className="font-sans ml-3 text-[12px] font-semibold">Settings</span>
             </button>
             <a 
-              className="w-full flex items-center px-4 py-2 rounded-lg border transition-all duration-200 cursor-pointer text-left text-xs text-[#9494b8] hover:text-white hover:bg-white/[0.03] hover:border-white/5 border-transparent" 
+              className="w-full flex items-center px-4 py-2 rounded-xl border transition-all duration-200 cursor-pointer text-left text-xs text-[#9494b8] hover:text-white hover:bg-white/[0.02] hover:border-white/5 border-transparent" 
               href="/docs"
             >
               <IconHelp className="w-4.5 h-4.5" />
@@ -483,23 +498,28 @@ export default function Dashboard() {
             </a>
           </div>
         </div>
-        
-        {/* Extra spacer to fully clear browser developer overlay logo */}
-        <div className="h-16 w-full shrink-0" />
       </aside>
 
       {/* Main Content Area */}
-      <main className="h-screen flex flex-col flex-1 relative overflow-hidden bg-[#050507]" style={{ marginLeft: '280px' }}>
+      <main className="min-h-screen flex flex-col flex-1 relative bg-[#07070b] min-w-0">
         
-        {/* Subtle Background Radial Overlay */}
-        <div className="absolute inset-0 pointer-events-none opacity-20 overflow-hidden">
-          <div className="absolute -top-[15%] -left-[10%] w-[500px] h-[500px] bg-[#ff2d78]/10 blur-[100px] rounded-full"></div>
-          <div className="absolute -bottom-[15%] -right-[10%] w-[400px] h-[400px] bg-[#00f0ff]/10 blur-[90px] rounded-full"></div>
+        {/* Subtle Background Texture */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.018)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.018)_1px,transparent_1px)] bg-[size:32px_32px] opacity-40"></div>
         </div>
 
         {/* Top Status Bar */}
-        <header className="h-16 flex items-center justify-between px-8 bg-[#0d0d12]/80 backdrop-blur-[20px] border-b border-[#1a1a24] z-40 shrink-0">
-          <div className="flex items-center gap-8">
+        <header className="min-h-16 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between px-4 md:px-6 xl:px-8 py-4 bg-[#0d0d12]/60 backdrop-blur-[30px] border-b border-white/5 z-40 shrink-0">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 max-w-full">
+            <div className="flex items-center gap-3 md:hidden min-w-full sm:min-w-0">
+              <div className="w-8 h-8 bg-[#ff2d78] rounded-md flex items-center justify-center">
+                <IconAnalytics className="w-4 h-4 text-white" />
+              </div>
+              <div>
+                <h1 className="font-sans text-white text-sm uppercase font-bold leading-none">Narrative Trader</h1>
+                <span className="font-mono text-[#9494b8] tracking-[0.2em] text-[8px] font-bold block mt-1">DASHBOARD</span>
+              </div>
+            </div>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-[#ff2d78] pulse-dot-neon"></div>
               <span className="font-mono text-[10px] text-[#ff2d78] font-bold tracking-widest uppercase">TESTNET-ALPHA</span>
@@ -518,14 +538,14 @@ export default function Dashboard() {
               </span>
             )}
           </div>
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-3 md:gap-4 min-w-0">
             <div className="relative group">
               <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-[#ff2d78] w-4 h-4 pointer-events-none" />
               <input 
                 type="text" 
                 value={filterQuery}
                 onChange={e => setFilterQuery(e.target.value)}
-                className="bg-[#050507] border border-[#333344] focus:border-[#ff2d78]/60 rounded px-4 pl-9 py-1.5 font-mono text-xs w-56 focus:ring-0 focus:outline-none transition-all text-[#e0e0e6]" 
+                className="hidden sm:block bg-[#050507] border border-[#333344] focus:border-[#ff2d78]/60 rounded-md px-4 pl-9 py-2 font-mono text-xs w-44 lg:w-56 focus:ring-0 focus:outline-none transition-all text-[#e0e0e6]" 
                 placeholder="Quick Filter..." 
               />
             </div>
@@ -540,7 +560,7 @@ export default function Dashboard() {
             </div>
             <button 
               onClick={connectWallet}
-              className="bg-[#ff2d78] text-white font-sans text-xs px-5 py-2.5 rounded font-bold shadow-[0_0_15px_rgba(255,45,120,0.4)] hover:brightness-110 transition-all uppercase tracking-widest cursor-pointer"
+              className="bg-[#ff2d78] text-white font-sans text-[10px] sm:text-xs px-3 sm:px-5 py-2.5 rounded-md font-bold hover:brightness-110 transition-all uppercase tracking-widest cursor-pointer shrink-0"
             >
               {walletAddress ? (
                 <span className="flex items-center gap-2 font-mono">
@@ -554,20 +574,42 @@ export default function Dashboard() {
           </div>
         </header>
 
+        <nav className="md:hidden z-30 px-4 py-3 bg-[#0d0d12]/90 border-b border-[#20202a] overflow-x-auto scrollbar-hide">
+          <div className="flex gap-2 min-w-max">
+            {tabs.map((tab) => {
+              const active = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-md border text-[11px] font-semibold ${
+                    active
+                      ? 'text-white bg-[#ff2d78]/12 border-[#ff2d78]/35'
+                      : 'text-[#9494b8] border-[#222230] bg-[#08080d]'
+                  }`}
+                >
+                  {tab.icon}
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+        </nav>
+
         {/* Scrollable Viewport Pane */}
         {activeTab === 'Dashboard' && (
-          <div className="flex-1 p-8 grid grid-cols-12 gap-6 overflow-y-auto scrollbar-hide z-10">
+          <div className="flex-1 p-4 md:p-6 xl:p-8 grid grid-cols-1 xl:grid-cols-12 gap-5 xl:gap-6 overflow-y-auto scrollbar-hide z-10 pb-20 md:pb-8">
             
             {/* Left Column (col-span-8) */}
-            <div className="col-span-8 space-y-6 flex flex-col">
+            <div className="xl:col-span-8 space-y-5 xl:space-y-6 flex flex-col min-w-0">
               
               {/* Total Value Locked Card */}
-              <section className="bg-[#0c0c14] border border-[#222230] rounded-xl p-6 flex flex-col justify-between shadow-sm backdrop-blur-[20px] transition-all duration-300 hover:border-[#ff2d78]/20 hover:shadow-[0_0_20px_rgba(255,45,120,0.05)]">
-                <div className="flex justify-between items-start">
-                  <div>
+              <section className="bg-[#0d0d12]/50 border border-white/5 shadow-2xl rounded-2xl p-4 md:p-6 flex flex-col justify-between backdrop-blur-[30px] transition-all duration-300 hover:border-[#ff2d78]/20 hover:shadow-[0_0_30px_rgba(255,45,120,0.04)]">
+                <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
+                  <div className="min-w-0">
                     <span className="font-mono text-[10px] text-[#9494b8] uppercase tracking-wider">Total Value Locked (Institutional)</span>
                     <div className="flex items-baseline gap-2 mt-2">
-                      <h2 className="text-4xl font-sans font-bold text-white tracking-tight">
+                      <h2 className="text-3xl md:text-4xl font-sans font-bold text-white tracking-tight">
                         {(() => {
                           const whole = Math.floor(val).toLocaleString('en-US');
                           const dec   = (val % 1).toFixed(2).slice(1);
@@ -582,55 +624,151 @@ export default function Dashboard() {
                       <span>+{fmt$(pnl)} (+{pnlPct.toFixed(2)}% 24h)</span>
                     </div>
                   </div>
-                  <div className="flex gap-2">
-                    <button className="bg-[#050507] border border-[#1a1a24] text-[#9494b8] hover:text-[#e0e0e6] px-3 py-1 text-xs rounded font-mono font-bold transition-all cursor-pointer">1H</button>
-                    <button className="bg-[#ff2d78] text-white px-3 py-1 text-xs rounded font-mono font-bold shadow-[0_0_12px_rgba(255,45,120,0.4)] hover:brightness-110 transition-all cursor-pointer">24H</button>
-                    <button className="bg-[#050507] border border-[#1a1a24] text-[#9494b8] hover:text-[#e0e0e6] px-3 py-1 text-xs rounded font-mono font-bold transition-all cursor-pointer">7D</button>
+                  <div className="flex gap-2 shrink-0">
+                    <button className="bg-white/[0.02] border border-white/5 text-[#9494b8] hover:text-[#e0e0e6] px-3 py-1.5 text-xs rounded-lg font-mono font-bold transition-all cursor-pointer">1H</button>
+                    <button className="bg-[#ff2d78] text-white px-3 py-1.5 text-xs rounded-lg font-mono font-bold shadow-[0_0_12px_rgba(255,45,120,0.4)] hover:brightness-110 transition-all cursor-pointer">24H</button>
+                    <button className="bg-white/[0.02] border border-white/5 text-[#9494b8] hover:text-[#e0e0e6] px-3 py-1.5 text-xs rounded-lg font-mono font-bold transition-all cursor-pointer">7D</button>
                   </div>
                 </div>
                 
-                {/* Spaced-out, premium visual chart pillars matching reference screen */}
-                <div className="flex items-end justify-between h-[100px] mt-8 w-full gap-2 px-1">
-                  {chartBars.map((bar, idx) => {
-                    let glow = 'shadow-[0_0_12px_rgba(255,45,120,0.5)]';
-                    let grad = 'from-[#ff2d78]/40 to-[#ff2d78]';
-                    
-                    if (idx === 2 || idx === 3) {
-                      glow = 'shadow-[0_0_12px_rgba(0,240,255,0.45)]';
-                      grad = 'from-[#00f0ff]/40 to-[#00f0ff]';
-                    } else if (idx >= 5 && idx <= 8) {
-                      glow = 'shadow-[0_0_12px_rgba(188,19,254,0.45)]';
-                      grad = 'from-[#bc13fe]/40 to-[#bc13fe]';
-                    }
-                    
+                {/* Premium Interactive SVG Area Chart */}
+                <div className="relative mt-8 h-[120px] w-full">
+                  {(() => {
+                    const svgW = 600;
+                    const svgH = 120;
+                    const points = chartBars.map((bar, idx) => {
+                      const x = (idx / (chartBars.length - 1)) * svgW;
+                      const y = svgH - (bar.h / 100) * (svgH - 24) - 12;
+                      return { x, y, h: bar.h };
+                    });
+
+                    const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
+                    const areaPath = `${linePath} L ${svgW} ${svgH} L 0 ${svgH} Z`;
+
                     return (
-                      <div key={bar.i} className="flex-1 flex flex-col items-center h-full justify-end">
-                        <div 
-                          className={`w-3.5 bg-gradient-to-t ${grad} rounded-t-[2px] ${glow} transition-all duration-300 hover:brightness-125`} 
-                          style={{ height: `${bar.h}%` }}
-                        />
-                      </div>
+                      <>
+                        <svg viewBox={`0 0 ${svgW} ${svgH}`} width="100%" height="100%" preserveAspectRatio="none" className="overflow-visible">
+                          <defs>
+                            <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor="#ff2d78" stopOpacity="0.25" />
+                              <stop offset="100%" stopColor="#ff2d78" stopOpacity="0.0" />
+                            </linearGradient>
+                            <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
+                              <stop offset="0%" stopColor="#ff2d78" />
+                              <stop offset="50%" stopColor="#bc13fe" />
+                              <stop offset="100%" stopColor="#00f0ff" />
+                            </linearGradient>
+                          </defs>
+
+                          {/* Grid Lines */}
+                          <line x1="0" y1={svgH / 2} x2={svgW} y2={svgH / 2} stroke="rgba(255,255,255,0.03)" strokeDasharray="4 4" />
+                          <line x1="0" y1={svgH - 12} x2={svgW} y2={svgH - 12} stroke="rgba(255,255,255,0.03)" />
+
+                          {/* Area Path */}
+                          <path d={areaPath} fill="url(#areaGrad)" />
+
+                          {/* Line Path */}
+                          <path d={linePath} fill="none" stroke="url(#lineGrad)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+
+                          {/* Interactive Hover Point & Indicator */}
+                          {hoveredIndex !== null && (
+                            <>
+                              <line 
+                                x1={points[hoveredIndex].x} 
+                                y1="0" 
+                                x2={points[hoveredIndex].x} 
+                                y2={svgH} 
+                                stroke="rgba(255, 45, 120, 0.35)" 
+                                strokeDasharray="3 3" 
+                                strokeWidth="1.5"
+                              />
+                              <circle 
+                                cx={points[hoveredIndex].x} 
+                                cy={points[hoveredIndex].y} 
+                                r="6" 
+                                fill="#ff2d78" 
+                                stroke="#07070b" 
+                                strokeWidth="2"
+                                className="shadow-[0_0_12px_#ff2d78]"
+                              />
+                            </>
+                          )}
+
+                          {/* Invisible hover zones */}
+                          {points.map((p, idx) => (
+                            <rect
+                              key={idx}
+                              x={Math.max(0, p.x - (svgW / 20))}
+                              y={0}
+                              width={svgW / 10}
+                              height={svgH}
+                              fill="transparent"
+                              className="cursor-crosshair"
+                              onMouseEnter={() => setHoveredIndex(idx)}
+                              onMouseLeave={() => setHoveredIndex(null)}
+                            />
+                          ))}
+                        </svg>
+
+                        {/* Tooltip Popup overlay */}
+                        {hoveredIndex !== null && (
+                          <div 
+                            className="absolute bg-[#0f0f18]/95 border border-[#ff2d78]/40 px-3 py-2 rounded-xl text-[10px] font-mono text-white pointer-events-none shadow-[0_8px_32px_rgba(0,0,0,0.6)] z-20 transition-all duration-150 animate-intro"
+                            style={{
+                              left: `${(points[hoveredIndex].x / svgW) * 100}%`,
+                              top: `${(points[hoveredIndex].y / svgH) * 100 - 45}%`,
+                              transform: 'translateX(-50%)',
+                            }}
+                          >
+                            <div className="font-bold text-[#ff2d78] mb-0.5 uppercase tracking-wider">PORTFOLIO TVL</div>
+                            <div className="text-[#00f0ff] font-bold text-xs">{fmt$((points[hoveredIndex].h / 100) * initial)}</div>
+                            <div className="text-[8px] text-[#9494b8] mt-0.5">CYCLE #{hoveredIndex + 1}</div>
+                          </div>
+                        )}
+                      </>
                     );
-                  })}
+                  })()}
                 </div>
               </section>
 
               {/* Live Narrative Logs Card */}
-              <section className="bg-[#0c0c14] border border-[#222230] rounded-xl flex flex-col flex-1 min-h-[460px] shadow-sm backdrop-blur-[20px] transition-all duration-300 hover:border-[#ff2d78]/20 hover:shadow-[0_0_20px_rgba(255,45,120,0.05)]">
-                <div className="px-6 py-4 border-b border-[#1a1a24] flex justify-between items-center shrink-0">
+              <section className="bg-[#0d0d12]/50 border border-white/5 shadow-2xl rounded-2xl flex flex-col flex-1 min-h-[380px] lg:min-h-[460px] backdrop-blur-[30px] transition-all duration-300 hover:border-[#ff2d78]/20 hover:shadow-[0_0_30px_rgba(255,45,120,0.04)] min-w-0">
+                <div className="px-4 md:px-6 py-3.5 border-b border-white/5 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 shrink-0">
                   <div className="flex items-center gap-2.5">
                     <svg className="w-5 h-5 text-[#ff2d78]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                     </svg>
                     <h3 className="font-mono text-[10px] font-bold text-[#e0e0e6] tracking-wider uppercase">Live Narrative Logs</h3>
                   </div>
-                  <div className="flex items-center gap-1.5 bg-[#ff2d78]/10 border border-[#ff2d78]/30 px-2 py-0.5 rounded-sm shrink-0">
+
+                  {/* Category Filter Tabs */}
+                  <div className="flex items-center bg-black/40 border border-white/5 p-0.5 rounded-lg gap-0.5 self-start sm:self-auto">
+                    {(['ALL', 'BUY', 'SELL', 'HOLD'] as const).map((cat) => {
+                      const active = filterCategory === cat;
+                      const label = cat === 'ALL' ? 'ALL' : cat === 'BUY' ? 'BUYS' : cat === 'SELL' ? 'SELLS' : 'HOLDS';
+                      return (
+                        <button
+                          key={cat}
+                          onClick={() => setFilterCategory(cat)}
+                          className={`px-2.5 py-1 rounded-md text-[9px] font-mono font-bold transition-all cursor-pointer ${
+                            active
+                              ? 'bg-[#ff2d78]/15 border border-[#ff2d78]/35 text-white shadow-[0_0_8px_rgba(255,45,120,0.1)]'
+                              : 'text-[#9494b8] border border-transparent hover:text-white hover:bg-white/[0.02]'
+                          }`}
+                        >
+                          {label}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div className="flex items-center gap-1.5 bg-[#ff2d78]/10 border border-[#ff2d78]/30 px-2 py-0.5 rounded-sm shrink-0 self-start sm:self-auto">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#ff2d78] pulse-dot-neon"></span>
                     <span className="text-[10px] text-[#ff2d78] font-bold tracking-widest uppercase">Live</span>
                   </div>
                 </div>
                 
-                <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-hide">
+                <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-5 scrollbar-hide">
                   {logs.length === 0 ? (
                     <div className="flex items-center justify-center h-full">
                       <p className="text-[#9494b8] text-xs font-mono">NO LOGS RECORDED</p>
@@ -638,7 +776,7 @@ export default function Dashboard() {
                   ) : (
                     logs.map((log, idx) => (
                       <div key={log.key} className="group border-l border-[#1a1a24] pl-4 hover:border-[#ff2d78] transition-all duration-300">
-                        <div className="flex items-center justify-between gap-4">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
                           <div className="flex items-center gap-3 flex-wrap">
                             <span className="font-mono text-xs text-[#9494b8]">{log.time}</span>
                             <span 
@@ -682,10 +820,10 @@ export default function Dashboard() {
             </div>
 
             {/* Right Column (col-span-4) */}
-            <div className="col-span-4 space-y-6 flex flex-col">
+            <div className="xl:col-span-4 space-y-5 xl:space-y-6 flex flex-col min-w-0">
               
               {/* Engine Status Card */}
-              <section className="bg-[#0c0c14] border border-[#222230] rounded-xl p-6 flex flex-col justify-between shadow-sm backdrop-blur-[20px] transition-all duration-300 hover:border-[#ff2d78]/20 hover:shadow-[0_0_20px_rgba(255,45,120,0.05)]">
+              <section className="bg-[#0d0d12]/50 border border-white/5 shadow-2xl rounded-2xl p-4 md:p-6 flex flex-col justify-between backdrop-blur-[30px] transition-all duration-300 hover:border-[#ff2d78]/20 hover:shadow-[0_0_30px_rgba(255,45,120,0.04)]">
                 <div className="flex justify-between items-center">
                   <span className="font-mono text-[10px] text-[#9494b8] uppercase tracking-wider">Engine Status</span>
                   <button onClick={fetchData} className="text-[#ff2d78] hover:brightness-125 transition-all cursor-pointer">
@@ -722,7 +860,7 @@ export default function Dashboard() {
               </section>
               
               {/* Sector Allocation Card */}
-              <section className="bg-[#0c0c14] border border-[#222230] rounded-xl p-6 flex flex-col justify-between shadow-sm backdrop-blur-[20px] transition-all duration-300 hover:border-[#ff2d78]/20 hover:shadow-[0_0_20px_rgba(255,45,120,0.05)]">
+              <section className="bg-[#0d0d12]/50 border border-white/5 shadow-2xl rounded-2xl p-4 md:p-6 flex flex-col justify-between backdrop-blur-[30px] transition-all duration-300 hover:border-[#ff2d78]/20 hover:shadow-[0_0_30px_rgba(255,45,120,0.04)]">
                 <div>
                   <div className="flex justify-between items-center mb-6">
                     <span className="font-mono text-[10px] text-[#9494b8] uppercase tracking-wider">Sector Allocation</span>
@@ -739,14 +877,33 @@ export default function Dashboard() {
                         { color: '#bc13fe', glow: 'shadow-[0_0_8px_#bc13fe]' },
                       ];
                       const activeColor = barColors[i % 3];
+                      
+                      const totalBlocks = 12;
+                      const filledBlocks = Math.round((pct / 100) * totalBlocks);
+
                       return (
                         <div key={name}>
                           <div className="flex justify-between font-mono text-[10px] mb-2 uppercase font-bold tracking-wider">
                             <span className="text-[#9494b8]">{name}</span>
                             <span style={{ color: activeColor.color }}>{pct.toFixed(1)}%</span>
                           </div>
-                          <div className="h-1.5 bg-[#1a1a24] rounded-full overflow-hidden">
-                            <div className={`h-full rounded-full ${activeColor.glow}`} style={{ width: `${pct}%`, backgroundColor: activeColor.color }}></div>
+                          
+                          {/* Segmented block indicators */}
+                          <div className="flex gap-1">
+                            {Array.from({ length: totalBlocks }).map((_, bIdx) => {
+                              const isLit = bIdx < filledBlocks;
+                              return (
+                                <div 
+                                  key={bIdx} 
+                                  className="h-2 flex-1 rounded-[1px] transition-all duration-300"
+                                  style={{
+                                    backgroundColor: isLit ? activeColor.color : 'rgba(26, 26, 36, 0.4)',
+                                    boxShadow: isLit ? `0 0 6px ${activeColor.color}40` : 'none',
+                                    border: isLit ? `1px solid ${activeColor.color}` : '1px solid rgba(255, 255, 255, 0.02)',
+                                  }}
+                                />
+                              );
+                            })}
                           </div>
                         </div>
                       );
@@ -755,7 +912,7 @@ export default function Dashboard() {
                 </div>
                 
                 {/* Cyber Globe Frame */}
-                <div className="mt-6 border border-[#ff2d78]/20 bg-black/40 rounded-lg overflow-hidden h-36 flex items-center justify-center relative">
+                <div className="mt-6 border border-white/5 bg-black/40 rounded-xl overflow-hidden h-32 md:h-36 flex items-center justify-center relative">
                   <img 
                     className="w-full h-full object-cover opacity-60 mix-blend-screen" 
                     alt="Cyber globe visualization" 
@@ -766,37 +923,102 @@ export default function Dashboard() {
               </section>
               
               {/* AI Recommendation Card */}
-              <section className="bg-[#0c0c14] border border-[#222230] rounded-xl p-6 flex flex-col justify-between shadow-sm backdrop-blur-[20px] transition-all duration-300 hover:border-[#ff2d78]/20 hover:shadow-[0_0_20px_rgba(255,45,120,0.05)] h-full">
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 text-[#ff2d78] mb-1">
-                    <svg className="w-5 h-5 text-[#ff2d78]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
-                    <span className="text-[10px] font-bold font-mono tracking-widest uppercase">AI Recommendation:</span>
+              <section className="bg-[#0d0d12]/50 border border-white/5 shadow-2xl rounded-2xl p-4 md:p-6 flex flex-col justify-between backdrop-blur-[30px] transition-all duration-300 hover:border-[#ff2d78]/20 hover:shadow-[0_0_30px_rgba(255,45,120,0.04)] h-full">
+                {isTriggering ? (
+                  <div className="space-y-4 my-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono text-[9px] text-[#ff2d78] font-bold tracking-widest uppercase">REBALANCE EXECUTION PIPELINE</span>
+                      <span className="text-[10px] text-[#9494b8] font-mono font-bold">STEP {Math.min(4, rebalanceStep + 1)} / 4</span>
+                    </div>
+                    <div className="relative pl-6 space-y-4">
+                      {/* Vertical line connecting steps */}
+                      <div className="absolute left-[9px] top-2 bottom-2 w-0.5 bg-[#1a1a24] z-0">
+                        <div 
+                          className="w-full bg-[#ff2d78] transition-all duration-500" 
+                          style={{ height: `${(Math.max(0, rebalanceStep) / 3) * 100}%` }}
+                        />
+                      </div>
+                      
+                      {[
+                        { label: 'Signal Ingestion', desc: 'Scan CMC trending APIs & social graphs' },
+                        { label: 'LLM Narrative Analysis', desc: 'Llama-3.3-70b score computation' },
+                        { label: 'Risk Guard Audit', desc: 'Verify allocations & drawdown boundaries' },
+                        { label: 'BSC Contract Execution', desc: 'Route trade payload via PancakeSwap' }
+                      ].map((st, sIdx) => {
+                        const isDone = rebalanceStep > sIdx;
+                        const isActive = rebalanceStep === sIdx;
+                        return (
+                          <div key={sIdx} className="relative flex gap-3.5 z-10">
+                            {/* Step dot */}
+                            <div className="absolute -left-[23px] top-0.5 flex items-center justify-center">
+                              {isDone ? (
+                                <div className="w-4.5 h-4.5 rounded-full bg-[#00f0ff] flex items-center justify-center text-[#050507] text-[9px] font-black shadow-[0_0_8px_#00f0ff]">
+                                  ✓
+                                </div>
+                              ) : isActive ? (
+                                <div className="w-4.5 h-4.5 rounded-full bg-[#ff2d78] flex items-center justify-center text-white text-[9px] font-black shadow-[0_0_8px_#ff2d78] animate-pulse">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
+                                </div>
+                              ) : (
+                                <div className="w-4.5 h-4.5 rounded-full bg-[#08080d] border border-[#222230]" />
+                              )}
+                            </div>
+                            
+                            {/* Step text */}
+                            <div className="min-w-0">
+                              <div className={`text-xs font-semibold font-sans transition-colors ${isActive ? 'text-[#ff2d78]' : isDone ? 'text-[#e0e0e6]' : 'text-[#9494b8]'}`}>
+                                {st.label}
+                              </div>
+                              <div className="text-[10px] text-[#9494b8]/70 font-mono mt-0.5">{st.desc}</div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    
+                    {/* Dynamic simulation logs screen */}
+                    <div className="p-3 rounded-lg bg-black/60 border border-white/5 font-mono text-[9px] h-28 overflow-y-auto scrollbar-hide space-y-1 text-[#9494b8] mt-4">
+                      {triggerLog.map((logStr, i) => (
+                        <div key={i} className={logStr.includes('✅') ? 'text-[#00f0ff] font-bold' : logStr.includes('🛡️') ? 'text-[#bc13fe]' : logStr.includes('🤖') ? 'text-[#ff2d78]' : ''}>
+                          {logStr}
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <p className="text-xs leading-relaxed text-[#e0e0e6]">
-                    {cycles && cycles.length > 0 ? (
-                      sanitizeReasoning(cycles[cycles.length - 1].reasoning ?? (cycles[cycles.length - 1].decision as any)?.reasoning ?? '')
-                    ) : (
-                      "No recommendations available yet. Start the agent to initiate narrative scans."
-                    )}
-                  </p>
-                </div>
-                <button 
-                  onClick={simulateCycleTrigger}
-                  disabled={isTriggering || portfolio?.isPaused}
-                  className="mt-6 w-full py-2.5 bg-transparent hover:bg-[#ff2d78] text-[#ff2d78] hover:text-white border border-[#ff2d78] font-mono text-xs uppercase tracking-widest rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(255,45,120,0.4)] cursor-pointer disabled:opacity-30 disabled:pointer-events-none font-bold"
-                >
-                  {isTriggering ? 'Executing Rebalance...' : 'Execute Rebalance'}
-                </button>
+                ) : (
+                  <>
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2 text-[#ff2d78] mb-1">
+                        <svg className="w-5 h-5 text-[#ff2d78]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        <span className="text-[10px] font-bold font-mono tracking-widest uppercase">AI Recommendation:</span>
+                      </div>
+                      <p className="text-xs leading-relaxed text-[#e0e0e6]">
+                        {cycles && cycles.length > 0 ? (
+                          sanitizeReasoning(cycles[cycles.length - 1].reasoning ?? (cycles[cycles.length - 1].decision as any)?.reasoning ?? '')
+                        ) : (
+                          "No recommendations available yet. Start the agent to initiate narrative scans."
+                        )}
+                      </p>
+                    </div>
+                    <button 
+                      onClick={simulateCycleTrigger}
+                      disabled={isTriggering || portfolio?.isPaused}
+                      className="mt-6 w-full py-2.5 bg-transparent hover:bg-[#ff2d78] text-[#ff2d78] hover:text-white border border-[#ff2d78] font-mono text-xs uppercase tracking-widest rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(255,45,120,0.4)] cursor-pointer disabled:opacity-30 disabled:pointer-events-none font-bold"
+                    >
+                      {isTriggering ? 'Executing Rebalance...' : 'Execute Rebalance'}
+                    </button>
+                  </>
+                )}
               </section>
             </div>
           </div>
         )}
 
         {activeTab === 'Positions' && (
-          <div className="flex-1 p-8 overflow-y-auto scrollbar-hide z-10 space-y-6">
-            <div className="bg-[#0d0d12] border border-[#1a1a24] rounded-lg p-6">
+          <div className="flex-1 p-4 md:p-6 xl:p-8 overflow-y-auto scrollbar-hide z-10 space-y-6 pb-20 md:pb-8">
+            <div className="bg-[#0d0d12]/50 border border-white/5 shadow-2xl rounded-2xl p-6 backdrop-blur-[30px] transition-all duration-300 hover:border-[#ff2d78]/10">
               <div className="flex items-center justify-between border-b pb-4 border-[#1a1a24] mb-6">
                 <div>
                   <h3 className="text-lg font-bold text-white uppercase tracking-wider font-mono">Active Positions</h3>
@@ -888,9 +1110,9 @@ export default function Dashboard() {
         )}
 
         {activeTab === 'Trade History' && (
-          <div className="flex-1 p-8 overflow-y-auto scrollbar-hide z-10 space-y-6">
-            <div className="bg-[#0d0d12] border border-[#1a1a24] rounded-lg p-6">
-              <div className="flex items-center justify-between border-b pb-4 border-[#1a1a24] mb-6">
+          <div className="flex-1 p-4 md:p-6 xl:p-8 overflow-y-auto scrollbar-hide z-10 space-y-6 pb-20 md:pb-8">
+            <div className="bg-[#0d0d12]/50 border border-white/5 shadow-2xl rounded-2xl p-6 backdrop-blur-[30px] transition-all duration-300 hover:border-[#ff2d78]/10">
+              <div className="flex items-center justify-between border-b pb-4 border-white/5 mb-6">
                 <div>
                   <h3 className="text-lg font-bold text-white uppercase tracking-wider font-mono">Execution Logs</h3>
                   <p className="text-xs text-[#9494b8] mt-1">Historical record of agent trades and portfolio events</p>
@@ -980,19 +1202,19 @@ export default function Dashboard() {
         )}
 
         {activeTab === 'Agent Config' && (
-          <div className="flex-1 p-8 overflow-y-auto scrollbar-hide z-10 space-y-6">
+          <div className="flex-1 p-4 md:p-6 xl:p-8 overflow-y-auto scrollbar-hide z-10 space-y-6 pb-20 md:pb-8">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               
               {/* Left Settings */}
               <div className="lg:col-span-7 space-y-6">
-                <div className="bg-[#0d0d12] border border-[#1a1a24] rounded-lg p-6 space-y-6">
-                  <div className="border-b pb-4 border-[#1a1a24]">
+                <div className="bg-[#0d0d12]/50 border border-white/5 shadow-2xl rounded-2xl p-6 space-y-6 backdrop-blur-[30px] transition-all duration-300 hover:border-[#ff2d78]/10">
+                  <div className="border-b pb-4 border-white/5">
                     <h3 className="text-lg font-bold text-white uppercase tracking-wider font-mono">Control Panel</h3>
                     <p className="text-xs text-[#9494b8] mt-1">Toggle live trading states and inspect agent configuration</p>
                   </div>
 
                   {/* Engine status toggle */}
-                  <div className="flex items-center justify-between p-4 bg-[#050507]/40 border border-[#1a1a24] rounded-sm">
+                  <div className="flex items-center justify-between p-4 bg-white/[0.015] border border-white/5 rounded-2xl">
                     <div>
                       <div className="font-bold text-sm text-white font-sans">Trading Engine</div>
                       <p className="text-xs text-[#9494b8] mt-1 leading-relaxed max-w-md">
@@ -1001,10 +1223,10 @@ export default function Dashboard() {
                     </div>
                     <button
                       onClick={() => togglePause(!portfolio?.isPaused)}
-                      className={`px-4 py-2.5 text-xs font-mono font-bold tracking-wider rounded-sm uppercase transition-all shadow-md active:scale-95 cursor-pointer ${
+                      className={`px-4 py-2.5 text-xs font-mono font-bold tracking-wider rounded-xl uppercase transition-all shadow-md active:scale-95 cursor-pointer ${
                         portfolio?.isPaused 
                           ? 'bg-[#ff2d78] text-white hover:brightness-110 shadow-[0_0_12px_rgba(255,45,120,0.4)]' 
-                          : 'bg-transparent text-[#9494b8] border border-[#333344] hover:text-white hover:bg-white/5'
+                          : 'bg-transparent text-[#9494b8] border border-white/10 hover:text-white hover:bg-white/5'
                       }`}
                     >
                       {portfolio?.isPaused ? 'RESUME AGENT' : 'PAUSE AGENT'}
@@ -1023,7 +1245,7 @@ export default function Dashboard() {
                         { label: 'Sentiment Provider', value: 'CoinMarketCap Trending API' },
                         { label: 'Evaluation Loop', value: '30 Minutes' },
                       ].map((item, idx) => (
-                        <div key={idx} className="p-3 bg-[#050507]/30 border border-[#1a1a24] rounded-sm">
+                        <div key={idx} className="p-3.5 bg-white/[0.015] border border-white/5 rounded-xl hover:bg-white/[0.03] transition-all">
                           <span className="text-[9px] font-bold text-[#9494b8]/70 font-mono uppercase tracking-wider block mb-1">{item.label}</span>
                           <span className="text-xs font-mono font-bold text-white">{item.value}</span>
                         </div>
@@ -1035,8 +1257,8 @@ export default function Dashboard() {
 
               {/* Right LLM connections & live simulation */}
               <div className="lg:col-span-5 space-y-6">
-                <div className="bg-[#0d0d12] border border-[#1a1a24] rounded-lg p-6 space-y-6">
-                  <div className="border-b pb-4 border-[#1a1a24]">
+                <div className="bg-[#0d0d12]/50 border border-white/5 shadow-2xl rounded-2xl p-6 space-y-6 backdrop-blur-[30px] transition-all duration-300 hover:border-[#ff2d78]/10">
+                  <div className="border-b pb-4 border-white/5">
                     <h3 className="text-lg font-bold text-white uppercase tracking-wider font-mono">Credentials Status</h3>
                     <p className="text-xs text-[#9494b8] mt-1">Verifies connection status of agent keys and API endpoints</p>
                   </div>
@@ -1047,7 +1269,7 @@ export default function Dashboard() {
                       { name: 'Gemini Backstop API', active: config?.geminiStatus },
                       { name: 'CoinMarketCap Signals API', active: config?.cmcStatus },
                     ].map((cred, idx) => (
-                      <div key={idx} className="flex items-center justify-between p-3 bg-[#050507]/30 rounded-sm border border-[#1a1a24]">
+                      <div key={idx} className="flex items-center justify-between p-3.5 bg-white/[0.015] border border-white/5 rounded-xl hover:bg-white/[0.03] transition-all">
                         <span className="text-[#9494b8] font-semibold">{cred.name}</span>
                         <span className={`flex items-center gap-1.5 font-bold ${cred.active ? 'text-[#00f0ff]' : 'text-[#ff2d78]'}`}>
                           <span className={`w-1.5 h-1.5 rounded-full ${cred.active ? 'bg-[#00f0ff] animate-pulse' : 'bg-[#ff2d78]'}`} />
@@ -1058,8 +1280,8 @@ export default function Dashboard() {
                   </div>
                 </div>
 
-                <div className="bg-[#0d0d12] border border-[#1a1a24] rounded-lg p-6 space-y-6">
-                  <div className="border-b pb-4 border-[#1a1a24]">
+                <div className="bg-[#0d0d12]/50 border border-white/5 shadow-2xl rounded-2xl p-6 space-y-6 backdrop-blur-[30px] transition-all duration-300 hover:border-[#ff2d78]/10">
+                  <div className="border-b pb-4 border-white/5">
                     <h3 className="text-lg font-bold text-white uppercase tracking-wider font-mono">System Simulator</h3>
                     <p className="text-xs text-[#9494b8] mt-1">Manually trigger and inspect a dry-run narrative assessment</p>
                   </div>
@@ -1067,11 +1289,11 @@ export default function Dashboard() {
                   <button
                     onClick={simulateCycleTrigger}
                     disabled={isTriggering || portfolio?.isPaused}
-                    className={`w-full py-2.5 rounded-sm text-xs font-mono font-bold tracking-wider uppercase border transition-all active:scale-[0.98] cursor-pointer ${
+                    className={`w-full py-2.5 rounded-xl text-xs font-mono font-bold tracking-wider uppercase border transition-all active:scale-[0.98] cursor-pointer ${
                       isTriggering 
-                        ? 'bg-transparent text-[#9494b8]/50 border-[#1a1a24]' 
+                        ? 'bg-transparent text-[#9494b8]/50 border-white/5' 
                         : portfolio?.isPaused 
-                          ? 'bg-transparent text-[#9494b8]/30 border-[#1a1a24] cursor-not-allowed' 
+                          ? 'bg-transparent text-[#9494b8]/30 border-white/5 cursor-not-allowed' 
                           : 'bg-[#ff2d78] text-white border-[#ff2d78] shadow-[0_0_12px_rgba(255,45,120,0.4)] hover:brightness-110'
                     }`}
                   >
@@ -1079,7 +1301,7 @@ export default function Dashboard() {
                   </button>
 
                   {triggerLog.length > 0 && (
-                    <div className="p-4 rounded-sm bg-[#050507] border border-[#ff2d78]/20 font-mono text-[10px] space-y-1.5 h-44 overflow-y-auto scrollbar-hide">
+                    <div className="p-4 rounded-xl bg-black/60 border border-white/5 font-mono text-[10px] space-y-1.5 h-44 overflow-y-auto scrollbar-hide">
                       {triggerLog.map((logStr, i) => (
                         <div key={i} className={logStr.includes('✅') ? 'text-[#ff2d78]' : logStr.includes('🛡️') ? 'text-[#00f0ff]' : 'text-[#9494b8]'}>
                           {logStr}
@@ -1094,7 +1316,7 @@ export default function Dashboard() {
         )}
 
         {/* Terminal Footer */}
-        <footer className="h-10 px-8 border-t border-[#1a1a24] flex items-center justify-between text-[#9494b8] text-[9px] font-mono tracking-widest uppercase bg-[#0d0d12]/90 shrink-0 z-40">
+        <footer className="hidden md:flex min-h-10 px-6 xl:px-8 border-t border-[#1a1a24] items-center justify-between gap-4 text-[#9494b8] text-[9px] font-mono tracking-widest uppercase bg-[#0d0d12]/90 shrink-0 z-40">
           <div className="flex items-center gap-6">
             <span>© 2024 Narrative Trader Foundation v1.0.4-BETA</span>
             <span className="flex items-center gap-1.5 text-[#ff2d78] font-bold">
