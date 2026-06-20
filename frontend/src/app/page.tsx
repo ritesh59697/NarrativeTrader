@@ -274,6 +274,7 @@ export default function Page() {
   } | null>(null);
   const [triggerLog, setTriggerLog] = useState<string[]>([]);
   const [isTriggering, setIsTriggering] = useState(false);
+  const [rebalanceStep, setRebalanceStep] = useState<number>(-1);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const [filterQuery, setFilterQuery] = useState('');
@@ -360,31 +361,37 @@ export default function Page() {
   const simulateCycleTrigger = () => {
     if (isTriggering) return;
     setIsTriggering(true);
+    setRebalanceStep(0);
     setTriggerLog([
       `[${new Date().toLocaleTimeString()}] 🤖 [NarrativeTrader] Forced cycle trigger initialized...`,
     ]);
 
     setTimeout(() => {
+      setRebalanceStep(1);
       setTriggerLog(prev => [...prev, `[${new Date().toLocaleTimeString()}] 📊 Loading latest signals from CMC API...`]);
-    }, 800);
+    }, 1200);
     setTimeout(() => {
-      setTriggerLog(prev => [...prev, `[${new Date().toLocaleTimeString()}] 🧠 Prompting active models...`]);
-    }, 1600);
-    setTimeout(() => {
-      const name = cycles[cycles.length - 1]?.narrativeName || 'AI Agent Ecosystem';
-      setTriggerLog(prev => [...prev, `[${new Date().toLocaleTimeString()}] 🧠 LLM classification success. Narrative: ${name}.`]);
+      setRebalanceStep(2);
+      setTriggerLog(prev => [...prev, `[${new Date().toLocaleTimeString()}] 🧠 Prompting active models for sentiment analysis...`]);
     }, 2400);
     setTimeout(() => {
-      setTriggerLog(prev => [...prev, `[${new Date().toLocaleTimeString()}] 🛡️ Auditing risk constraints...`]);
-    }, 3200);
+      setRebalanceStep(3);
+      const name = cycles[cycles.length - 1]?.narrativeName || 'AI Agent Ecosystem';
+      setTriggerLog(prev => [...prev, `[${new Date().toLocaleTimeString()}] 🧠 LLM classification success. Narrative: ${name}.`]);
+    }, 3600);
+    setTimeout(() => {
+      setRebalanceStep(4);
+      setTriggerLog(prev => [...prev, `[${new Date().toLocaleTimeString()}] 🛡️ Auditing risk constraints & allocation boundaries...`]);
+    }, 4800);
     setTimeout(() => {
       setTriggerLog(prev => [...prev, `[${new Date().toLocaleTimeString()}] 🛡️ Risk Check: Approved. All limits comply.`]);
-    }, 4000);
+    }, 5400);
     setTimeout(() => {
       setTriggerLog(prev => [...prev, `[${new Date().toLocaleTimeString()}] ✅ Dry-run cycle complete. Action: HOLD.`]);
+      setRebalanceStep(-1);
       setIsTriggering(false);
       fetchData();
-    }, 4800);
+    }, 6400);
   };
 
 
@@ -395,9 +402,10 @@ export default function Page() {
   }, [fetchData]);
 
   const llm    = getLLM(cycles);
-  const val    = portfolio?.currentValue ?? 100;
-  const pnl    = val - 100;
-  const pnlPct = ((val - 100) / 100) * 100;
+  const val      = portfolio?.currentValue ?? 100;
+  const initial  = config?.targetPortfolioValue ?? 100;
+  const pnl      = val - initial;
+  const pnlPct   = initial > 0 ? (pnl / initial) * 100 : 0;
   const sectors = computeSectors(cycles);
 
   const logs = [...cycles]
@@ -489,7 +497,7 @@ export default function Page() {
 
             {/* CTA buttons */}
             <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', justifyContent: 'center', paddingTop: 8 }}>
-              <a href="/dashboard" style={{
+              <a href="#terminal" style={{
                 background: C.primaryFixed, color: C.onPrimaryFixed,
                 fontFamily: F.mono, fontSize: 13, fontWeight: 700,
                 textTransform: 'uppercase', letterSpacing: '0.1em',
@@ -783,13 +791,25 @@ export default function Page() {
                         <div style={{ color: C.onSurface, fontFamily: F.display, fontSize: 36, fontWeight: 600, marginBottom: 8 }}>{cycles.length.toLocaleString()}</div>
                         <div style={{ color: C.onSurfaceVar, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 24 }}>Cycles Run Today</div>
                         <div>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: F.mono, fontSize: 10, textTransform: 'uppercase', marginBottom: 8 }}>
-                            <span style={{ color: C.onSurfaceVar }}>Sentiment Accuracy</span>
-                            <span style={{ color: C.secondary }}>99.2%</span>
-                          </div>
-                          <div style={{ height: 6, background: C.container, borderRadius: 999, overflow: 'hidden' }}>
-                            <div style={{ height: '100%', width: '99%', background: C.secondary, borderRadius: 999 }} />
-                          </div>
+                          {(() => {
+                            const accuracy = cycles.length > 0
+                              ? (cycles.filter(c => {
+                                  const decision = normalizeDecision(c.decision);
+                                  return decision !== 'FAILED' && (c as any).status !== 'EXECUTION_FAILED';
+                                }).length / cycles.length) * 100
+                              : 100;
+                            return (
+                              <>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: F.mono, fontSize: 10, textTransform: 'uppercase', marginBottom: 8 }}>
+                                  <span style={{ color: C.onSurfaceVar }}>Sentiment Accuracy</span>
+                                  <span style={{ color: C.secondary }}>{accuracy.toFixed(1)}%</span>
+                                </div>
+                                <div style={{ height: 6, background: C.container, borderRadius: 999, overflow: 'hidden' }}>
+                                  <div style={{ height: '100%', width: `${accuracy}%`, background: C.secondary, borderRadius: 999 }} />
+                                </div>
+                              </>
+                            );
+                          })()}
                         </div>
                       </div>
                     </div>
@@ -861,11 +881,14 @@ export default function Page() {
                         </div>
                         <div style={{ marginTop: 32, padding: 16, borderRadius: 12, background: 'rgba(255,45,120,0.05)', border: `1px solid rgba(255,224,236,0.10)` }}>
                           <p style={{ margin: 0, fontSize: 11, color: C.onSurfaceVar, lineHeight: 1.6 }}>
-                            <span style={{ color: C.primaryFixed, fontFamily: F.mono, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 4 }}>Recommendation:</span>
-                            {sectors[0]
-                              ? `Concentration in ${sectors[0].name} is high. Consider rebalancing 5% into ${sectors[1]?.name ?? 'Modular Infrastructure'}.`
-                              : 'Concentration in AI narrative is high. Consider rebalancing 5% into Modular Infrastructure.'
-                            }
+                            <span style={{ color: C.primaryFixed, fontFamily: F.mono, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 4 }}>AI Recommendation:</span>
+                            {(() => {
+                              if (!cycles.length) return "No recommendations available yet. Start the agent to initiate narrative scans.";
+                              const lastCycle = cycles[cycles.length - 1];
+                              const r = lastCycle.reasoning ?? (lastCycle.decision as any)?.reasoning ?? '';
+                              if (r.startsWith('http') || r.includes('generateContent')) return 'LLM scoring failed.';
+                              return r || 'No recommendation details available.';
+                            })()}
                           </p>
                         </div>
                       </div>
@@ -1156,32 +1179,96 @@ export default function Page() {
                           <p style={{ color: C.onSurfaceVar, fontFamily: F.mono, fontSize: 11, margin: '4px 0 0' }}>Manually trigger and inspect a dry-run narrative assessment</p>
                         </div>
 
-                        <button
-                          onClick={simulateCycleTrigger}
-                          disabled={isTriggering || portfolio?.isPaused}
-                          style={{
-                            width: '100%', padding: '10px 16px', borderRadius: 8, fontSize: 11, fontFamily: F.mono, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', transition: 'all 0.15s', border: isTriggering ? `1px solid rgba(48,40,64,0.20)` : portfolio?.isPaused ? `1px solid rgba(48,40,64,0.10)` : `1px solid ${C.primaryFixed}`,
-                            background: isTriggering ? C.container : portfolio?.isPaused ? 'rgba(10,10,18,0.50)' : C.primaryFixed,
-                            color: isTriggering ? C.onSurfaceVar : portfolio?.isPaused ? 'rgba(160,152,176,0.30)' : C.onPrimaryFixed,
-                            cursor: isTriggering || portfolio?.isPaused ? 'not-allowed' : 'pointer'
-                          }}
-                        >
-                          {isTriggering ? 'RUNNING SCANS...' : portfolio?.isPaused ? 'AGENT PAUSED' : 'TRIGGER DRY RUN'}
-                        </button>
+                        {isTriggering ? (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <span style={{ fontFamily: F.mono, fontSize: 9, color: C.primaryFixed, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase' }}>REBALANCE EXECUTION PIPELINE</span>
+                              <span style={{ fontSize: 10, color: C.onSurfaceVar, fontFamily: F.mono, fontWeight: 700 }}>STEP {Math.min(4, rebalanceStep + 1)} / 4</span>
+                            </div>
+                            <div style={{ position: 'relative', paddingLeft: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
+                              {/* Vertical line connecting steps */}
+                              <div style={{ position: 'absolute', left: 9, top: 8, bottom: 8, width: 2, background: C.container }} />
+                              <div style={{ position: 'absolute', left: 9, top: 8, height: `${(Math.max(0, rebalanceStep) / 3) * 100}%`, width: 2, background: C.primaryFixed, transition: 'height 0.5s ease-in-out' }} />
 
-                        {triggerLog.length > 0 && (
-                          <div style={{ padding: 16, borderRadius: 12, background: 'rgba(10,10,18,0.90)', border: '1px solid rgba(48,40,64,0.10)', fontFamily: F.mono, fontSize: 10, display: 'flex', flexDirection: 'column', gap: 6, height: 176, overflowY: 'auto' }}>
-                            {triggerLog.map((logStr, i) => {
-                              let color = 'rgba(160,152,176,0.80)';
-                              if (logStr.includes('✅')) color = C.primaryFixed;
-                              else if (logStr.includes('🛡️')) color = C.secondary;
-                              return (
-                                <div key={i} style={{ color }}>
-                                  {logStr}
-                                </div>
-                              );
-                            })}
+                              {[
+                                { label: 'Signal Ingestion', desc: 'Scan CMC trending APIs & social graphs' },
+                                { label: 'LLM Narrative Analysis', desc: 'Llama-3.3-70b score computation' },
+                                { label: 'Risk Guard Audit', desc: 'Verify allocations & drawdown boundaries' },
+                                { label: 'BSC Contract Execution', desc: 'Route trade payload via PancakeSwap' }
+                              ].map((st, sIdx) => {
+                                const isDone = rebalanceStep > sIdx;
+                                const isActive = rebalanceStep === sIdx;
+                                return (
+                                  <div key={sIdx} style={{ position: 'relative', display: 'flex', gap: 14, zIndex: 1 }}>
+                                    {/* Step dot */}
+                                    <div style={{ position: 'absolute', left: -23, top: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                      {isDone ? (
+                                        <div style={{ width: 18, height: 18, borderRadius: '50%', background: C.secondary, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#050507', fontSize: 9, fontWeight: 'black', boxShadow: `0 0 8px ${C.secondary}` }}>✓</div>
+                                      ) : isActive ? (
+                                        <div style={{ width: 18, height: 18, borderRadius: '50%', background: C.primaryFixed, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.onPrimaryFixed, fontSize: 9, fontWeight: 'black', boxShadow: `0 0 8px ${C.primaryFixed}` }}>
+                                          <span style={{ width: 6, height: 6, borderRadius: '50%', background: C.primaryFixed, animation: 'ping 1s infinite' }} />
+                                        </div>
+                                      ) : (
+                                        <div style={{ width: 18, height: 18, borderRadius: '50%', background: C.bg, border: `1px solid ${C.outlineVar}` }} />
+                                      )}
+                                    </div>
+
+                                    {/* Step text */}
+                                    <div style={{ minWidth: 0 }}>
+                                      <div style={{ fontSize: 12, fontWeight: 700, fontFamily: F.display, color: isActive ? C.primaryFixed : isDone ? C.onSurface : C.onSurfaceVar }}>
+                                        {st.label}
+                                      </div>
+                                      <div style={{ fontSize: 10, color: 'rgba(160,152,176,0.60)', fontFamily: F.mono, marginTop: 2 }}>{st.desc}</div>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                            
+                            {/* Dynamic simulation logs screen */}
+                            <div style={{ padding: 12, borderRadius: 8, background: 'rgba(10,10,18,0.90)', border: `1px solid rgba(48,40,64,0.10)`, fontFamily: F.mono, fontSize: 9, display: 'flex', flexDirection: 'column', gap: 4, height: 112, overflowY: 'auto' }}>
+                              {triggerLog.map((logStr, i) => {
+                                let color = 'rgba(160,152,176,0.80)';
+                                if (logStr.includes('✅')) color = C.primaryFixed;
+                                else if (logStr.includes('🛡️')) color = C.secondary;
+                                return (
+                                  <div key={i} style={{ color }}>
+                                    {logStr}
+                                  </div>
+                                );
+                              })}
+                            </div>
                           </div>
+                        ) : (
+                          <>
+                            <button
+                              onClick={simulateCycleTrigger}
+                              disabled={portfolio?.isPaused}
+                              style={{
+                                width: '100%', padding: '10px 16px', borderRadius: 8, fontSize: 11, fontFamily: F.mono, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', transition: 'all 0.15s', border: portfolio?.isPaused ? `1px solid rgba(48,40,64,0.10)` : `1px solid ${C.primaryFixed}`,
+                                background: portfolio?.isPaused ? 'rgba(10,10,18,0.50)' : C.primaryFixed,
+                                color: portfolio?.isPaused ? 'rgba(160,152,176,0.30)' : C.onPrimaryFixed,
+                                cursor: portfolio?.isPaused ? 'not-allowed' : 'pointer'
+                              }}
+                            >
+                              {portfolio?.isPaused ? 'AGENT PAUSED' : 'TRIGGER DRY RUN'}
+                            </button>
+
+                            {triggerLog.length > 0 && (
+                              <div style={{ padding: 16, borderRadius: 12, background: 'rgba(10,10,18,0.90)', border: '1px solid rgba(48,40,64,0.10)', fontFamily: F.mono, fontSize: 10, display: 'flex', flexDirection: 'column', gap: 6, height: 176, overflowY: 'auto' }}>
+                                {triggerLog.map((logStr, i) => {
+                                  let color = 'rgba(160,152,176,0.80)';
+                                  if (logStr.includes('✅')) color = C.primaryFixed;
+                                  else if (logStr.includes('🛡️')) color = C.secondary;
+                                  return (
+                                    <div key={i} style={{ color }}>
+                                      {logStr}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            )}
+                          </>
                         )}
                       </div>
                     </div>
@@ -1218,7 +1305,7 @@ export default function Page() {
             <div>
               <h4 style={{ color: C.onSurface, fontFamily: F.mono, fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', margin: '0 0 24px' }}>Platform Resources</h4>
               <nav style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <a href="/dashboard" style={{ color: C.onSurfaceVar, fontSize: 12, textDecoration: 'none' }}>Live Terminal</a>
+                <a href="#terminal" style={{ color: C.onSurfaceVar, fontSize: 12, textDecoration: 'none' }}>Live Terminal</a>
                 <a href="/docs" style={{ color: C.onSurfaceVar, fontSize: 12, textDecoration: 'none' }}>Documentation</a>
               </nav>
             </div>

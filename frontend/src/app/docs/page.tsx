@@ -25,7 +25,7 @@ export default function DocsPage() {
           </div>
         </div>
         <Link 
-          href="/dashboard"
+          href="/#terminal"
           className="bg-transparent hover:bg-white/5 border border-[#333344] text-[#e0e0e6] font-sans text-xs px-5 py-2 rounded font-bold transition-all uppercase tracking-widest cursor-pointer flex items-center gap-2"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
