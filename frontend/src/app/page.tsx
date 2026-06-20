@@ -233,33 +233,10 @@ export default function Page() {
       {/* ─── Hero Section ─────────────────────────────────────────────────── */}
       <main style={{ position: 'relative', zIndex: 1, padding: '160px 24px 64px', maxWidth: 1400, margin: '0 auto' }}>
         
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 64, alignItems: 'center', minHeight: '65vh', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 64, alignItems: 'flex-start', minHeight: '65vh', justifyContent: 'space-between' }}>
           
           {/* Left Text Column */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24, zIndex: 2, flex: '1 1 600px' }}>
-            
-            {/* Status Indicator */}
-            <div style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8,
-              padding: '6px 12px',
-              borderRadius: 32,
-              background: 'rgba(255,255,255,0.03)',
-              border: `1px solid ${C.outlineVar}`,
-              width: 'fit-content'
-            }}>
-              <span style={{
-                width: 8, height: 8,
-                borderRadius: '50%',
-                background: isAgentPaused ? C.error : C.success,
-                boxShadow: `0 0 10px ${isAgentPaused ? C.error : C.success}`,
-                display: 'inline-block'
-              }} />
-              <span style={{ fontSize: 11, fontFamily: F.mono, letterSpacing: '0.05em', color: C.onSurfaceVar, textTransform: 'uppercase' }}>
-                Agent Loop Status: {isAgentPaused ? 'Paused' : 'Active'}
-              </span>
-            </div>
 
             {/* Main Header Tag */}
             <h1 style={{
@@ -362,7 +339,7 @@ export default function Page() {
           </div>
 
           {/* Right Widget Preview Column (3D Tilt Card) */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 24, justifyContent: 'center', flex: '1 1 500px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 24, justifyContent: 'flex-start', flex: '1 1 500px' }}>
             <div style={{ position: 'relative', width: '100%', maxWidth: '1280px' }}>
               
               {/* glow backdrop behind the 3D card */}
