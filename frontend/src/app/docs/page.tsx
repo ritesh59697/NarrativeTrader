@@ -5,28 +5,28 @@ import Link from 'next/link';
 
 /* ─── Obsidian Theme Colors ─────────────────────────────────────────────── */
 const C = {
-  bg:              '#0a0a12',
-  surface:         '#0f0f1a',
-  containerLow:    '#111118',
-  container:       '#141422',
-  containerHigh:   '#1e1e30',
-  containerHighest:'#28283e',
-  onSurface:       '#e8e0f0',
-  onSurfaceVar:    '#a098b0',
-  primary:         '#ff2d78',
-  primaryFixed:    '#ffe0ec',
+  bg: '#0a0a12',
+  surface: '#0f0f1a',
+  containerLow: '#111118',
+  container: '#141422',
+  containerHigh: '#1e1e30',
+  containerHighest: '#28283e',
+  onSurface: '#e8e0f0',
+  onSurfaceVar: '#a098b0',
+  primary: '#ff2d78',
+  primaryFixed: '#ffe0ec',
   primaryFixedDim: '#ff80aa',
-  onPrimaryFixed:  '#3d0020',
-  secondary:       '#00ffcc',
-  tertiary:        '#ffe04a',
-  outlineVar:      '#302840',
-  error:           '#ff4444',
+  onPrimaryFixed: '#3d0020',
+  secondary: '#00ffcc',
+  tertiary: '#ffe04a',
+  outlineVar: '#302840',
+  error: '#ff4444',
 };
 
 const F = {
   display: "'Sora', sans-serif",
-  body:    "'Inter', system-ui, sans-serif",
-  mono:    "'Space Grotesk', monospace",
+  body: "'Inter', system-ui, sans-serif",
+  mono: "'Space Grotesk', monospace",
 };
 
 interface DocSection {
@@ -252,7 +252,7 @@ export default function DocsPage() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          
+
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{
               width: 28, height: 28,
@@ -381,7 +381,7 @@ export default function DocsPage() {
               <p style={{ fontSize: 14, color: C.onSurface, lineHeight: 1.8, margin: 0 }}>
                 Welcome to the documentation center for <strong>NarrativeTrader</strong>. This terminal is an autonomous, on-chain crypto trading agent designed to capture sentiment cycles before they settle into general board leaderboards.
               </p>
-              
+
               <div style={{
                 borderLeft: `4px solid ${C.primary}`,
                 padding: '16px 20px',
@@ -408,7 +408,7 @@ export default function DocsPage() {
               <p style={{ fontSize: 14, color: C.onSurface, lineHeight: 1.7, margin: 0 }}>
                 NarrativeTrader combines three components to execute decisions reliably under a single workflow.
               </p>
-              
+
               <div style={{ display: 'flex', flexDirection: 'column', gap: 20, marginTop: 16 }}>
                 {[
                   { title: '30-Minute Ingestion Scan', desc: 'Queries CoinMarketCap trending API data, news aggregators, and volume deltas to isolate trending sectors and candidate tickers.' },
@@ -606,7 +606,7 @@ export default function DocsPage() {
         zIndex: 50,
       }}>
         <span>© 2026 NarrativeTrader · Built for BNB Hack</span>
-        <a href="https://x.com/ritesh59697" target="_blank" rel="noreferrer" style={{ color: C.primaryFixedDim, fontWeight: 700, textDecoration: 'none' }}>Built by ritesh59697</a>
+        <a href="https://x.com/ritesh5969" target="_blank" rel="noreferrer" style={{ color: C.primaryFixedDim, fontWeight: 700, textDecoration: 'none' }}>Built by ritesh59697</a>
       </footer>
     </div>
   );

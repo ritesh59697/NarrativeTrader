@@ -27,3 +27,19 @@ Thumbs.db
 *.swo
 .vscode/
 .idea/
+
+# ── Private keys, certs, and keystores (Production Security) ──────────────────
+*.pem
+*.key
+*.pfx
+*.cer
+*.crt
+*.der
+*.keystore
+*.jks
+
+# ── Package manager caches & typescript build info ───────────────────────────
+yarn-error.log*
+.pnpm-debug.log*
+.eslintcache
+*.tsbuildinfo
