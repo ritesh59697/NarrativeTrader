@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 const C = {
   primaryFixed:   '#ffe0ec',
@@ -21,43 +21,6 @@ const IconQueryStats = () => (
 );
 
 export function Navbar() {
-  const [walletAddress, setWalletAddress] = useState<string | null>(null);
-
-  useEffect(() => {
-    setWalletAddress(localStorage.getItem('connected_wallet'));
-    const handleStorage = () => {
-      setWalletAddress(localStorage.getItem('connected_wallet'));
-    };
-    window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
-  }, []);
-
-  const connectWallet = async () => {
-    if (walletAddress) {
-      localStorage.removeItem('connected_wallet');
-      setWalletAddress(null);
-      window.dispatchEvent(new Event('storage'));
-    } else {
-      if (typeof window !== 'undefined' && (window as any).ethereum) {
-        try {
-          const accounts = await (window as any).ethereum.request({ method: 'eth_requestAccounts' });
-          if (accounts && accounts[0]) {
-            localStorage.setItem('connected_wallet', accounts[0]);
-            setWalletAddress(accounts[0]);
-            window.dispatchEvent(new Event('storage'));
-            return;
-          }
-        } catch (err) {
-          console.warn('Wallet connection request failed/rejected, using simulation address instead.', err);
-        }
-      }
-      const mockAddress = '0x71C7656EC7ab88b098defB751B7401B5f6d8976F';
-      localStorage.setItem('connected_wallet', mockAddress);
-      setWalletAddress(mockAddress);
-      window.dispatchEvent(new Event('storage'));
-    }
-  };
-
   return (
     <header
       style={{
@@ -104,38 +67,8 @@ export function Navbar() {
         </Link>
       </div>
 
-      {/* Right: Connect Wallet button */}
-      <button
-        onClick={connectWallet}
-        style={{
-          background:    C.primaryFixed,
-          color:         C.onPrimaryFixed,
-          fontFamily:    "'Space Grotesk', monospace",
-          fontSize:      11,
-          fontWeight:    700,
-          textTransform: 'uppercase',
-          letterSpacing: '0.12em',
-          padding:       '10px 24px',
-          borderRadius:  4,
-          border:        'none',
-          cursor:        'pointer',
-          transition:    'background 0.15s',
-          display:       'inline-flex',
-          alignItems:    'center',
-          gap:           8,
-        }}
-        onMouseEnter={e => (e.currentTarget.style.background = C.primaryFixedDim)}
-        onMouseLeave={e => (e.currentTarget.style.background = C.primaryFixed)}
-      >
-        {walletAddress ? (
-          <>
-            <span style={{ width: 6, height: 6, borderRadius: '50%', background: C.secondary }} />
-            {walletAddress.slice(0, 6)}…{walletAddress.slice(-4)}
-          </>
-        ) : (
-          'Connect Wallet'
-        )}
-      </button>
+      {/* Right: RainbowKit Connect Button */}
+      <ConnectButton />
     </header>
   );
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { Providers } from './providers';
 
 export const metadata: Metadata = {
   title: 'Narrative Trader | AI-Driven Alpha Terminal',
@@ -27,7 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           padding:     0,
         }}
       >
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
