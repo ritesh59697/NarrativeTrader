@@ -606,7 +606,7 @@ export default function DocsPage() {
         zIndex: 50,
       }}>
         <span>© 2026 NarrativeTrader · Built for BNB Hack</span>
-        <a href="https://x.com/ritesh5969" target="_blank" rel="noreferrer" style={{ color: C.primaryFixedDim, fontWeight: 700, textDecoration: 'none' }}>Built by ritesh59697</a>
+        <a href="https://x.com/ritesh5969" target="_blank" rel="noreferrer" style={{ color: C.primaryFixedDim, fontWeight: 700, textDecoration: 'none' }}>Built by ritesh5969</a>
       </footer>
     </div>
   );

@@ -65,6 +65,38 @@ export function Navbar() {
             Narrative Trader
           </span>
         </Link>
+
+        {/* Center/Left: Navigation Links */}
+        <nav style={{ display: 'flex', alignItems: 'center', gap: 24, marginLeft: 20 }}>
+          <Link href="/dashboard" style={{
+            color: C.onSurfaceVar,
+            fontFamily: "'Space Grotesk', monospace",
+            fontSize: 13,
+            fontWeight: 600,
+            textDecoration: 'none',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            transition: 'color 0.2s ease',
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.color = C.secondary}
+          onMouseLeave={(e) => e.currentTarget.style.color = C.onSurfaceVar}>
+            Terminal
+          </Link>
+          <Link href="/docs" style={{
+            color: C.onSurfaceVar,
+            fontFamily: "'Space Grotesk', monospace",
+            fontSize: 13,
+            fontWeight: 600,
+            textDecoration: 'none',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            transition: 'color 0.2s ease',
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.color = C.secondary}
+          onMouseLeave={(e) => e.currentTarget.style.color = C.onSurfaceVar}>
+            Docs
+          </Link>
+        </nav>
       </div>
 
       {/* Right: RainbowKit Connect Button */}
