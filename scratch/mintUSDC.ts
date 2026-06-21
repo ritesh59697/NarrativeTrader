@@ -52,7 +52,7 @@ async function main() {
       const hash = await walletClient.writeContract({
         address: getAddress(USDC_TESTNET),
         abi: FAUCET_ABI,
-        functionName: method.func,
+        functionName: method.func as any,
         args: method.args as any
       });
       console.log(`Success! Transaction Hash: ${hash}`);

@@ -783,7 +783,7 @@ export default function Page() {
                     <div style={{ display: 'grid', gridTemplateColumns: '7fr 5fr', gap: 24 }}>
 
                       {/* Live Logs */}
-                      <div style={{ background: '#0d0d12', border: '1px solid rgba(255,255,255,0.10)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)', borderRadius: 16, display: 'flex', flexDirection: 'column', height: 500, overflow: 'hidden' }}>
+                      <div style={{ background: '#0d0d12', border: '1px solid rgba(255,255,255,0.10)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)', borderRadius: 16, display: 'flex', flexDirection: 'column', minHeight: 500, overflow: 'hidden' }}>
                         <div style={{ padding: '16px 24px', borderBottom: '1px solid rgba(48,40,64,0.10)', background: 'rgba(20,20,34,0.30)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                             <span style={{ color: C.primaryFixed }}><Icon.ListAlt /></span>
@@ -826,7 +826,7 @@ export default function Page() {
                       </div>
 
                       {/* Sector Allocation */}
-                      <div style={{ background: '#0d0d12', border: '1px solid rgba(255,255,255,0.10)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)', borderRadius: 16, padding: 32, height: 500, display: 'flex', flexDirection: 'column' }}>
+                      <div style={{ background: '#0d0d12', border: '1px solid rgba(255,255,255,0.10)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)', borderRadius: 16, padding: 32, minHeight: 500, display: 'flex', flexDirection: 'column' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32 }}>
                           <span style={{ fontFamily: F.mono, fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Sector Allocation</span>
                           <span style={{ color: C.onSurfaceVar }}><Icon.PieChart /></span>
