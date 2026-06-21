@@ -265,6 +265,7 @@ export default function Page() {
   const [activeTab, setActiveTab] = useState<'Dashboard' | 'Positions' | 'Trade History' | 'Agent Config'>('Dashboard');
   const [showNotifications, setShowNotifications] = useState(false);
   const [showTerminalModal, setShowTerminalModal] = useState(false);
+  const [chartTimeframe, setChartTimeframe] = useState<'1H' | '1D'>('1H');
   const [cycles, setCycles] = useState<CycleLog[]>([]);
   const [portfolio, setPortfolio] = useState<PortfolioData | null>(null);
   const [config, setConfig] = useState<{
@@ -415,13 +416,33 @@ export default function Page() {
     .slice(0, 10);
 
   const chartBars = (() => {
-    const defaultHeights = [40, 35, 55, 45, 70, 65, 85, 100];
-    const last8 = [...cycles].slice(-8);
-    const result = last8.map((c, i) => ({ h: Math.max(10, ((normalizeScore(c) ?? 5) / 10) * 100), i }));
+    const baseTrend1H = pnl < 0 
+      ? [100, 90, 85, 75, 60, 45, 25, 8] 
+      : [20, 30, 45, 55, 65, 80, 92, 100];
+      
+    const baseTrend1D = pnl < 0
+      ? [100, 95, 90, 88, 80, 72, 60, 50, 42, 30, 18, 8]
+      : [10, 18, 25, 38, 48, 55, 68, 75, 82, 90, 95, 100];
+
+    const trend = chartTimeframe === '1H' ? baseTrend1H : baseTrend1D;
     
-    while (result.length < 8) {
-      const idx = 8 - result.length - 1;
-      result.unshift({ h: defaultHeights[idx], i: -result.length });
+    const limit = chartTimeframe === '1H' ? 8 : 12;
+    const lastN = [...cycles].slice(-limit);
+    const hasPortfolioValues = lastN.some(c => typeof (c as any).portfolioValue === 'number');
+    
+    let result: { h: number; i: number }[] = [];
+    if (hasPortfolioValues) {
+      const values = lastN.map(c => typeof (c as any).portfolioValue === 'number' ? (c as any).portfolioValue : val);
+      const maxVal = Math.max(...values, 10);
+      result = values.map((v, i) => ({ h: Math.max(10, (v / maxVal) * 100), i }));
+    } else {
+      result = trend.map((h, i) => ({ h, i }));
+    }
+    
+    while (result.length < limit) {
+      const idx = limit - result.length - 1;
+      const h = trend[idx] ?? 50;
+      result.unshift({ h, i: -result.length });
     }
     return result;
   })();
@@ -679,9 +700,39 @@ export default function Page() {
                               {pnl >= 0 ? '+' : ''}{fmt$(pnl)} ({pnlPct >= 0 ? '+' : ''}{pnlPct.toFixed(2)}% 24h)
                             </div>
                           </div>
-                          <div style={{ display: 'flex', gap: 8 }}>
-                            <button style={{ padding: '4px 8px', background: C.primaryFixed, color: C.onPrimaryFixed, fontFamily: F.mono, fontSize: 10, fontWeight: 700, borderRadius: 4, border: 'none', cursor: 'pointer' }}>1H</button>
-                            <button style={{ padding: '4px 8px', background: C.container, color: C.onSurfaceVar, fontFamily: F.mono, fontSize: 10, fontWeight: 700, borderRadius: 4, border: 'none', cursor: 'pointer' }}>1D</button>
+                           <div style={{ display: 'flex', gap: 8 }}>
+                            <button
+                              onClick={() => setChartTimeframe('1H')}
+                              style={{
+                                padding: '4px 8px',
+                                background: chartTimeframe === '1H' ? C.primaryFixed : C.container,
+                                color: chartTimeframe === '1H' ? C.onPrimaryFixed : C.onSurfaceVar,
+                                fontFamily: F.mono,
+                                fontSize: 10,
+                                fontWeight: 700,
+                                borderRadius: 4,
+                                border: 'none',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              1H
+                            </button>
+                            <button
+                              onClick={() => setChartTimeframe('1D')}
+                              style={{
+                                padding: '4px 8px',
+                                background: chartTimeframe === '1D' ? C.primaryFixed : C.container,
+                                color: chartTimeframe === '1D' ? C.onPrimaryFixed : C.onSurfaceVar,
+                                fontFamily: F.mono,
+                                fontSize: 10,
+                                fontWeight: 700,
+                                borderRadius: 4,
+                                border: 'none',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              1D
+                            </button>
                           </div>
                         </div>
                         {/* Bar chart */}

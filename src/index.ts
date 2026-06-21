@@ -24,6 +24,7 @@ interface CycleLog {
   marketRegime: 'BULL' | 'BEAR' | 'SIDEWAYS';
   fearGreed: number | null;
   llmUsed: 'groq' | 'gemini' | 'failed';
+  portfolioValue: number;
   trade: {
     token: string;
     positionSizeUSDC: number;
@@ -63,6 +64,7 @@ function createCycleLog(
   cycleNumber: number,
   decision: ScorerDecision,
   finalDecision: 'BUY' | 'HOLD' | 'FAILED',
+  portfolioValue: number,
   txHash?: string
 ): CycleLog {
   return {
@@ -77,6 +79,7 @@ function createCycleLog(
     marketRegime: decision.marketRegime,
     fearGreed: decision.fearGreed,
     llmUsed: decision.llmUsed,
+    portfolioValue,
     trade: finalDecision === 'BUY' && txHash
       ? {
           token: decision.token,
@@ -87,7 +90,7 @@ function createCycleLog(
   };
 }
 
-function createFailedCycleLog(timestamp: string, cycleNumber: number, reasoning: string, narrativeName = ''): CycleLog {
+function createFailedCycleLog(timestamp: string, cycleNumber: number, reasoning: string, portfolioValue: number, narrativeName = ''): CycleLog {
   return {
     timestamp,
     cycleNumber,
@@ -105,6 +108,7 @@ function createFailedCycleLog(timestamp: string, cycleNumber: number, reasoning:
     marketRegime: 'SIDEWAYS',
     fearGreed: null,
     llmUsed: 'failed',
+    portfolioValue,
     trade: null
   };
 }
@@ -150,7 +154,7 @@ async function agentLoop() {
   const currentPortfolio = riskGuard.getState();
   if (currentPortfolio.isPaused) {
     console.log('⏸️ [NarrativeTrader] Trading is currently PAUSED due to Risk Guard drawdown limit.');
-    appendCycleLog(createFailedCycleLog(timestamp, cycleNumber, 'Risk Guard is paused.'));
+    appendCycleLog(createFailedCycleLog(timestamp, cycleNumber, 'Risk Guard is paused.', currentPortfolio.currentValue));
     return;
   }
 
@@ -205,7 +209,7 @@ async function agentLoop() {
           );
 
           console.log(`✅ [NarrativeTrader] Cycle completed with SUCCESS. Position opened for ${decision.token}.`);
-          appendCycleLog(createCycleLog(timestamp, cycleNumber, decision, 'BUY', result.txHash));
+          appendCycleLog(createCycleLog(timestamp, cycleNumber, decision, 'BUY', portfolioValueUSDC, result.txHash));
         } else {
           console.error(`❌ [NarrativeTrader] Swap execution failed: ${result.error}`);
           appendCycleLog(createCycleLog(
@@ -215,7 +219,8 @@ async function agentLoop() {
               ...decision,
               reasoning: `${decision.reasoning} Execution failed: ${result.error || 'Unknown execution error.'}`
             },
-            'FAILED'
+            'FAILED',
+            portfolioValueUSDC
           ));
         }
       } else {
@@ -227,19 +232,20 @@ async function agentLoop() {
             ...decision,
             reasoning: `${decision.reasoning} Risk blocked trade: ${riskCheck.reason || 'Unknown risk guard reason.'}`
           },
-          'HOLD'
+          'HOLD',
+          portfolioValueUSDC
         ));
       }
     } else {
       console.log('⏸️ [NarrativeTrader] Cycle completed. Decision is HOLD. No trades executed.');
-      appendCycleLog(createCycleLog(timestamp, cycleNumber, decision, 'HOLD'));
+      appendCycleLog(createCycleLog(timestamp, cycleNumber, decision, 'HOLD', portfolioValueUSDC));
     }
 
   } catch (error: any) {
     console.error(`❌ [NarrativeTrader] Cycle encountered critical error: ${error.message}`);
     // BUG 1/4 fix: pass the signal-layer narrative name so it is always persisted
     const fallbackName = signals?.narratives?.[0]?.name ?? 'Unknown';
-    appendCycleLog(createFailedCycleLog(timestamp, cycleNumber, error.message, fallbackName));
+    appendCycleLog(createFailedCycleLog(timestamp, cycleNumber, error.message, currentPortfolio.currentValue, fallbackName));
   }
 }
 
