@@ -6,6 +6,9 @@ export const metadata: Metadata = {
   title: 'Narrative Trader | AI-Driven Alpha Terminal',
   description: 'Institutional-grade AI crypto trading. Leverage real-time LLM narrative analysis to capture asymmetric market moves before they hit the tape.',
   keywords: ['crypto trading', 'AI agent', 'narrative trading', 'BNB Chain', 'DeFi', 'Groq', 'LLM'],
+  icons: {
+    icon: '/favicon.png',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
