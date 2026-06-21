@@ -783,7 +783,7 @@ export default function Page() {
                     <div style={{ display: 'grid', gridTemplateColumns: '7fr 5fr', gap: 24 }}>
 
                       {/* Live Logs */}
-                      <div style={{ background: '#0d0d12', border: '1px solid rgba(255,255,255,0.10)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)', borderRadius: 16, display: 'flex', flexDirection: 'column', minHeight: 500, overflow: 'hidden' }}>
+                      <div style={{ background: '#0d0d12', border: '1px solid rgba(255,255,255,0.10)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)', borderRadius: 16, display: 'flex', flexDirection: 'column', height: 550, overflow: 'hidden', minWidth: 0 }}>
                         <div style={{ padding: '16px 24px', borderBottom: '1px solid rgba(48,40,64,0.10)', background: 'rgba(20,20,34,0.30)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                             <span style={{ color: C.primaryFixed }}><Icon.ListAlt /></span>
@@ -812,7 +812,7 @@ export default function Page() {
                                   {log.score !== null ? `${log.score}/10` : '—'}
                                 </span>
                               </div>
-                              {log.reasoning && <p style={{ color: C.onSurfaceVar, fontSize: 12, lineHeight: 1.6, margin: 0 }}>{log.reasoning}</p>}
+                              {log.reasoning && <p style={{ color: C.onSurfaceVar, fontSize: 12, lineHeight: 1.6, margin: 0, wordBreak: 'break-word' }}>{log.reasoning}</p>}
                               {log.txHash && (
                                 <a href={`${EXPLORER}${log.txHash}`} target="_blank" rel="noreferrer"
                                   style={{ color: C.primaryFixed, fontFamily: F.mono, fontSize: 10, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4, marginTop: 6 }}>
@@ -826,7 +826,7 @@ export default function Page() {
                       </div>
 
                       {/* Sector Allocation */}
-                      <div style={{ background: '#0d0d12', border: '1px solid rgba(255,255,255,0.10)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)', borderRadius: 16, padding: 32, minHeight: 500, display: 'flex', flexDirection: 'column' }}>
+                      <div style={{ background: '#0d0d12', border: '1px solid rgba(255,255,255,0.10)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)', borderRadius: 16, padding: 32, height: 550, display: 'flex', flexDirection: 'column', minWidth: 0, overflow: 'hidden' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32 }}>
                           <span style={{ fontFamily: F.mono, fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Sector Allocation</span>
                           <span style={{ color: C.onSurfaceVar }}><Icon.PieChart /></span>
@@ -844,8 +844,8 @@ export default function Page() {
                             </div>
                           ))}
                         </div>
-                        <div style={{ marginTop: 32, padding: 16, borderRadius: 12, background: 'rgba(255,45,120,0.05)', border: `1px solid rgba(255,224,236,0.10)` }}>
-                          <p style={{ margin: 0, fontSize: 11, color: C.onSurfaceVar, lineHeight: 1.6 }}>
+                        <div style={{ marginTop: 24, padding: 16, borderRadius: 12, background: 'rgba(255,45,120,0.05)', border: `1px solid rgba(255,224,236,0.10)`, maxHeight: 150, overflowY: 'auto' }}>
+                          <p style={{ margin: 0, fontSize: 11, color: C.onSurfaceVar, lineHeight: 1.6, wordBreak: 'break-word' }}>
                             <span style={{ color: C.primaryFixed, fontFamily: F.mono, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 4 }}>AI Recommendation:</span>
                             {(() => {
                               if (!cycles.length) return "No recommendations available yet. Start the agent to initiate narrative scans.";
