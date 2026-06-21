@@ -6,7 +6,7 @@
   "scripts": {
     "start": "concurrently \"npm run agent\" \"npm run frontend\"",
     "agent": "ts-node --transpile-only src/index.ts",
-    "frontend": "cd frontend && npm run start -- -p $PORT",
+    "frontend": "cd frontend && npm run start -- -p ${PORT:-3000}",
     "dev": "node -r ts-node/register --watch src/index.ts",
     "build": "cd frontend && npm run build",
     "ui": "cd frontend && npm run dev"
