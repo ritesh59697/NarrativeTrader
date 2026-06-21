@@ -1,4 +1,4 @@
-# NarrativeTrader 
+# NarrativeTrader 🤖
 
 NarrativeTrader is an autonomous AI-driven narrative trading agent built for the **BNB Hack: AI Trading Agent Edition** (Track 1 — Autonomous Trading Agents).
 
