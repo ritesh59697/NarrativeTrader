@@ -179,13 +179,16 @@ export class RiskGuard {
     }
 
     // 4. Per-Token Cooldown (2 hours)
-    const twoHoursAgo = Date.now() - 2 * 60 * 60 * 1000;
-    const recentTrade = this.state.tradesHistory.find(
-      t => t.token.toLowerCase() === token.toLowerCase() && new Date(t.timestamp).getTime() > twoHoursAgo
-    );
-    if (recentTrade) {
-      const minsLeft = Math.ceil((new Date(recentTrade.timestamp).getTime() + 2 * 60 * 60 * 1000 - Date.now()) / (60 * 1000));
-      return { pass: false, reason: `Token ${token} is in cooldown. ${minsLeft} minutes remaining.` };
+    const bypassCooldown = process.env.BYPASS_COOLDOWN === 'true';
+    if (!bypassCooldown) {
+      const twoHoursAgo = Date.now() - 2 * 60 * 60 * 1000;
+      const recentTrade = this.state.tradesHistory.find(
+        t => t.token.toLowerCase() === token.toLowerCase() && new Date(t.timestamp).getTime() > twoHoursAgo
+      );
+      if (recentTrade) {
+        const minsLeft = Math.ceil((new Date(recentTrade.timestamp).getTime() + 2 * 60 * 60 * 1000 - Date.now()) / (60 * 1000));
+        return { pass: false, reason: `Token ${token} is in cooldown. ${minsLeft} minutes remaining.` };
+      }
     }
 
     // 5. Cash balance check
