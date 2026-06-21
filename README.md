@@ -114,7 +114,7 @@ Located in the root and the `scratch/` folder to simplify on-chain onboarding an
 
 ---
 
-## ⚡ Robust Simulation & Testing (Out-of-the-Box)
+## Robust Simulation & Testing (Out-of-the-Box)
 
 To allow judges to run and evaluate NarrativeTrader instantly without needing a funded BSC Testnet wallet or paid API keys:
 1. If **`AGENT_PRIVATE_KEY`** is a dummy placeholder, TWAK automatically toggles to **Simulation Mode** (signs transactions and outputs simulated transaction hashes).
