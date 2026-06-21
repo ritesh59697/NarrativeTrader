@@ -88,6 +88,7 @@ const Icon = {
 };
 
 export default function Page() {
+  const [isMobile, setIsMobile] = useState(false);
   const [cycles, setCycles] = useState<CycleLog[]>([]);
   const [portfolio, setPortfolio] = useState<PortfolioData | null>(null);
   const [config, setConfig] = useState<{ targetPortfolioValue: number } | null>(null);
@@ -97,6 +98,13 @@ export default function Page() {
   const [lpu, setLpu] = useState(84);
   const [tilt, setTilt] = useState({ x: 8, y: -5 });
   const cardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth <= 768);
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return;
@@ -231,12 +239,12 @@ export default function Page() {
       <Navbar />
 
       {/* ─── Hero Section ─────────────────────────────────────────────────── */}
-      <main style={{ position: 'relative', zIndex: 1, padding: '160px 24px 64px', maxWidth: 1400, margin: '0 auto' }}>
+      <main style={{ position: 'relative', zIndex: 1, padding: isMobile ? '100px 16px 40px' : '160px 24px 64px', maxWidth: 1400, margin: '0 auto' }}>
         
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 64, alignItems: 'flex-start', minHeight: '65vh', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', flexWrap: 'wrap', gap: isMobile ? 32 : 64, alignItems: 'flex-start', minHeight: '65vh', justifyContent: 'space-between' }}>
           
           {/* Left Text Column */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 24, zIndex: 2, flex: '1 1 600px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 24, zIndex: 2, flex: isMobile ? '1 1 100%' : '1 1 600px' }}>
 
             {/* Main Header Tag */}
             <h1 style={{
@@ -267,7 +275,7 @@ export default function Page() {
             </p>
 
             {/* CTAs */}
-            <div style={{ display: 'flex', gap: 16, marginTop: 12 }}>
+            <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? 12 : 16, marginTop: 12 }}>
               <Link href="/dashboard" style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -308,10 +316,10 @@ export default function Page() {
             {/* Interactive Stats Panel */}
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(3, 1fr)',
-              gap: 24,
+              gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
+              gap: isMobile ? 16 : 24,
               marginTop: 48,
-              padding: '24px 32px',
+              padding: isMobile ? '16px 20px' : '24px 32px',
               borderRadius: 12,
               background: C.surface,
               border: `1px solid ${C.outlineVar}`,
@@ -339,7 +347,7 @@ export default function Page() {
           </div>
 
           {/* Right Widget Preview Column (3D Tilt Card) */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 24, justifyContent: 'flex-start', flex: '1 1 500px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 24, justifyContent: 'flex-start', flex: isMobile ? '1 1 100%' : '1 1 500px', width: '100%' }}>
             <div style={{ position: 'relative', width: '100%', maxWidth: '1280px' }}>
               
               {/* glow backdrop behind the 3D card */}
@@ -358,9 +366,9 @@ export default function Page() {
                   backdropFilter: 'blur(40px)',
                   border: `1px solid ${C.outline}`,
                   borderRadius: 16,
-                  padding: 32,
+                  padding: isMobile ? 20 : 32,
                   boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
-                  transform: `perspective(2000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
+                  transform: isMobile ? 'none' : `perspective(2000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
                   transition: 'transform 0.1s ease-out, box-shadow 0.2s',
                   cursor: 'pointer',
                   zIndex: 10,
@@ -378,12 +386,14 @@ export default function Page() {
                     <div style={{ padding: '4px 10px', borderRadius: 4, background: 'rgba(255,45,120,0.06)', border: `1px solid ${C.primaryGlow}` }}>
                       <span style={{ color: C.primaryFixedDim, fontFamily: F.mono, fontSize: 10, fontWeight: 700, letterSpacing: '0.1em' }}>LIVE FEED</span>
                     </div>
-                    <span style={{ color: C.onSurfaceVar, fontFamily: F.mono, fontSize: 10, letterSpacing: '0.1em' }}>NARRATIVETRADER TERMINAL V1.0</span>
+                    {!isMobile && (
+                      <span style={{ color: C.onSurfaceVar, fontFamily: F.mono, fontSize: 10, letterSpacing: '0.1em' }}>NARRATIVETRADER TERMINAL V1.0</span>
+                    )}
                   </div>
                 </div>
 
                 {/* Stats grid */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24, marginBottom: 32 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: isMobile ? 16 : 24, marginBottom: 32 }}>
                   {/* Portfolio */}
                   <div style={{ background: C.containerLow, border: `1px solid ${C.outlineVar}`, borderRadius: 12, padding: 20 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
@@ -469,8 +479,8 @@ export default function Page() {
 
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-            gap: 24,
+            gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(240px, 1fr))',
+            gap: isMobile ? 32 : 24,
             position: 'relative',
           }}>
             {steps.map((step, idx) => {
@@ -524,8 +534,8 @@ export default function Page() {
           
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-            gap: 32,
+            gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(300px, 1fr))',
+            gap: isMobile ? 20 : 32,
             marginTop: 64
           }}>
             <div style={{
@@ -568,7 +578,7 @@ export default function Page() {
         </section>
 
         {/* ─── Footer Section ──────────────────────────────────────────────── */}
-        <footer style={{ marginTop: 128, borderTop: `1px solid ${C.outlineVar}`, paddingTop: 32, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <footer style={{ marginTop: 128, borderTop: `1px solid ${C.outlineVar}`, paddingTop: 32, display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? 16 : 32, justifyContent: 'space-between', alignItems: 'center', textAlign: isMobile ? 'center' : 'left' }}>
           <span style={{ color: 'rgba(160,152,176,0.40)', fontFamily: F.mono, fontSize: 10 }}>© 2026 NARRATIVE TRADER FOUNDATION. V1.0.4-BETA</span>
           <a href="https://x.com/ritesh5969" target="_blank" rel="noreferrer" style={{ color: C.primaryFixedDim, fontFamily: F.mono, fontSize: 10, fontWeight: 700, textDecoration: 'none' }}>Built by ritesh5969</a>
           <span style={{ color: 'rgba(160,152,176,0.40)', fontFamily: F.mono, fontSize: 10, textTransform: 'uppercase' }}>ENCRYPTED END-TO-END CONNECTION</span>

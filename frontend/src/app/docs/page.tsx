@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
 /* ─── Obsidian Theme Colors ─────────────────────────────────────────────── */
@@ -146,8 +146,16 @@ const CodeBlock = ({ code }: { code: string }) => {
 };
 
 export default function DocsPage() {
+  const [isMobile, setIsMobile] = useState(false);
   const [activeTopic, setActiveTopic] = useState<string>('intro');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth <= 768);
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Group sections by category
   const categories = Array.from(new Set(SECTIONS.map(s => s.category)));
@@ -241,12 +249,11 @@ export default function DocsPage() {
               background: 'none',
               border: 'none',
               color: C.onSurface,
-              display: 'flex',
+              display: isMobile ? 'flex' : 'none',
               alignItems: 'center',
               cursor: 'pointer',
               padding: 4,
             }}
-            className="md:hidden"
           >
             <svg width={24} height={24} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
@@ -319,7 +326,8 @@ export default function DocsPage() {
           overflowY: 'auto',
           flexShrink: 0,
           zIndex: 40,
-        }} className="hidden md:block">
+          display: isMobile ? 'none' : 'block',
+        }}>
           {renderSidebarContent()}
         </aside>
 
@@ -365,7 +373,7 @@ export default function DocsPage() {
         {/* Content Pane */}
         <main style={{
           flex: 1,
-          padding: '48px 24px',
+          padding: isMobile ? '24px 16px' : '48px 24px',
           maxWidth: 900,
           margin: '0 auto',
           position: 'relative',
@@ -490,7 +498,7 @@ export default function DocsPage() {
                 The following boundaries are actively enforced by the agent code:
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 16 }}>
                 {[
                   { policy: 'Max Drawdown', value: '15%', desc: 'Triggers global engine pause if portfolio value falls 15% below peak valuation.' },
                   { policy: 'Position Cap', value: '10%', desc: 'Cap on individual asset exposure to prevent asset concentration risks.' },
@@ -592,12 +600,14 @@ export default function DocsPage() {
 
       {/* Footer */}
       <footer style={{
-        height: 48,
+        height: isMobile ? 'auto' : 48,
         borderTop: `1px solid ${C.outlineVar}`,
         display: 'flex',
+        flexDirection: isMobile ? 'column' : 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '0 24px',
+        padding: isMobile ? '16px 24px' : '0 24px',
+        gap: isMobile ? 12 : 0,
         background: C.surface,
         fontSize: 10,
         fontFamily: F.mono,

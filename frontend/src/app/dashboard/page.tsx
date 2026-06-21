@@ -262,6 +262,7 @@ const CopyButton = ({ text }: { text: string }) => {
 };
 
 export default function Page() {
+  const [isMobile, setIsMobile] = useState(false);
   const [activeTab, setActiveTab] = useState<'Dashboard' | 'Positions' | 'Trade History' | 'Agent Config'>('Dashboard');
   const [showNotifications, setShowNotifications] = useState(false);
   const [showTerminalModal, setShowTerminalModal] = useState(false);
@@ -307,10 +308,17 @@ export default function Page() {
     updateUptime();
     const uptimeInterval = setInterval(updateUptime, 1000);
 
+    setIsMobile(window.innerWidth <= 768);
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    window.addEventListener('resize', handleResize);
+
     return () => {
       clearInterval(latInterval);
       clearInterval(lpuInterval);
       clearInterval(uptimeInterval);
+      window.removeEventListener('resize', handleResize);
     };
   }, []);
 
@@ -470,8 +478,8 @@ export default function Page() {
         <section id="terminal" style={{ position: 'relative', zIndex: 1, background: 'rgba(10,10,18,0.50)' }}>
 
           {/* Status bar */}
-          <div style={{ height: 56, borderBottom: '1px solid rgba(48,40,64,0.10)', background: 'rgba(10,10,18,0.60)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 32px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
+          <div style={{ height: isMobile ? 'auto' : 56, borderBottom: '1px solid rgba(48,40,64,0.10)', background: 'rgba(10,10,18,0.60)', display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'stretch' : 'center', justifyContent: 'space-between', padding: isMobile ? '12px 16px' : '0 32px', gap: isMobile ? 12 : 32 }}>
+            <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'flex-start' : 'center', gap: isMobile ? 8 : 32 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <div style={{ width: 6, height: 6, borderRadius: '50%', background: C.primaryFixed }} />
                 <span style={{ color: C.primaryFixed, fontFamily: F.mono, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Testnet-Alpha</span>
@@ -485,8 +493,8 @@ export default function Page() {
                 </div>
               </div>
             </div>
-            <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(17,17,24,0.50)', border: '1px solid rgba(48,40,64,0.10)', borderRadius: 4, padding: '4px 16px', width: 192 }}>
+            <div style={{ display: 'flex', gap: isMobile ? 12 : 24, alignItems: 'center', justifyContent: isMobile ? 'space-between' : 'flex-end', width: isMobile ? '100%' : 'auto' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(17,17,24,0.50)', border: '1px solid rgba(48,40,64,0.10)', borderRadius: 4, padding: '4px 16px', width: isMobile ? '100%' : 192, flex: isMobile ? 1 : 'none' }}>
                 <span style={{ color: 'rgba(160,152,176,0.60)' }}><Icon.Search /></span>
                 <input
                   value={filterQuery}
@@ -521,8 +529,8 @@ export default function Page() {
                   <div style={{
                     position: 'absolute',
                     top: 36,
-                    right: 40,
-                    width: 320,
+                    right: isMobile ? -50 : 40,
+                    width: isMobile ? 280 : 320,
                     background: '#0d0d12',
                     border: '1px solid rgba(255, 255, 255, 0.10)',
                     boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
@@ -561,7 +569,7 @@ export default function Page() {
                     position: 'absolute',
                     top: 36,
                     right: 0,
-                    width: 420,
+                    width: isMobile ? 280 : 420,
                     background: '#0a0a0e',
                     border: '1px solid rgba(255, 255, 255, 0.10)',
                     boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
@@ -616,11 +624,28 @@ export default function Page() {
           </div>
 
           {/* Sidebar + Content */}
-          <div style={{ display: 'flex' }}>
+          <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row' }}>
 
             {/* Sidebar */}
-            <aside style={{ width: 256, flexShrink: 0, padding: 24, borderRight: '1px solid rgba(48,40,64,0.10)', display: 'flex', flexDirection: 'column', gap: 32 }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <aside style={{
+              width: isMobile ? '100%' : 256,
+              flexShrink: 0,
+              padding: isMobile ? 16 : 24,
+              borderRight: isMobile ? 'none' : '1px solid rgba(48,40,64,0.10)',
+              borderBottom: isMobile ? '1px solid rgba(48,40,64,0.10)' : 'none',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: isMobile ? 16 : 32
+            }}>
+              <div style={{
+                display: 'flex',
+                flexDirection: isMobile ? 'row' : 'column',
+                overflowX: isMobile ? 'auto' : 'visible',
+                gap: isMobile ? 8 : 4,
+                width: '100%',
+                paddingBottom: isMobile ? 8 : 0,
+                WebkitOverflowScrolling: 'touch',
+              }}>
                 {[
                   { icon: <Icon.Dashboard />, label: 'Dashboard', tab: 'Dashboard' as const },
                   { icon: <Icon.Wallet />, label: 'Positions', tab: 'Positions' as const },
@@ -642,7 +667,8 @@ export default function Page() {
                         textTransform: 'uppercase', textDecoration: 'none',
                         transition: 'all 0.15s',
                         cursor: 'pointer',
-                        width: '100%',
+                        width: isMobile ? 'auto' : '100%',
+                        flexShrink: 0,
                         textAlign: 'left',
                       }}
                     >
@@ -653,25 +679,23 @@ export default function Page() {
               </div>
 
               {/* Health */}
-              <div>
-                <span style={{ color: 'rgba(160,152,176,0.40)', fontFamily: F.mono, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', display: 'block', padding: '0 16px', marginBottom: 16 }}>Internal Health</span>
-                <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-                  <div>
+              <div style={{ display: isMobile ? 'flex' : 'block', flexDirection: isMobile ? 'row' : 'column', gap: isMobile ? 24 : 16, width: '100%', borderTop: isMobile ? '1px solid rgba(48,40,64,0.10)' : 'none', paddingTop: isMobile ? 12 : 0 }}>
+                <span style={{ color: 'rgba(160,152,176,0.40)', fontFamily: F.mono, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', display: isMobile ? 'none' : 'block', padding: '0 16px', marginBottom: 16 }}>Internal Health</span>
+                <div style={{ padding: isMobile ? '0' : '0 16px', display: 'flex', flexDirection: isMobile ? 'row' : 'column', gap: 16, width: '100%' }}>
+                  <div style={{ flex: 1 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontFamily: F.mono, fontSize: 10 }}>
                       <span style={{ color: C.onSurfaceVar }}>LPU</span>
-                      <span style={{ color: C.primaryFixed, float: 'right' }}>{lpu}%</span>
+                      <span style={{ color: C.primaryFixed }}>{lpu}%</span>
                     </div>
                     <div style={{ height: 4, background: C.container, borderRadius: 999, overflow: 'hidden' }}>
                       <div style={{ height: '100%', width: `${lpu}%`, background: C.primaryFixed, borderRadius: 999 }} />
                     </div>
                   </div>
-                  <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: F.mono, fontSize: 10 }}>
-                      <span style={{ color: C.onSurfaceVar }}>AGENT STATUS</span>
-                      <span style={{ color: portfolio?.isPaused ? C.error : C.secondary, float: 'right', fontWeight: 'bold' }}>
-                        {portfolio?.isPaused ? 'PAUSED' : 'ACTIVE'}
-                      </span>
-                    </div>
+                  <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span style={{ color: C.onSurfaceVar, fontFamily: F.mono, fontSize: 10 }}>STATUS</span>
+                    <span style={{ color: portfolio?.isPaused ? C.error : C.secondary, fontWeight: 'bold', fontFamily: F.mono, fontSize: 10 }}>
+                      {portfolio?.isPaused ? 'PAUSED' : 'ACTIVE'}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -679,16 +703,16 @@ export default function Page() {
 
 
             {/* Main content */}
-            <main style={{ flex: 1, padding: 32, background: 'rgba(0,0,0,0.10)' }}>
+            <main style={{ flex: 1, padding: isMobile ? 16 : 32, background: 'rgba(0,0,0,0.10)' }}>
               <div style={{ maxWidth: 1400, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 24 }}>
 
                 {activeTab === 'Dashboard' && (
                   <>
                     {/* Row 1: TVL + Engine */}
-                    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 24 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '2fr 1fr', gap: 24 }}>
 
                       {/* TVL */}
-                      <div style={{ background: '#0d0d12', border: '1px solid rgba(255,255,255,0.10)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)', borderRadius: 16, padding: 32 }}>
+                      <div style={{ background: '#0d0d12', border: '1px solid rgba(255,255,255,0.10)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)', borderRadius: 16, padding: isMobile ? 20 : 32 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 48 }}>
                           <div>
                             <span style={{ color: C.onSurfaceVar, fontFamily: F.mono, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em' }}>Total Value Locked (Institutional)</span>
@@ -748,7 +772,7 @@ export default function Page() {
                       </div>
 
                       {/* Engine */}
-                      <div style={{ background: '#0d0d12', border: '1px solid rgba(255,255,255,0.10)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)', borderRadius: 16, padding: 32 }}>
+                      <div style={{ background: '#0d0d12', border: '1px solid rgba(255,255,255,0.10)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)', borderRadius: 16, padding: isMobile ? 20 : 32 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
                           <span style={{ color: C.onSurfaceVar, fontFamily: F.mono, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em' }}>Engine Status</span>
                           <span style={{ color: C.primaryFixed }}><Icon.AutoRenew /></span>
@@ -780,7 +804,7 @@ export default function Page() {
                     </div>
 
                     {/* Row 2: Logs + Sectors */}
-                    <div style={{ display: 'grid', gridTemplateColumns: '7fr 5fr', gap: 24 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '7fr 5fr', gap: 24 }}>
 
                       {/* Live Logs */}
                       <div style={{ background: '#0d0d12', border: '1px solid rgba(255,255,255,0.10)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)', borderRadius: 16, display: 'flex', flexDirection: 'column', height: 550, overflow: 'hidden', minWidth: 0 }}>
@@ -826,7 +850,7 @@ export default function Page() {
                       </div>
 
                       {/* Sector Allocation */}
-                      <div style={{ background: '#0d0d12', border: '1px solid rgba(255,255,255,0.10)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)', borderRadius: 16, padding: 32, height: 550, display: 'flex', flexDirection: 'column', minWidth: 0, overflow: 'hidden' }}>
+                      <div style={{ background: '#0d0d12', border: '1px solid rgba(255,255,255,0.10)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)', borderRadius: 16, padding: isMobile ? 20 : 32, height: 550, display: 'flex', flexDirection: 'column', minWidth: 0, overflow: 'hidden' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32 }}>
                           <span style={{ fontFamily: F.mono, fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Sector Allocation</span>
                           <span style={{ color: C.onSurfaceVar }}><Icon.PieChart /></span>
@@ -862,8 +886,8 @@ export default function Page() {
                 )}
 
                 {activeTab === 'Positions' && (
-                  <div style={{ background: '#0d0d12', border: '1px solid rgba(255,255,255,0.10)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)', borderRadius: 16, padding: 32 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(48,40,64,0.15)', paddingBottom: 16, marginBottom: 24 }}>
+                  <div style={{ background: '#0d0d12', border: '1px solid rgba(255,255,255,0.10)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)', borderRadius: 16, padding: isMobile ? 16 : 32 }}>
+                    <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'flex-start' : 'center', gap: isMobile ? 16 : 8, justifyContent: 'space-between', borderBottom: '1px solid rgba(48,40,64,0.15)', paddingBottom: 16, marginBottom: 24 }}>
                       <div>
                         <h3 style={{ color: C.onSurface, fontFamily: F.display, fontWeight: 700, fontSize: 18, margin: 0 }}>Active Positions</h3>
                         <p style={{ color: C.onSurfaceVar, fontFamily: F.mono, fontSize: 11, margin: '4px 0 0' }}>Current asset holdings managed by the AI agent</p>
@@ -905,12 +929,12 @@ export default function Page() {
                           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontFamily: F.mono, fontSize: 11 }}>
                             <thead>
                               <tr style={{ borderBottom: '1px solid rgba(48,40,64,0.15)', color: 'rgba(160,152,176,0.60)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                                <th style={{ padding: '12px 16px' }}>Asset</th>
-                                <th style={{ padding: '12px 16px' }}>Amount</th>
-                                <th style={{ padding: '12px 16px' }}>Avg Entry</th>
-                                <th style={{ padding: '12px 16px' }}>Market Price</th>
-                                <th style={{ padding: '12px 16px' }}>Position Value</th>
-                                <th style={{ padding: '12px 16px', textAlign: 'right' }}>Unrealized PnL</th>
+                                <th style={{ padding: isMobile ? '8px 8px' : '12px 16px' }}>Asset</th>
+                                <th style={{ padding: isMobile ? '8px 8px' : '12px 16px' }}>Amount</th>
+                                <th style={{ padding: isMobile ? '8px 8px' : '12px 16px' }}>Avg Entry</th>
+                                <th style={{ padding: isMobile ? '8px 8px' : '12px 16px' }}>Market Price</th>
+                                <th style={{ padding: isMobile ? '8px 8px' : '12px 16px' }}>Position Value</th>
+                                <th style={{ padding: isMobile ? '8px 8px' : '12px 16px', textAlign: 'right' }}>Unrealized PnL</th>
                               </tr>
                             </thead>
                             <tbody style={{ color: C.onSurface }}>
@@ -922,7 +946,7 @@ export default function Page() {
 
                                 return (
                                   <tr key={pos.address} style={{ borderBottom: '1px solid rgba(48,40,64,0.10)' }}>
-                                    <td style={{ padding: '16px' }}>
+                                    <td style={{ padding: isMobile ? '12px 8px' : '16px' }}>
                                       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                                         <div style={{
                                           width: 32, height: 32, borderRadius: 6,
@@ -945,11 +969,11 @@ export default function Page() {
                                         </div>
                                       </div>
                                     </td>
-                                    <td style={{ padding: '16px', fontWeight: 600 }}>{pos.amount.toLocaleString(undefined, { maximumFractionDigits: 5 })}</td>
-                                    <td style={{ padding: '16px', color: C.onSurfaceVar }}>{fmt$(pos.entryPrice)}</td>
-                                    <td style={{ padding: '16px', color: C.onSurfaceVar }}>{fmt$(pos.currentPrice)}</td>
-                                    <td style={{ padding: '16px', fontWeight: 'bold' }}>{fmt$(value)}</td>
-                                    <td style={{ padding: '16px', textAlign: 'right', fontWeight: 'bold', color: isPositive ? C.secondary : C.error }}>
+                                    <td style={{ padding: isMobile ? '12px 8px' : '16px', fontWeight: 600 }}>{pos.amount.toLocaleString(undefined, { maximumFractionDigits: 5 })}</td>
+                                    <td style={{ padding: isMobile ? '12px 8px' : '16px', color: C.onSurfaceVar }}>{fmt$(pos.entryPrice)}</td>
+                                    <td style={{ padding: isMobile ? '12px 8px' : '16px', color: C.onSurfaceVar }}>{fmt$(pos.currentPrice)}</td>
+                                    <td style={{ padding: isMobile ? '12px 8px' : '16px', fontWeight: 'bold' }}>{fmt$(value)}</td>
+                                    <td style={{ padding: isMobile ? '12px 8px' : '16px', textAlign: 'right', fontWeight: 'bold', color: isPositive ? C.secondary : C.error }}>
                                       {isPositive ? '+' : ''}{pnlPercent.toFixed(2)}%
                                     </td>
                                   </tr>
@@ -964,8 +988,8 @@ export default function Page() {
                 )}
 
                 {activeTab === 'Trade History' && (
-                  <div style={{ background: '#0d0d12', border: '1px solid rgba(255,255,255,0.10)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)', borderRadius: 16, padding: 32 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(48,40,64,0.15)', paddingBottom: 16, marginBottom: 24 }}>
+                  <div style={{ background: '#0d0d12', border: '1px solid rgba(255,255,255,0.10)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)', borderRadius: 16, padding: isMobile ? 16 : 32 }}>
+                    <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'flex-start' : 'center', gap: isMobile ? 16 : 8, justifyContent: 'space-between', borderBottom: '1px solid rgba(48,40,64,0.15)', paddingBottom: 16, marginBottom: 24 }}>
                       <div>
                         <h3 style={{ color: C.onSurface, fontFamily: F.display, fontWeight: 700, fontSize: 18, margin: 0 }}>Execution Logs</h3>
                         <p style={{ color: C.onSurfaceVar, fontFamily: F.mono, fontSize: 11, margin: '4px 0 0' }}>Historical record of agent trades and portfolio events</p>
@@ -1007,13 +1031,13 @@ export default function Page() {
                           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontFamily: F.mono, fontSize: 11 }}>
                             <thead>
                               <tr style={{ borderBottom: '1px solid rgba(48,40,64,0.15)', color: 'rgba(160,152,176,0.60)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                                <th style={{ padding: '12px 16px' }}>Timestamp</th>
-                                <th style={{ padding: '12px 16px' }}>Action</th>
-                                <th style={{ padding: '12px 16px' }}>Token</th>
-                                <th style={{ padding: '12px 16px' }}>Size (USDC)</th>
-                                <th style={{ padding: '12px 16px' }}>Execution Price</th>
-                                <th style={{ padding: '12px 16px' }}>Amount Received</th>
-                                <th style={{ padding: '12px 16px', textAlign: 'right' }}>Transaction</th>
+                                <th style={{ padding: isMobile ? '8px 8px' : '12px 16px' }}>Timestamp</th>
+                                <th style={{ padding: isMobile ? '8px 8px' : '12px 16px' }}>Action</th>
+                                <th style={{ padding: isMobile ? '8px 8px' : '12px 16px' }}>Token</th>
+                                <th style={{ padding: isMobile ? '8px 8px' : '12px 16px' }}>Size (USDC)</th>
+                                <th style={{ padding: isMobile ? '8px 8px' : '12px 16px' }}>Execution Price</th>
+                                <th style={{ padding: isMobile ? '8px 8px' : '12px 16px' }}>Amount Received</th>
+                                <th style={{ padding: isMobile ? '8px 8px' : '12px 16px', textAlign: 'right' }}>Transaction</th>
                               </tr>
                             </thead>
                             <tbody style={{ color: C.onSurface }}>
@@ -1021,10 +1045,10 @@ export default function Page() {
                                 const isBuy = trade.type === 'BUY';
                                 return (
                                   <tr key={trade.timestamp + i} style={{ borderBottom: '1px solid rgba(48,40,64,0.10)' }}>
-                                    <td style={{ padding: '16px', color: 'rgba(160,152,176,0.70)' }}>
+                                    <td style={{ padding: isMobile ? '12px 8px' : '16px', color: 'rgba(160,152,176,0.70)' }}>
                                       {new Date(trade.timestamp).toLocaleString()}
                                     </td>
-                                    <td style={{ padding: '16px' }}>
+                                    <td style={{ padding: isMobile ? '12px 8px' : '16px' }}>
                                       <span style={{
                                         padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700, fontFamily: F.mono,
                                         background: isBuy ? 'rgba(255,45,120,0.15)' : 'rgba(0,255,204,0.15)',
@@ -1034,11 +1058,11 @@ export default function Page() {
                                         {trade.type}
                                       </span>
                                     </td>
-                                    <td style={{ padding: '16px', fontWeight: 'bold' }}>{trade.token}</td>
-                                    <td style={{ padding: '16px', fontWeight: 600 }}>{fmt$(trade.valueUSDC)}</td>
-                                    <td style={{ padding: '16px', color: C.onSurfaceVar }}>{fmt$(trade.price)}</td>
-                                    <td style={{ padding: '16px', color: C.onSurfaceVar }}>{trade.amount.toLocaleString(undefined, { maximumFractionDigits: 5 })}</td>
-                                    <td style={{ padding: '16px', textAlign: 'right' }}>
+                                    <td style={{ padding: isMobile ? '12px 8px' : '16px', fontWeight: 'bold' }}>{trade.token}</td>
+                                    <td style={{ padding: isMobile ? '12px 8px' : '16px', fontWeight: 600 }}>{fmt$(trade.valueUSDC)}</td>
+                                    <td style={{ padding: isMobile ? '12px 8px' : '16px', color: C.onSurfaceVar }}>{fmt$(trade.price)}</td>
+                                    <td style={{ padding: isMobile ? '12px 8px' : '16px', color: C.onSurfaceVar }}>{trade.amount.toLocaleString(undefined, { maximumFractionDigits: 5 })}</td>
+                                    <td style={{ padding: isMobile ? '12px 8px' : '16px', textAlign: 'right' }}>
                                       <a
                                         href={trade.txHash ? `https://testnet.bscscan.com/tx/${trade.txHash}` : `https://testnet.bscscan.com/address/${trade.address}`}
                                         target="_blank"
@@ -1062,15 +1086,15 @@ export default function Page() {
                 {activeTab === 'Agent Config' && (
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: 24 }}>
                     {/* Left side config (7 cols) */}
-                    <div style={{ gridColumn: 'span 7', display: 'flex', flexDirection: 'column', gap: 24 }}>
-                      <div style={{ background: '#0d0d12', border: '1px solid rgba(255,255,255,0.10)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)', borderRadius: 16, padding: 32, display: 'flex', flexDirection: 'column', gap: 24 }}>
+                    <div style={{ gridColumn: isMobile ? 'span 12' : 'span 7', display: 'flex', flexDirection: 'column', gap: 24 }}>
+                      <div style={{ background: '#0d0d12', border: '1px solid rgba(255,255,255,0.10)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)', borderRadius: 16, padding: isMobile ? 20 : 32, display: 'flex', flexDirection: 'column', gap: 24 }}>
                         <div style={{ borderBottom: '1px solid rgba(48,40,64,0.15)', paddingBottom: 16 }}>
                           <h3 style={{ color: C.onSurface, fontFamily: F.display, fontWeight: 700, fontSize: 18, margin: 0 }}>Control Panel</h3>
                           <p style={{ color: C.onSurfaceVar, fontFamily: F.mono, fontSize: 11, margin: '4px 0 0' }}>Toggle live trading states and inspect agent configuration</p>
                         </div>
 
                         {/* Engine status toggle */}
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 16, background: 'rgba(17,17,24,0.20)', border: '1px solid rgba(48,40,64,0.10)', borderRadius: 12 }}>
+                        <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'stretch' : 'center', justifyContent: 'space-between', padding: 16, background: 'rgba(17,17,24,0.20)', border: '1px solid rgba(48,40,64,0.10)', borderRadius: 12, gap: isMobile ? 16 : 8 }}>
                           <div>
                             <div style={{ fontWeight: 'bold', fontSize: 14, color: C.onSurface, fontFamily: F.display }}>Trading Engine</div>
                             <p style={{ fontSize: 11, color: C.onSurfaceVar, marginTop: 4, lineHeight: 1.5, margin: '4px 0 0' }}>
@@ -1092,7 +1116,7 @@ export default function Page() {
                         {/* Config Summary Grid */}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                           <h4 style={{ color: 'rgba(160,152,176,0.40)', fontFamily: F.mono, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', margin: 0 }}>Agent Configurations</h4>
-                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 16 }}>
                             {[
                               { label: 'Blockchain Network', value: config?.network ? `${config.network.toUpperCase()} (BNB Chain)` : '—' },
                               { label: 'RPC Endpoint', value: config?.rpcUrl ? `${config.rpcUrl.slice(0, 16)}…` : '—' },
@@ -1112,9 +1136,9 @@ export default function Page() {
                     </div>
 
                     {/* Right side credentials + system simulator (5 cols) */}
-                    <div style={{ gridColumn: 'span 5', display: 'flex', flexDirection: 'column', gap: 24 }}>
+                    <div style={{ gridColumn: isMobile ? 'span 12' : 'span 5', display: 'flex', flexDirection: 'column', gap: 24 }}>
                       {/* Credentials Status */}
-                      <div style={{ background: '#0d0d12', border: '1px solid rgba(255,255,255,0.10)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)', borderRadius: 16, padding: 32, display: 'flex', flexDirection: 'column', gap: 24 }}>
+                      <div style={{ background: '#0d0d12', border: '1px solid rgba(255,255,255,0.10)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)', borderRadius: 16, padding: isMobile ? 20 : 32, display: 'flex', flexDirection: 'column', gap: 24 }}>
                         <div style={{ borderBottom: '1px solid rgba(48,40,64,0.15)', paddingBottom: 16 }}>
                           <h3 style={{ color: C.onSurface, fontFamily: F.display, fontWeight: 700, fontSize: 18, margin: 0 }}>Credentials Status</h3>
                           <p style={{ color: C.onSurfaceVar, fontFamily: F.mono, fontSize: 11, margin: '4px 0 0' }}>Verifies connection status of agent keys and API endpoints</p>
@@ -1245,8 +1269,8 @@ export default function Page() {
         </section>
 
         {/* ═══════════════════════════ FOOTER ═══════════════════════════ */}
-        <footer style={{ background: C.bg, borderTop: '1px solid rgba(48,40,64,0.10)', padding: '64px 32px', position: 'relative', zIndex: 1 }}>
-          <div style={{ maxWidth: 1400, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 48 }}>
+        <footer style={{ background: C.bg, borderTop: '1px solid rgba(48,40,64,0.10)', padding: isMobile ? '40px 16px' : '64px 32px', position: 'relative', zIndex: 1 }}>
+          <div style={{ maxWidth: 1400, margin: '0 auto', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(4, 1fr)', gap: isMobile ? 32 : 48 }}>
 
             {/* Brand */}
             <div>
@@ -1292,7 +1316,7 @@ export default function Page() {
             </div>
 
             {/* Health */}
-            <div style={{ gridColumn: 'span 2' }}>
+            <div style={{ gridColumn: isMobile ? 'span 1' : 'span 2' }}>
               <h4 style={{ color: C.onSurface, fontFamily: F.mono, fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', margin: '0 0 24px' }}>System Health</h4>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
                 <div style={{ width: 8, height: 8, borderRadius: '50%', background: C.primaryFixed }} />
@@ -1304,7 +1328,7 @@ export default function Page() {
             </div>
           </div>
 
-          <div style={{ maxWidth: 1400, margin: '64px auto 0', paddingTop: 32, borderTop: '1px solid rgba(48,40,64,0.10)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ maxWidth: 1400, margin: '64px auto 0', paddingTop: 32, borderTop: '1px solid rgba(48,40,64,0.10)', display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? 16 : 32, justifyContent: 'space-between', alignItems: 'center', textAlign: isMobile ? 'center' : 'left' }}>
             <span style={{ color: 'rgba(160,152,176,0.40)', fontFamily: F.mono, fontSize: 10 }}>© 2026 NARRATIVE TRADER FOUNDATION. V1.0.4-BETA</span>
             <a href="https://x.com/ritesh5969" target="_blank" rel="noreferrer" style={{ color: C.primaryFixedDim, fontFamily: F.mono, fontSize: 10, fontWeight: 700, textDecoration: 'none' }}>Built by ritesh5969</a>
             <span style={{ color: 'rgba(160,152,176,0.40)', fontFamily: F.mono, fontSize: 10, textTransform: 'uppercase' }}>ENCRYPTED END-TO-END CONNECTION</span>
