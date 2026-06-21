@@ -1,4 +1,4 @@
-# NarrativeTrader 🤖📊
+# NarrativeTrader 
 
 NarrativeTrader is an autonomous AI-driven narrative trading agent built for the **BNB Hack: AI Trading Agent Edition** (Track 1 — Autonomous Trading Agents).
 
@@ -6,7 +6,7 @@ The agent detects emerging crypto narratives from CoinMarketCap data via the Mod
 
 ---
 
-## 🏆 DoraHacks Submission Details
+## DoraHacks Submission Details
 
 - **On-Chain Agent Address (BSC Testnet)**: `0xA273683BE2B645a174164C01c71f2d035c39E7EC`
 - **Live Demo Web Terminal**: [https://narrativetrader.onrender.com](https://narrativetrader.onrender.com)
@@ -16,7 +16,7 @@ The agent detects emerging crypto narratives from CoinMarketCap data via the Mod
 
 ---
 
-## 🏗️ Architecture & Flow
+## Architecture & Flow
 
 ```mermaid
 graph TD
@@ -69,7 +69,7 @@ graph TD
 
 ---
 
-## ⚙️ Setup Instructions
+## Setup Instructions
 
 ### 1. Prerequisites
 - Node.js (v18 or higher)
@@ -103,7 +103,7 @@ Fill out the variables inside `.env`:
 
 ---
 
-## 🔧 Helper Scripts & Utilities
+## Helper Scripts & Utilities
 
 Located in the root and the `scratch/` folder to simplify on-chain onboarding and testing:
 1. **`npm run approve` (runs [`approveUSDC.ts`](file:///Users/ritesh/.gemini/antigravity-ide/scratch/narrativetrader/approveUSDC.ts))**: Send a one-time transaction to approve USDC for the PancakeSwap Router on behalf of the agent wallet.
@@ -123,7 +123,7 @@ To allow judges to run and evaluate NarrativeTrader instantly without needing a 
 
 ---
 
-## 🚀 Running the Project
+## Running the Project
 
 ### Run Agent and Frontend Concurrently (Production / Deployment Setup)
 Spins up both the recurring agent loops and the Next.js production server simultaneously:
@@ -148,7 +148,7 @@ npm run build
 
 ---
 
-## 📂 Logs & Persistence
+## Logs & Persistence
 
 The agent saves its runtime status in two files located under the `logs/` directory:
 1. **`logs/portfolio.json`**: Tracks the live portfolio state (current cash, peak value, open positions, average entry prices, and transaction history).
