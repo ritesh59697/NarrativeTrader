@@ -11,6 +11,7 @@ The agent detects emerging crypto narratives from CoinMarketCap data via the Mod
 - **On-Chain Agent Address (BSC Testnet)**: `0xA273683BE2B645a174164C01c71f2d035c39E7EC`
 - **Live Demo Web Terminal**: [https://narrativetrader.onrender.com](https://narrativetrader.onrender.com)
 - **Live Terminal Dashboard**: [https://narrativetrader.onrender.com/dashboard](https://narrativetrader.onrender.com/dashboard)
+- **Demo Video**: [https://youtu.be/V6IKY1qpPKw](https://youtu.be/V6IKY1qpPKw)
 - **Track**: Track 1 — Autonomous Trading Agents
 
 ---
