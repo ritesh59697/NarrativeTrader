@@ -36,7 +36,7 @@ async function main() {
   });
 
   console.log(`Wallet Address: ${account.address}`);
-  console.log('Swapping 0.05 BNB for USDC...');
+  console.log('Swapping 0.01 BNB for USDC...');
 
   const deadline = BigInt(Math.floor(Date.now() / 1000) + 60 * 20); // 20 mins
   
@@ -51,7 +51,7 @@ async function main() {
         account.address,
         deadline
       ],
-      value: 50n * 10n**15n // 0.05 BNB
+      value: 10n * 10n**15n // 0.01 BNB
     });
 
     console.log(`Swap successful! Transaction Hash: ${hash}`);
