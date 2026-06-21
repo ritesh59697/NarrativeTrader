@@ -415,9 +415,15 @@ export default function Page() {
     .slice(0, 10);
 
   const chartBars = (() => {
+    const defaultHeights = [40, 35, 55, 45, 70, 65, 85, 100];
     const last8 = [...cycles].slice(-8);
-    if (!last8.length) return [40, 35, 55, 45, 70, 65, 85, 100].map((h, i) => ({ h, i }));
-    return last8.map((c, i) => ({ h: Math.max(10, ((normalizeScore(c) ?? 5) / 10) * 100), i }));
+    const result = last8.map((c, i) => ({ h: Math.max(10, ((normalizeScore(c) ?? 5) / 10) * 100), i }));
+    
+    while (result.length < 8) {
+      const idx = 8 - result.length - 1;
+      result.unshift({ h: defaultHeights[idx], i: -result.length });
+    }
+    return result;
   })();
 
   const decisionBadge: Record<string, { bg: string; color: string; border: string }> = {
