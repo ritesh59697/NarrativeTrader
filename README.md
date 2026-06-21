@@ -1,8 +1,8 @@
 # NarrativeTrader 🤖
 
-NarrativeTrader is an autonomous AI-driven narrative trading agent built for the **BNB Hack: AI Trading Agent Edition** (Track 1 — Autonomous Trading Agents).
+NarrativeTrader is an autonomous AI-driven narrative trading agent built for the **BNB Hack: AI Trading Agent Edition** (Track 1 - Autonomous Trading Agents)
 
-The agent detects emerging crypto narratives from CoinMarketCap data via the Model Context Protocol (MCP), scores them qualitatively using a dual-LLM fallback chain (Groq + Gemini), performs quantitative position sizing using the Kelly Criterion with strict risk management, and executes spot buy/sell swaps on PancakeSwap (BSC Testnet) via the BNB Agent SDK and Trust Wallet Agent Kit (TWAK).
+The agent detects emerging crypto narratives from CoinMarketCap data via the Model Context Protocol (MCP), scores them qualitatively using a dual-LLM fallback chain (Groq + Gemini), performs quantitative position sizing using the Kelly Criterion with strict risk management, and executes spot buy/sell swaps on PancakeSwap (BSC Testnet) via the BNB Agent SDK and Trust Wallet Agent Kit (TWAK)
 
 ---
 
