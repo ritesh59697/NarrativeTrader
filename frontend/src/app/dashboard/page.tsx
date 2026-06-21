@@ -263,6 +263,8 @@ const CopyButton = ({ text }: { text: string }) => {
 
 export default function Page() {
   const [activeTab, setActiveTab] = useState<'Dashboard' | 'Positions' | 'Trade History' | 'Agent Config'>('Dashboard');
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showTerminalModal, setShowTerminalModal] = useState(false);
   const [cycles, setCycles] = useState<CycleLog[]>([]);
   const [portfolio, setPortfolio] = useState<PortfolioData | null>(null);
   const [config, setConfig] = useState<{
@@ -466,8 +468,122 @@ export default function Page() {
                   style={{ background: 'transparent', border: 'none', outline: 'none', color: C.onSurface, fontFamily: F.mono, fontSize: 10, width: '100%' }}
                 />
               </div>
-              <div style={{ display: 'flex', gap: 16, color: 'rgba(160,152,176,0.60)' }}>
-                <Icon.Bell /><Icon.Terminal />
+              <div style={{ display: 'flex', gap: 16, color: 'rgba(160,152,176,0.60)', position: 'relative' }}>
+                <button
+                  onClick={() => {
+                    setShowNotifications(!showNotifications);
+                    setShowTerminalModal(false);
+                  }}
+                  style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center' }}
+                  title="Notifications"
+                >
+                  <Icon.Bell />
+                </button>
+                <button
+                  onClick={() => {
+                    setShowTerminalModal(!showTerminalModal);
+                    setShowNotifications(false);
+                  }}
+                  style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center' }}
+                  title="Terminal Logs"
+                >
+                  <Icon.Terminal />
+                </button>
+
+                {showNotifications && (
+                  <div style={{
+                    position: 'absolute',
+                    top: 36,
+                    right: 40,
+                    width: 320,
+                    background: '#0d0d12',
+                    border: '1px solid rgba(255, 255, 255, 0.10)',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+                    borderRadius: 12,
+                    padding: 16,
+                    zIndex: 1000,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 12
+                  }}>
+                    <div style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: C.onSurface }}>Notifications</span>
+                      <button onClick={() => setShowNotifications(false)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', fontSize: 10, cursor: 'pointer' }}>Close</button>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxHeight: 200, overflowY: 'auto' }}>
+                      {[
+                        { title: "System Operational", desc: "Agent successfully initialized on BSC Testnet.", time: "1m ago" },
+                        { title: "Trade Confirmed", desc: "Successfully swapped 0.80 USDC for 0.372 VIRTUAL.", time: "7m ago" },
+                        { title: "Risk Check Passed", desc: "Bypassed cooldown check using BYPASS_COOLDOWN.", time: "7m ago" },
+                        { title: "Wallet Connected", desc: "RainbowKit wallet connected.", time: "15m ago" }
+                      ].map((n, i) => (
+                        <div key={i} style={{ fontSize: 11, padding: 8, borderRadius: 6, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', textAlign: 'left' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 600, color: C.onSurface }}>
+                            <span>{n.title}</span>
+                            <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 9 }}>{n.time}</span>
+                          </div>
+                          <p style={{ margin: '4px 0 0', color: C.onSurfaceVar, lineHeight: 1.3 }}>{n.desc}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {showTerminalModal && (
+                  <div style={{
+                    position: 'absolute',
+                    top: 36,
+                    right: 0,
+                    width: 420,
+                    background: '#0a0a0e',
+                    border: '1px solid rgba(255, 255, 255, 0.10)',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
+                    borderRadius: 12,
+                    padding: 16,
+                    zIndex: 1000,
+                    fontFamily: F.mono,
+                    fontSize: 10,
+                    color: '#a9b1d6',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 12
+                  }}>
+                    <div style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: C.onSurface }}>Agent Terminal Log</span>
+                      <button onClick={() => setShowTerminalModal(false)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', fontSize: 10, cursor: 'pointer', fontFamily: F.mono }}>Close</button>
+                    </div>
+                    <div style={{
+                      background: '#030305',
+                      padding: 12,
+                      borderRadius: 8,
+                      maxHeight: 250,
+                      overflowY: 'auto',
+                      border: '1px solid rgba(255,255,255,0.04)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 6,
+                      textAlign: 'left'
+                    }}>
+                      <div style={{ color: '#41a1f0' }}>ritesh@RITESH-M4 narrativetrader % npm run agent</div>
+                      <div>🔥 NarrativeTrader Agent Initializing...</div>
+                      <div style={{ color: '#89ddff' }}>   - Network: TESTNET</div>
+                      <div style={{ color: '#89ddff' }}>   - Configured Portfolio Value: $8 USDC</div>
+                      <div>=====================================================</div>
+                      <div>[Step 1] Fetching signals from CoinMarketCap...</div>
+                      <div style={{ color: '#c3e88d' }}>[MCP] Calling tool: trending_crypto_narratives...</div>
+                      <div style={{ color: '#c3e88d' }}>[MCP] Calling tool: get_crypto_latest_news...</div>
+                      <div>[Step 2] Updating position valuations...</div>
+                      <div>[Step 3] Scoring narratives via Groq...</div>
+                      <div style={{ color: '#ffcb6b' }}>[Scorer] Narrative scored 8/10. Decided: BUY $0.80 of VIRTUAL.</div>
+                      <div style={{ color: '#c3e88d' }}>[Step 4] Verifying risk compliance for VIRTUAL...</div>
+                      <div style={{ color: '#c3e88d' }}>[Risk] Risk check passed! (BYPASS_COOLDOWN=true)</div>
+                      <div>[Execution] Initiating PancakeSwap swap on BSC Testnet...</div>
+                      <div style={{ color: '#f07178' }}>[Execution] Signed tx: 0x137b49...</div>
+                      <div style={{ color: '#c3e88d' }}>[Execution] Swap confirmed! Transaction complete.</div>
+                      <div style={{ color: '#89ddff' }}>[NarrativeTrader] Cycle completed with SUCCESS.</div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -1087,9 +1203,25 @@ export default function Page() {
                 Next-generation institutional trading infrastructure powered by advanced Llama-3 inference and narrative-aware liquidity routing.
               </p>
               <div style={{ display: 'flex', gap: 16 }}>
-                {[<Icon.Share key="s" />, <Icon.Code key="c" />].map((icon, i) => (
-                  <a key={i} href="#" style={{ width: 32, height: 32, borderRadius: '50%', border: `1px solid rgba(48,40,64,0.20)`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.onSurfaceVar, textDecoration: 'none' }}>{icon}</a>
-                ))}
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText('https://narrativetrader.onrender.com/');
+                    alert('Copied platform URL to clipboard!');
+                  }}
+                  style={{ width: 32, height: 32, borderRadius: '50%', border: `1px solid rgba(48,40,64,0.20)`, background: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.onSurfaceVar, textDecoration: 'none', cursor: 'pointer' }}
+                  title="Share Platform Link"
+                >
+                  <Icon.Share />
+                </button>
+                <a
+                  href="https://github.com/ritesh59697/NarrativeTrader"
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ width: 32, height: 32, borderRadius: '50%', border: `1px solid rgba(48,40,64,0.20)`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.onSurfaceVar, textDecoration: 'none' }}
+                  title="GitHub Repository"
+                >
+                  <Icon.Code />
+                </a>
               </div>
             </div>
 
