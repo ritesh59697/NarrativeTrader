@@ -19,6 +19,7 @@ export interface TradeRecord {
   amount: number;
   price: number;
   valueUSDC: number;
+  txHash?: string;
 }
 
 export interface PortfolioState {
@@ -207,7 +208,8 @@ export class RiskGuard {
     token: string,
     address: string,
     price: number,
-    valueUSDC: number
+    valueUSDC: number,
+    txHash?: string
   ): void {
     const amount = valueUSDC / price;
     const record: TradeRecord = {
@@ -217,7 +219,8 @@ export class RiskGuard {
       address,
       amount: Number(amount.toFixed(6)),
       price,
-      valueUSDC
+      valueUSDC,
+      txHash
     };
 
     this.state.tradesHistory.push(record);

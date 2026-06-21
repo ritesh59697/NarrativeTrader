@@ -60,6 +60,7 @@ interface TradeRecord {
   amount: number;
   price: number;
   valueUSDC: number;
+  txHash?: string;
 }
 
 interface PortfolioData {
@@ -866,7 +867,7 @@ export default function Page() {
                                     <td style={{ padding: '16px', color: C.onSurfaceVar }}>{trade.amount.toLocaleString(undefined, { maximumFractionDigits: 5 })}</td>
                                     <td style={{ padding: '16px', textAlign: 'right' }}>
                                       <a
-                                        href={`https://testnet.bscscan.com/address/${trade.address}`}
+                                        href={trade.txHash ? `https://testnet.bscscan.com/tx/${trade.txHash}` : `https://testnet.bscscan.com/address/${trade.address}`}
                                         target="_blank"
                                         rel="noreferrer"
                                         style={{ color: C.primaryFixed, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4 }}

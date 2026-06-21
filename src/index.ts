@@ -200,7 +200,8 @@ async function agentLoop() {
             decision.token,
             decision.tokenAddress,
             tokenPrice,
-            decision.positionSizeUSDC
+            decision.positionSizeUSDC,
+            result.txHash
           );
 
           console.log(`✅ [NarrativeTrader] Cycle completed with SUCCESS. Position opened for ${decision.token}.`);
