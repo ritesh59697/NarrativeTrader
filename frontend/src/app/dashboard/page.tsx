@@ -868,9 +868,9 @@ export default function Page() {
                             </div>
                           ))}
                         </div>
-                        <div style={{ marginTop: 24, padding: 16, borderRadius: 12, background: 'rgba(255,45,120,0.05)', border: `1px solid rgba(255,224,236,0.10)`, maxHeight: 150, overflowY: 'auto' }}>
-                          <p style={{ margin: 0, fontSize: 11, color: C.onSurfaceVar, lineHeight: 1.6, wordBreak: 'break-word' }}>
-                            <span style={{ color: C.primaryFixed, fontFamily: F.mono, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 4 }}>AI Recommendation:</span>
+                        <div style={{ marginTop: 24, padding: isMobile ? 16 : 20, borderRadius: 12, background: 'rgba(255,45,120,0.07)', border: `1px solid rgba(255,45,120,0.18)`, maxHeight: isMobile ? 200 : 250, overflowY: 'auto' }}>
+                          <p style={{ margin: 0, fontSize: 12, color: C.onSurfaceVar, lineHeight: 1.6, wordBreak: 'break-word' }}>
+                            <span style={{ color: C.primaryFixed, fontFamily: F.mono, fontWeight: 700, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 6 }}>AI Recommendation:</span>
                             {(() => {
                               if (!cycles.length) return "No recommendations available yet. Start the agent to initiate narrative scans.";
                               const lastCycle = cycles[cycles.length - 1];
