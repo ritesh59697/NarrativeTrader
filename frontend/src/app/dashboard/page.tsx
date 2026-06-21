@@ -544,7 +544,7 @@ export default function Page() {
                     <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 24 }}>
 
                       {/* TVL */}
-                      <div style={{ background: 'rgba(14,14,15,0.70)', backdropFilter: 'blur(40px)', border: '1px solid rgba(255,255,255,0.03)', borderRadius: 16, padding: 32 }}>
+                      <div style={{ background: '#0d0d12', border: '1px solid rgba(255,255,255,0.10)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)', borderRadius: 16, padding: 32 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 48 }}>
                           <div>
                             <span style={{ color: C.onSurfaceVar, fontFamily: F.mono, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em' }}>Total Value Locked (Institutional)</span>
@@ -574,7 +574,7 @@ export default function Page() {
                       </div>
 
                       {/* Engine */}
-                      <div style={{ background: 'rgba(14,14,15,0.70)', backdropFilter: 'blur(40px)', border: '1px solid rgba(255,255,255,0.03)', borderRadius: 16, padding: 32 }}>
+                      <div style={{ background: '#0d0d12', border: '1px solid rgba(255,255,255,0.10)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)', borderRadius: 16, padding: 32 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
                           <span style={{ color: C.onSurfaceVar, fontFamily: F.mono, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em' }}>Engine Status</span>
                           <span style={{ color: C.primaryFixed }}><Icon.AutoRenew /></span>
@@ -609,7 +609,7 @@ export default function Page() {
                     <div style={{ display: 'grid', gridTemplateColumns: '7fr 5fr', gap: 24 }}>
 
                       {/* Live Logs */}
-                      <div style={{ background: 'rgba(14,14,15,0.70)', backdropFilter: 'blur(40px)', border: '1px solid rgba(255,255,255,0.03)', borderRadius: 16, display: 'flex', flexDirection: 'column', height: 500, overflow: 'hidden' }}>
+                      <div style={{ background: '#0d0d12', border: '1px solid rgba(255,255,255,0.10)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)', borderRadius: 16, display: 'flex', flexDirection: 'column', height: 500, overflow: 'hidden' }}>
                         <div style={{ padding: '16px 24px', borderBottom: '1px solid rgba(48,40,64,0.10)', background: 'rgba(20,20,34,0.30)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                             <span style={{ color: C.primaryFixed }}><Icon.ListAlt /></span>
@@ -652,7 +652,7 @@ export default function Page() {
                       </div>
 
                       {/* Sector Allocation */}
-                      <div style={{ background: 'rgba(14,14,15,0.70)', backdropFilter: 'blur(40px)', border: '1px solid rgba(255,255,255,0.03)', borderRadius: 16, padding: 32, height: 500, display: 'flex', flexDirection: 'column' }}>
+                      <div style={{ background: '#0d0d12', border: '1px solid rgba(255,255,255,0.10)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)', borderRadius: 16, padding: 32, height: 500, display: 'flex', flexDirection: 'column' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32 }}>
                           <span style={{ fontFamily: F.mono, fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Sector Allocation</span>
                           <span style={{ color: C.onSurfaceVar }}><Icon.PieChart /></span>
@@ -688,7 +688,7 @@ export default function Page() {
                 )}
 
                 {activeTab === 'Positions' && (
-                  <div style={{ background: 'rgba(14,14,15,0.70)', backdropFilter: 'blur(40px)', border: '1px solid rgba(255,255,255,0.03)', borderRadius: 16, padding: 32 }}>
+                  <div style={{ background: '#0d0d12', border: '1px solid rgba(255,255,255,0.10)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)', borderRadius: 16, padding: 32 }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(48,40,64,0.15)', paddingBottom: 16, marginBottom: 24 }}>
                       <div>
                         <h3 style={{ color: C.onSurface, fontFamily: F.display, fontWeight: 700, fontSize: 18, margin: 0 }}>Active Positions</h3>
@@ -790,7 +790,7 @@ export default function Page() {
                 )}
 
                 {activeTab === 'Trade History' && (
-                  <div style={{ background: 'rgba(14,14,15,0.70)', backdropFilter: 'blur(40px)', border: '1px solid rgba(255,255,255,0.03)', borderRadius: 16, padding: 32 }}>
+                  <div style={{ background: '#0d0d12', border: '1px solid rgba(255,255,255,0.10)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)', borderRadius: 16, padding: 32 }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(48,40,64,0.15)', paddingBottom: 16, marginBottom: 24 }}>
                       <div>
                         <h3 style={{ color: C.onSurface, fontFamily: F.display, fontWeight: 700, fontSize: 18, margin: 0 }}>Execution Logs</h3>
@@ -889,7 +889,7 @@ export default function Page() {
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: 24 }}>
                     {/* Left side config (7 cols) */}
                     <div style={{ gridColumn: 'span 7', display: 'flex', flexDirection: 'column', gap: 24 }}>
-                      <div style={{ background: 'rgba(14,14,15,0.70)', backdropFilter: 'blur(40px)', border: '1px solid rgba(255,255,255,0.03)', borderRadius: 16, padding: 32, display: 'flex', flexDirection: 'column', gap: 24 }}>
+                      <div style={{ background: '#0d0d12', border: '1px solid rgba(255,255,255,0.10)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)', borderRadius: 16, padding: 32, display: 'flex', flexDirection: 'column', gap: 24 }}>
                         <div style={{ borderBottom: '1px solid rgba(48,40,64,0.15)', paddingBottom: 16 }}>
                           <h3 style={{ color: C.onSurface, fontFamily: F.display, fontWeight: 700, fontSize: 18, margin: 0 }}>Control Panel</h3>
                           <p style={{ color: C.onSurfaceVar, fontFamily: F.mono, fontSize: 11, margin: '4px 0 0' }}>Toggle live trading states and inspect agent configuration</p>
@@ -940,7 +940,7 @@ export default function Page() {
                     {/* Right side credentials + system simulator (5 cols) */}
                     <div style={{ gridColumn: 'span 5', display: 'flex', flexDirection: 'column', gap: 24 }}>
                       {/* Credentials Status */}
-                      <div style={{ background: 'rgba(14,14,15,0.70)', backdropFilter: 'blur(40px)', border: '1px solid rgba(255,255,255,0.03)', borderRadius: 16, padding: 32, display: 'flex', flexDirection: 'column', gap: 24 }}>
+                      <div style={{ background: '#0d0d12', border: '1px solid rgba(255,255,255,0.10)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)', borderRadius: 16, padding: 32, display: 'flex', flexDirection: 'column', gap: 24 }}>
                         <div style={{ borderBottom: '1px solid rgba(48,40,64,0.15)', paddingBottom: 16 }}>
                           <h3 style={{ color: C.onSurface, fontFamily: F.display, fontWeight: 700, fontSize: 18, margin: 0 }}>Credentials Status</h3>
                           <p style={{ color: C.onSurfaceVar, fontFamily: F.mono, fontSize: 11, margin: '4px 0 0' }}>Verifies connection status of agent keys and API endpoints</p>
@@ -964,7 +964,7 @@ export default function Page() {
                       </div>
 
                       {/* System Simulator */}
-                      <div style={{ background: 'rgba(14,14,15,0.70)', backdropFilter: 'blur(40px)', border: '1px solid rgba(255,255,255,0.03)', borderRadius: 16, padding: 32, display: 'flex', flexDirection: 'column', gap: 24 }}>
+                      <div style={{ background: '#0d0d12', border: '1px solid rgba(255,255,255,0.10)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)', borderRadius: 16, padding: 32, display: 'flex', flexDirection: 'column', gap: 24 }}>
                         <div style={{ borderBottom: '1px solid rgba(48,40,64,0.15)', paddingBottom: 16 }}>
                           <h3 style={{ color: C.onSurface, fontFamily: F.display, fontWeight: 700, fontSize: 18, margin: 0 }}>System Simulator</h3>
                           <p style={{ color: C.onSurfaceVar, fontFamily: F.mono, fontSize: 11, margin: '4px 0 0' }}>Manually trigger and inspect a dry-run narrative assessment</p>
